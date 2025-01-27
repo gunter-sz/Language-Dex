@@ -265,18 +265,18 @@ export default function DefinitionEditor(props: Props) {
               userData.activeDictionary,
               props.lowerCaseWord
             );
-          }
 
-          // update statistics
-          setUserData((userData) => {
-            userData = updateStatistics(userData, (stats) => {
-              if (stats.definitions != undefined) {
-                stats.definitions -= 1;
-              }
+            // update statistics
+            setUserData((userData) => {
+              userData = updateStatistics(userData, (stats) => {
+                if (stats.definitions != undefined) {
+                  stats.definitions -= 1;
+                }
+              });
+
+              return userData;
             });
-
-            return userData;
-          });
+          }
 
           setDeleteRequested(false);
           router.back();
