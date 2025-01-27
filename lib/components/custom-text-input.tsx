@@ -1,11 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Keyboard,
-  StyleProp,
-  TextInput,
-  TextInputProps,
-  TextStyle,
-} from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Keyboard, TextInput, TextInputProps } from "react-native";
 import { useTheme } from "@/lib/contexts/theme";
 
 export default function CustomTextInput(props: TextInputProps) {

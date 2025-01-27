@@ -59,11 +59,11 @@ export default function DictionaryDropdown({
           updatedData.dictionaries = list;
           setUserData(updatedData);
         }}
-        onAdd={() => {
+        onAdd={(name) => {
           const updatedData = { ...userData };
           updatedData.dictionaries = [...updatedData.dictionaries];
           updatedData.dictionaries.push({
-            name: t("New"),
+            name,
             id: updatedData.nextDictionaryId++,
             partsOfSpeech: [],
             nextPartOfSpeechId: 0,

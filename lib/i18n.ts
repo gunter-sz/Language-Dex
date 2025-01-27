@@ -66,7 +66,6 @@ i18n
           Example: "Example",
           Notes: "Notes",
 
-          new: "new",
           New: "New",
 
           // dialogs

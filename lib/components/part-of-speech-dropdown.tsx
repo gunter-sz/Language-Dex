@@ -66,13 +66,13 @@ export default function PartOfSpeechDropdown({
 
           setUserData(updatedData);
         }}
-        onAdd={() => {
+        onAdd={(name) => {
           const [updatedData, updatedDictionary] =
             prepareDictionaryUpdate(userData);
 
           const id = updatedDictionary.nextPartOfSpeechId++;
           updatedDictionary.partsOfSpeech =
-            updatedDictionary.partsOfSpeech.concat({ id, name: t("new") });
+            updatedDictionary.partsOfSpeech.concat({ id, name });
 
           setUserData(updatedData);
         }}

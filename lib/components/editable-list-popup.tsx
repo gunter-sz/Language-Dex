@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   StyleSheet,
@@ -7,6 +7,7 @@ import {
   TextStyle,
   StyleProp,
   ViewStyle,
+  FlatList,
 } from "react-native";
 import {
   CancelEditIcon,
@@ -38,7 +39,7 @@ type Props<T> = {
   keyExtractor: (item: T) => string;
   addItemText?: string;
   onRename?: (item: T, name: string) => void;
-  onAdd?: () => void;
+  onAdd?: (name: string) => void;
   onDelete?: (item: T) => void;
 } & (
   | {
@@ -60,23 +61,24 @@ type EditableRowProps = {
 
 function EditableRow({ theme, text, onRename, onDelete }: EditableRowProps) {
   const drag = useReorderableDrag();
-  const [renaming, setRenaming] = useState<{ pending?: string } | null>(null);
+  const [renaming, setRenaming] = useState(false);
+  const renamingRef = useRef<string>("");
   const [currentText, setCurrentText] = useState(text);
 
   useEffect(() => {
     if (text != currentText) {
       setCurrentText(text);
-      setRenaming(null);
+      renamingRef.current = "";
     }
   }, [text]);
 
   useEffect(() => {
     return () => {
-      if (renaming && renaming.pending != undefined && renaming.pending != "") {
-        onRename?.(renaming.pending);
+      if (renamingRef.current != "") {
+        onRename?.(renamingRef.current);
       }
     };
-  }, [renaming]);
+  }, []);
 
   return (
     <View style={styles.rowStyle}>
@@ -91,12 +93,14 @@ function EditableRow({ theme, text, onRename, onDelete }: EditableRowProps) {
             style={[styles.renameInput, styles.textInput]}
             onChangeText={(text) => {
               setCurrentText(text);
-              renaming.pending = text;
+              renamingRef.current = text;
             }}
             onBlur={() => {
-              if (currentText != "") onRename(currentText);
-              renaming.pending = undefined;
-              setRenaming(null);
+              if (currentText != "") {
+                onRename(currentText);
+                renamingRef.current = "";
+              }
+              setRenaming(false);
             }}
             value={currentText}
           />
@@ -104,7 +108,7 @@ function EditableRow({ theme, text, onRename, onDelete }: EditableRowProps) {
           <Pressable
             style={styles.renameInput}
             android_ripple={theme.ripples.transparentButton}
-            onPress={() => setRenaming({})}
+            onPress={() => setRenaming(true)}
           >
             <Span>{text}</Span>
             {/* <TextboxIcon size={24} color={theme.colors.iconButton} /> */}
@@ -117,6 +121,72 @@ function EditableRow({ theme, text, onRename, onDelete }: EditableRowProps) {
       )}
 
       {onDelete && <IconButton icon={TrashIcon} onPress={onDelete} />}
+    </View>
+  );
+}
+
+type BlurProps = {
+  onBlur: () => void;
+};
+
+function EditableRowDummy({
+  text,
+  onRename,
+  onDelete,
+  onBlur,
+}: EditableRowProps & BlurProps) {
+  const [currentText, setCurrentText] = useState(text);
+
+  return (
+    <View style={styles.rowStyle}>
+      <View style={styles.drag}>
+        <DragVerticalIcon size={24} />
+      </View>
+
+      <CustomTextInput
+        autoFocus
+        style={[styles.renameInput, styles.textInput]}
+        onChangeText={(text) => {
+          setCurrentText(text);
+        }}
+        onBlur={() => {
+          if (currentText != "") {
+            onRename?.(currentText);
+          }
+          onBlur();
+        }}
+        value={currentText}
+      />
+
+      {onDelete && <IconButton icon={TrashIcon} onPress={onDelete} />}
+    </View>
+  );
+}
+
+type RowDummyProps = {
+  text: string;
+  onRename?: (name: string) => void;
+} & BlurProps;
+
+function RowDummy({ text, onRename, onBlur }: RowDummyProps) {
+  const [currentText, setCurrentText] = useState(text);
+
+  return (
+    <View style={styles.rowStyle}>
+      <CustomTextInput
+        autoFocus
+        style={[styles.plainItem, styles.textInput]}
+        onChangeText={(text) => {
+          setCurrentText(text);
+        }}
+        onBlur={() => {
+          if (currentText != "") {
+            onRename?.(currentText);
+          }
+          onBlur();
+        }}
+        value={currentText}
+      />
     </View>
   );
 }
@@ -140,6 +210,9 @@ export default function EditableListPopup<T>({
   const theme = useTheme();
   const [editing, setEditing] = useState(false);
   const [open, setOpen] = useState(false);
+  const [addingItem, setAddingItem] = useState(false);
+  const reorderableListRef = useRef<FlatList<T> | null>(null);
+  const virtualListRef = useRef<VirtualizedList<T> | null>(null);
 
   return (
     <>
@@ -171,6 +244,7 @@ export default function EditableListPopup<T>({
 
         {editing ? (
           <ReorderableList
+            ref={reorderableListRef}
             ListHeaderComponent={
               defaultItemText != undefined ? (
                 <View style={styles.rowStyle}>
@@ -181,6 +255,22 @@ export default function EditableListPopup<T>({
                 </View>
               ) : undefined
             }
+            ListFooterComponent={
+              addingItem ? (
+                <EditableRowDummy
+                  theme={theme}
+                  text=""
+                  onRename={onAdd && ((name) => onAdd(name))}
+                  onDelete={onDelete && (() => {})}
+                  onBlur={() => setAddingItem(false)}
+                />
+              ) : undefined
+            }
+            onLayout={() => {
+              if (addingItem) {
+                reorderableListRef.current?.scrollToEnd();
+              }
+            }}
             data={list}
             onReorder={({ from, to }) => {
               const newList = reorderItems(list, from, to);
@@ -199,6 +289,7 @@ export default function EditableListPopup<T>({
           />
         ) : (
           <VirtualizedList
+            ref={virtualListRef}
             ListHeaderComponent={
               defaultItemText != undefined ? (
                 <Pressable
@@ -213,6 +304,20 @@ export default function EditableListPopup<T>({
                 </Pressable>
               ) : undefined
             }
+            ListFooterComponent={
+              addingItem ? (
+                <RowDummy
+                  text=""
+                  onRename={onAdd && ((name) => onAdd(name))}
+                  onBlur={() => setAddingItem(false)}
+                />
+              ) : undefined
+            }
+            onLayout={() => {
+              if (addingItem) {
+                virtualListRef.current?.scrollToEnd();
+              }
+            }}
             data={list}
             getItem={(_, i) => list[i]}
             renderItem={({ item }) => (
@@ -239,7 +344,9 @@ export default function EditableListPopup<T>({
             <Pressable
               style={styles.rowStyle}
               android_ripple={theme.ripples.transparentButton}
-              onPress={() => onAdd?.()}
+              onPress={() => {
+                setAddingItem(true);
+              }}
             >
               <Span style={styles.addItem}>{addItemText}</Span>
             </Pressable>
