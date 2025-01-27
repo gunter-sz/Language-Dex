@@ -7,7 +7,8 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useTheme } from "../contexts/theme";
-import { BackHandler, Pressable, StyleSheet } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
+import useBackHandler from "../hooks/use-back-handler";
 
 type Props = {
   open: boolean;
@@ -24,22 +25,11 @@ export default function Dialog({ open, onClose, children }: Props) {
   const progress = useSharedValue(0);
   const closing = useSharedValue(false);
 
-  useEffect(() => {
-    if (!open) {
-      return;
+  useBackHandler(() => {
+    if (open) {
+      onClose();
+      return true;
     }
-
-    const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      () => {
-        if (open) {
-          onClose();
-          return true;
-        }
-      }
-    );
-
-    return () => backHandler.remove();
   }, [open]);
 
   useEffect(() => {
