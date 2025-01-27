@@ -180,7 +180,7 @@ export default function Dictionary() {
         getItemCount={getRowCount}
         getItem={getRowWords}
         keyExtractor={(_, i) => String(i)}
-        renderItem={({ item }) => <WordRow item={item}></WordRow>}
+        renderItem={({ item }) => <WordRow item={item} />}
       />
 
       <View style={styles.optionsRows}>

@@ -50,7 +50,7 @@ function CustomBackdrop(props: BottomSheetBackdropProps) {
 const handleStyle = { height: 16 };
 
 function CustomHandle() {
-  return <View style={handleStyle}></View>;
+  return <View style={handleStyle} />;
 }
 
 export default function BottomListPopup<T>({

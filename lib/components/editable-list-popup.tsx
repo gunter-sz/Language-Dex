@@ -234,7 +234,7 @@ export default function EditableListPopup<T>({
 
         {addItemText != undefined && (
           <>
-            <View style={theme.styles.separator}></View>
+            <View style={theme.styles.separator} />
 
             <Pressable
               style={styles.rowStyle}
