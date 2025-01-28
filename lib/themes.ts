@@ -11,7 +11,6 @@ export type Theme = {
     root: ViewStyle;
     text: TextStyle;
     disabledText: TextStyle;
-    inputLabel: TextStyle;
     poppingText: TextStyle;
     dialog: ViewStyle;
     bottomSheet: ViewStyle;
@@ -86,10 +85,6 @@ function createSimpleTheme(colors: Palette): Theme {
       },
       disabledText: {
         color: colors.disabledText,
-      },
-      inputLabel: {
-        fontSize: 14,
-        color: colors.label,
       },
       poppingText: {
         color: colors.primary.default,

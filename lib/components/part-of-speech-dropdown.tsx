@@ -38,7 +38,7 @@ export default function PartOfSpeechDropdown({
         name={t("Part_of_Speech")}
         label={
           dictionary.partsOfSpeech.find((item) => item.id == value)?.name ??
-          t("unknown")
+          t("Part_of_Speech")
         }
         style={style}
         labelStyle={labelStyle}

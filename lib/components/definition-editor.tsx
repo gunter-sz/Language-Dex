@@ -5,9 +5,16 @@ import CustomTextInput, {
   CustomMultilineTextInput,
 } from "@/lib/components/custom-text-input";
 import { useTranslation } from "react-i18next";
-import { Span } from "@/lib/components/text";
 import { StyleSheet, View } from "react-native";
-import { ArrowLeftIcon, SaveIcon, TrashIcon } from "@/lib/components/icons";
+import {
+  ArrowLeftIcon,
+  DefinitionIcon,
+  ExampleIcon,
+  NotesIcon,
+  PartOfSpeechIcon,
+  SaveIcon,
+  TrashIcon,
+} from "@/lib/components/icons";
 import { SubMenuIconButton } from "@/lib/components/icon-button";
 import { ScrollView } from "react-native-gesture-handler";
 import {
@@ -87,8 +94,6 @@ export default function DefinitionEditor(props: Props) {
       return true;
     }
   }, [hasPendingChanges]);
-
-  const inputLabelStyles = [theme.styles.inputLabel, styles.inputLabel];
 
   return (
     <>
@@ -189,62 +194,84 @@ export default function DefinitionEditor(props: Props) {
       <View style={theme.styles.separator} />
 
       <ScrollView style={theme.styles.definitionBackground}>
-        <Span style={inputLabelStyles}>{t("label", { label: t("Word") })}</Span>
-        <CustomTextInput
-          style={styles.textInput}
-          value={spelling}
-          onChangeText={setSpelling}
-        />
+        <View style={styles.row}>
+          <CustomTextInput
+            style={[styles.textInput, styles.word]}
+            placeholder={t("word")}
+            value={spelling}
+            onChangeText={setSpelling}
+          />
+        </View>
 
         <View style={theme.styles.separator} />
 
-        <Span style={inputLabelStyles}>
-          {t("label", { label: t("Part_of_Speech") })}
-        </Span>
-        <PartOfSpeechDropdown
-          labelStyle={styles.textInput}
-          value={partOfSpeech}
-          onChange={setPartOfSpeech}
-        />
+        <View style={styles.row}>
+          <PartOfSpeechIcon
+            style={styles.iconLabel}
+            color={theme.colors.iconButton}
+            size={32}
+          />
+          <PartOfSpeechDropdown
+            style={styles.input}
+            labelStyle={styles.textInput}
+            value={partOfSpeech}
+            onChange={setPartOfSpeech}
+          />
+        </View>
 
         <View style={theme.styles.separator} />
 
-        <Span style={inputLabelStyles}>
-          {t("label", { label: t("Definition") })}
-        </Span>
-        <CustomMultilineTextInput
-          style={[styles.textInput]}
-          verticalPadding={styles.textInput.paddingVertical}
-          minHeight={128}
-          value={definition}
-          onChangeText={setDefinition}
-        />
+        <View style={styles.row}>
+          <DefinitionIcon
+            style={styles.iconLabel}
+            color={theme.colors.iconButton}
+            size={32}
+          />
+          <CustomMultilineTextInput
+            style={[styles.input, styles.textInput]}
+            verticalPadding={styles.textInput.paddingVertical}
+            minHeight={128}
+            placeholder={t("Definition")}
+            value={definition}
+            onChangeText={setDefinition}
+          />
+        </View>
 
         <View style={theme.styles.separator} />
 
-        <Span style={inputLabelStyles}>
-          {t("label", { label: t("Example") })}
-        </Span>
-        <CustomMultilineTextInput
-          style={[styles.textInput]}
-          verticalPadding={styles.textInput.paddingVertical}
-          minHeight={128}
-          value={example}
-          onChangeText={setExample}
-        />
+        <View style={styles.row}>
+          <ExampleIcon
+            style={styles.iconLabel}
+            color={theme.colors.iconButton}
+            size={32}
+          />
+          <CustomMultilineTextInput
+            style={[styles.input, styles.textInput]}
+            verticalPadding={styles.textInput.paddingVertical}
+            minHeight={128}
+            placeholder={t("Example")}
+            value={example}
+            onChangeText={setExample}
+          />
+        </View>
 
         <View style={theme.styles.separator} />
 
-        <Span style={inputLabelStyles}>
-          {t("label", { label: t("Notes") })}
-        </Span>
-        <CustomMultilineTextInput
-          style={[styles.textInput]}
-          verticalPadding={styles.textInput.paddingVertical}
-          minHeight={128}
-          value={notes}
-          onChangeText={setNotes}
-        />
+        <View style={styles.row}>
+          <NotesIcon
+            style={styles.iconLabel}
+            color={theme.colors.iconButton}
+            size={32}
+          />
+          <CustomMultilineTextInput
+            style={[styles.input, styles.textInput]}
+            verticalPadding={styles.textInput.paddingVertical}
+            minHeight={128}
+            placeholder={t("Notes")}
+            value={notes}
+            onChangeText={setNotes}
+          />
+        </View>
 
         <View style={theme.styles.separator} />
       </ScrollView>
@@ -296,14 +323,25 @@ export default function DefinitionEditor(props: Props) {
 }
 
 const styles = StyleSheet.create({
+  word: {
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  iconLabel: {
+    paddingLeft: 4,
+    paddingTop: 6,
+  },
   textInput: {
     fontSize: 18,
     paddingVertical: 12,
     paddingRight: 16,
-    paddingLeft: 24,
+    paddingLeft: 8,
   },
-  inputLabel: {
-    marginBottom: -4,
-    marginLeft: 8,
+  input: {
+    flex: 1,
+  },
+  row: {
+    display: "flex",
+    flexDirection: "row",
   },
 });

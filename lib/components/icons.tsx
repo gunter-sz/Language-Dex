@@ -75,6 +75,22 @@ export function TextboxIcon(props: IconProps) {
   return <MaterialDesignIcons name="form-textbox" {...props} />;
 }
 
+export function PartOfSpeechIcon(props: IconProps) {
+  return <MaterialDesignIcons name="shape" {...props} />;
+}
+
+export function DefinitionIcon(props: IconProps) {
+  return <MaterialDesignIcons name="text" {...props} />;
+}
+
+export function ExampleIcon(props: IconProps) {
+  return <MaterialDesignIcons name="format-quote-open" {...props} />;
+}
+
+export function NotesIcon(props: IconProps) {
+  return <MaterialDesignIcons name="alert-box-outline" {...props} />;
+}
+
 export function SaveIcon(props: IconProps) {
   return <MaterialDesignIcons name="content-save-outline" {...props} />;
 }
