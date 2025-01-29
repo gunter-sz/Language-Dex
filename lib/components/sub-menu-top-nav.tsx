@@ -1,6 +1,9 @@
 import React from "react";
 import { useTheme } from "../contexts/theme";
 import { StyleSheet, StyleProp, View, ViewStyle } from "react-native";
+import { ArrowLeftIcon } from "./icons";
+import { router } from "expo-router";
+import { SubMenuIconButton } from "./icon-button";
 
 type Props = { style?: StyleProp<ViewStyle> } & React.PropsWithChildren;
 
@@ -16,6 +19,12 @@ export default function SubMenuTopNav({ style, children }: Props) {
 
 export function SubMenuActions({ style, children }: Props) {
   return <View style={[styles.actions, style]}>{children}</View>;
+}
+
+export function SubMenuBackButton() {
+  return (
+    <SubMenuIconButton icon={ArrowLeftIcon} onPress={() => router.back()} />
+  );
 }
 
 const styles = StyleSheet.create({

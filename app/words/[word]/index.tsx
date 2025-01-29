@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Pressable } from "react-native";
 import { SubMenuIconButton } from "@/lib/components/icon-button";
 import {
-  ArrowLeftIcon,
   DragVerticalLongIcon,
   PlusIcon,
   TrashIcon,
@@ -10,6 +9,7 @@ import {
 import RouteRoot from "@/lib/components/route-root";
 import SubMenuTopNav, {
   SubMenuActions,
+  SubMenuBackButton,
 } from "@/lib/components/sub-menu-top-nav";
 import { Span } from "@/lib/components/text";
 import { useTheme } from "@/lib/contexts/theme";
@@ -122,10 +122,7 @@ export default function Word() {
   return (
     <RouteRoot style={theme.styles.definitionBackground}>
       <SubMenuTopNav>
-        <SubMenuIconButton
-          icon={ArrowLeftIcon}
-          onPress={() => navigation.goBack()}
-        />
+        <SubMenuBackButton />
 
         <SubMenuActions>
           <SubMenuIconButton
