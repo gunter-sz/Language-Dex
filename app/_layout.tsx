@@ -81,7 +81,7 @@ export default function RootLayout() {
                   ? theme.styles.bottomNav.backgroundColor
                   : undefined,
               headerShown: false,
-              animation: "fade_from_bottom",
+              animation: "fade",
             }}
           />
 
