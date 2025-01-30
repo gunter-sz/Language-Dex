@@ -66,6 +66,7 @@ type Palette = {
   subMenuIconButton: ColorValue;
   subMenuIconButtonDisabled: ColorValue;
   borders: ColorValue;
+  definitionBorder: ColorValue;
   primary: {
     default: ColorValue;
     light: ColorValue;
@@ -118,7 +119,7 @@ function createSimpleTheme(colors: Palette): Theme {
       },
       dictionaryWordButton: {
         backgroundColor: colors.definitionBackground,
-        borderColor: colors.borders,
+        borderColor: colors.definitionBorder,
         borderWidth: 1,
         borderTopWidth: 0,
         borderLeftWidth: 0.55,
@@ -193,7 +194,7 @@ function createSimpleTheme(colors: Palette): Theme {
         overflow: "hidden",
       },
       definitionBorders: {
-        borderColor: colors.borders,
+        borderColor: colors.definitionBorder,
       },
       definitionBackground: {
         backgroundColor: colors.definitionBackground,
@@ -206,9 +207,9 @@ function createSimpleTheme(colors: Palette): Theme {
         color: colors.example,
       },
       separator: {
-        backgroundColor: colors.borders,
+        borderColor: colors.borders,
+        borderBottomWidth: 1,
         width: "100%",
-        height: 1,
       },
       topNav: {
         paddingBottom: -4,
@@ -263,7 +264,8 @@ export const themeConstructors: {
         iconButton: "#aaa",
         subMenuIconButton: "white",
         subMenuIconButtonDisabled: "grey",
-        borders: "#070707",
+        borders: "#303035",
+        definitionBorder: "#09090b",
         ripples: {
           popup: "rgba(255,255,255,0.05)",
           primaryButton: "rgba(255,255,255,0.3)",
@@ -289,6 +291,7 @@ export const themeConstructors: {
       subMenuIconButton: "#444",
       subMenuIconButtonDisabled: "#999",
       borders: "lightgrey",
+      definitionBorder: "lightgrey",
       ripples: {
         popup: "rgba(0,0,0,0.05)",
         primaryButton: "rgba(255,255,255,0.3)",

@@ -174,7 +174,11 @@ export default function Dictionary() {
       </Pressable>
 
       <VirtualizedList
-        ListHeaderComponent={() => <View style={theme.styles.separator} />}
+        ListHeaderComponent={() => (
+          <View
+            style={[theme.styles.separator, theme.styles.definitionBorders]}
+          />
+        )}
         style={styles.wordList}
         data={finalWords}
         getItemCount={getRowCount}
@@ -224,9 +228,9 @@ export default function Dictionary() {
             onPress={() => setAscending(!ascending)}
           >
             {!ascending ? (
-              <ArrowUpIcon size={20} />
+              <ArrowUpIcon color={theme.colors.text} size={20} />
             ) : (
-              <ArrowDownIcon size={20} />
+              <ArrowDownIcon color={theme.colors.text} size={20} />
             )}
           </Pressable>
         </View>
