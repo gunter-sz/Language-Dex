@@ -191,11 +191,9 @@ export default function DefinitionEditor(props: Props) {
         </SubMenuActions>
       </SubMenuTopNav>
 
-      <View style={theme.styles.separator} />
-
-      <ScrollView style={theme.styles.definitionBackground}>
+      <ScrollView>
         <CustomTextInput
-          style={[styles.textInput, styles.word]}
+          style={styles.word}
           placeholder={t("word")}
           value={spelling}
           onChangeText={setSpelling}
@@ -324,6 +322,9 @@ const styles = StyleSheet.create({
   word: {
     fontSize: 24,
     fontWeight: "bold",
+    paddingTop: 0,
+    paddingBottom: 12,
+    paddingLeft: 16,
   },
   iconLabel: {
     paddingLeft: 4,

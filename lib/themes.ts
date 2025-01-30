@@ -40,6 +40,7 @@ export type Theme = {
     separator: ViewStyle;
     topNav: ViewStyle;
     subMenuTopNav: ViewStyle;
+    subMenuTitle: TextStyle;
     bottomNav: ViewStyle;
   };
   ripples: {
@@ -52,6 +53,8 @@ export type Theme = {
 type Palette = {
   body: ColorValue;
   bottomNav: ColorValue;
+  popup: ColorValue;
+  scanInput: ColorValue;
   definitionBackground: ColorValue;
   text: ColorValue;
   label: ColorValue;
@@ -68,6 +71,11 @@ type Palette = {
     light: ColorValue;
     contrast: ColorValue;
   };
+  ripples: {
+    popup: ColorValue;
+    primaryButton: ColorValue;
+    transparentButton: ColorValue;
+  };
 };
 
 function createSimpleTheme(colors: Palette): Theme {
@@ -76,8 +84,6 @@ function createSimpleTheme(colors: Palette): Theme {
     styles: {
       root: {
         flex: 1,
-        display: "flex",
-        flexDirection: "column",
         backgroundColor: colors.body,
       },
       text: {
@@ -90,7 +96,7 @@ function createSimpleTheme(colors: Palette): Theme {
         color: colors.primary.default,
       },
       dialog: {
-        backgroundColor: colors.definitionBackground,
+        backgroundColor: colors.popup,
         borderRadius: 8,
         margin: 16,
       },
@@ -105,8 +111,6 @@ function createSimpleTheme(colors: Palette): Theme {
       },
       dictionaryAddWordButton: {
         backgroundColor: colors.primary.default,
-        borderColor: colors.primary.light,
-        borderWidth: 1,
         borderRadius: 8,
       },
       dictionaryAddWordButtonText: {
@@ -158,7 +162,7 @@ function createSimpleTheme(colors: Palette): Theme {
         borderRadius: 8,
         paddingHorizontal: 8,
         paddingVertical: 4,
-        backgroundColor: "#e5e5e5",
+        backgroundColor: colors.scanInput,
       },
       scanOutput: {
         paddingHorizontal: 16.7,
@@ -185,7 +189,6 @@ function createSimpleTheme(colors: Palette): Theme {
         borderColor: colors.primary.default,
       },
       definitionBubble: {
-        backgroundColor: colors.definitionBackground,
         borderRadius: 8,
         overflow: "hidden",
       },
@@ -207,9 +210,14 @@ function createSimpleTheme(colors: Palette): Theme {
         width: "100%",
         height: 1,
       },
-      topNav: {},
+      topNav: {
+        paddingBottom: -4,
+      },
       subMenuTopNav: {
-        backgroundColor: colors.primary.default,
+        // backgroundColor: colors.primary.default,
+      },
+      subMenuTitle: {
+        color: colors.subMenuIconButton,
       },
       bottomNav: {
         display: "flex",
@@ -219,9 +227,9 @@ function createSimpleTheme(colors: Palette): Theme {
       },
     },
     ripples: {
-      popup: { color: "rgba(0,0,0,0.05)" },
-      primaryButton: { color: "rgba(255,255,255,0.3)" },
-      transparentButton: { color: "rgba(0,0,0,0.3)" },
+      popup: { color: colors.ripples.popup },
+      primaryButton: { color: colors.ripples.primaryButton },
+      transparentButton: { color: colors.ripples.transparentButton },
     },
   };
 }
@@ -232,9 +240,44 @@ export const themeConstructors: {
   [name: string]: (colorScheme: string) => Theme;
 } = {
   defaultTheme: function (colorScheme: string) {
+    const primary = {
+      default: "#a3f",
+      light: "#eccfff",
+      contrast: "white",
+    };
+
+    if (colorScheme == "dark") {
+      return createSimpleTheme({
+        primary,
+        body: "#09090b",
+        bottomNav: "#1a1a1f",
+        popup: "#1f1f24",
+        scanInput: "#1a1a1d",
+        definitionBackground: "#1a1a1f",
+        text: "#bbb",
+        label: "#aaa",
+        disabledText: "#555",
+        oldWord: "#bbb",
+        partOfSpeech: "grey",
+        example: "grey",
+        iconButton: "#aaa",
+        subMenuIconButton: "white",
+        subMenuIconButtonDisabled: "grey",
+        borders: "#070707",
+        ripples: {
+          popup: "rgba(255,255,255,0.05)",
+          primaryButton: "rgba(255,255,255,0.3)",
+          transparentButton: "rgba(255,255,255,0.3)",
+        },
+      });
+    }
+
     return createSimpleTheme({
+      primary,
       body: "#f0f0f0",
+      popup: "white",
       bottomNav: "white",
+      scanInput: "#e5e5e5",
       definitionBackground: "white",
       text: "black",
       label: "#aaa",
@@ -243,13 +286,13 @@ export const themeConstructors: {
       partOfSpeech: "grey",
       example: "grey",
       iconButton: "#444",
-      subMenuIconButton: "white",
-      subMenuIconButtonDisabled: "rgba(200,200,200,0.7)",
+      subMenuIconButton: "#444",
+      subMenuIconButtonDisabled: "#999",
       borders: "lightgrey",
-      primary: {
-        default: "#a3f",
-        light: "#eccfff",
-        contrast: "white",
+      ripples: {
+        popup: "rgba(0,0,0,0.05)",
+        primaryButton: "rgba(255,255,255,0.3)",
+        transparentButton: "rgba(0,0,0,0.3)",
       },
     });
   },

@@ -45,11 +45,11 @@ export default function ScannedWord({ dictionaryId, text, lowercase }: Props) {
     <DropDownPrimitive.Root>
       <DropDownPrimitive.Trigger ref={triggerRef} onPress={() => setOpen(true)}>
         <View style={underlineStyles}>
-          <Text
+          <Span
             style={[theme.styles.scanText, open && theme.styles.scanTextActive]}
           >
             {text}
-          </Text>
+          </Span>
         </View>
       </DropDownPrimitive.Trigger>
 
@@ -60,7 +60,13 @@ export default function ScannedWord({ dictionaryId, text, lowercase }: Props) {
             onPress={close}
           >
             <DropDownPrimitive.Content align="center">
-              <View style={[styles.popup, theme.styles.definitionBubble]}>
+              <View
+                style={[
+                  styles.popup,
+                  theme.styles.dialog,
+                  theme.styles.definitionBubble,
+                ]}
+              >
                 {definitionResult && (
                   <>
                     <Pressable
@@ -163,9 +169,6 @@ export default function ScannedWord({ dictionaryId, text, lowercase }: Props) {
 
 const styles = StyleSheet.create({
   popup: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "stretch",
     marginHorizontal: 8,
     marginVertical: 4,
   },

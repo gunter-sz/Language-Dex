@@ -1,4 +1,5 @@
 import { StyleProp, StyleSheet, Text, TextStyle } from "react-native";
+import { useTheme } from "../contexts/theme";
 
 type Props = {
   numberOfLines?: number;
@@ -6,8 +7,13 @@ type Props = {
 } & React.PropsWithChildren;
 
 export function Span({ numberOfLines, style, children }: Props) {
+  const theme = useTheme();
+
   return (
-    <Text numberOfLines={numberOfLines} style={[styles.span, style]}>
+    <Text
+      numberOfLines={numberOfLines}
+      style={[theme.styles.text, styles.span, style]}
+    >
       {children}
     </Text>
   );

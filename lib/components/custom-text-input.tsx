@@ -10,7 +10,9 @@ export default function CustomTextInput(props: TextInputProps) {
     <TextInput
       ref={textInputRef}
       selectionColor={theme.colors.primary.default}
+      placeholderTextColor={theme.colors.disabledText}
       {...props}
+      style={[theme.styles.text, props.style]}
     />
   );
 }
@@ -29,8 +31,10 @@ export function CustomMultilineTextInput(props: CustomMultilineTextInputProps) {
     <TextInput
       ref={textInputRef}
       selectionColor={theme.colors.primary.default}
+      placeholderTextColor={theme.colors.disabledText}
       {...props}
       style={[
+        theme.styles.text,
         {
           height:
             Math.max(props.minHeight ?? 0, contentHeight) +

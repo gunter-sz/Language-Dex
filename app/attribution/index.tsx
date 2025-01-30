@@ -8,7 +8,9 @@ import {
 } from "@/lib/components/attribution";
 import SubMenuTopNav, {
   SubMenuBackButton,
+  SubMenuTitle,
 } from "@/lib/components/sub-menu-top-nav";
+import { useTranslation } from "react-i18next";
 
 import data from "../../-licenses.json";
 
@@ -21,10 +23,13 @@ function renderItem({ item }: { item: NamespacePackages }) {
 }
 
 export default function () {
+  const [t] = useTranslation();
+
   return (
     <RouteRoot>
       <SubMenuTopNav>
         <SubMenuBackButton />
+        <SubMenuTitle>{t("Third_Party_Licenses")}</SubMenuTitle>
       </SubMenuTopNav>
 
       <FlatList

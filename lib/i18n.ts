@@ -89,7 +89,15 @@ i18n
           point_one: "point",
           point_other: "points",
 
+          // settings
+          Settings: "Settings",
+          Theme: "Theme",
+          System: "System",
+          Light: "Light",
+          Dark: "Dark",
+
           // attribution
+          Third_Party_Licenses: "Third-party Licenses",
           version: "version",
         },
       },

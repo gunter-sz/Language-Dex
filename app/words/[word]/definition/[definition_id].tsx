@@ -4,6 +4,7 @@ import RouteRoot from "@/lib/components/route-root";
 import { useWordDefinition } from "@/lib/hooks/use-word-definitions";
 import { useUserDataContext } from "@/lib/contexts/user-data";
 import DefinitionEditor from "@/lib/components/definition-editor";
+import { useTheme } from "@/lib/contexts/theme";
 
 type SearchParams = {
   word?: string;
@@ -13,6 +14,7 @@ type SearchParams = {
 export default function () {
   const navigation = useNavigation();
   const params = useLocalSearchParams<SearchParams>();
+  const theme = useTheme();
   const [userData] = useUserDataContext();
   const [word, setWord] = useState(() => params.word?.toLowerCase());
   const [definitionId, setDefinitionId] = useState(
@@ -40,7 +42,7 @@ export default function () {
   }, [definitionLoaded, definitionData]);
 
   return (
-    <RouteRoot>
+    <RouteRoot style={theme.styles.definitionBackground}>
       <DefinitionEditor
         lowerCaseWord={word}
         setLowerCaseWord={setWord}

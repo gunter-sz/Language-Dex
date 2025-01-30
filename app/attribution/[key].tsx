@@ -3,7 +3,9 @@ import { FlatList, ScrollView, StyleSheet, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { Span } from "@/lib/components/text";
 import SubMenuTopNav, {
+  SubMenuActions,
   SubMenuBackButton,
+  SubMenuTitle,
 } from "@/lib/components/sub-menu-top-nav";
 import RouteRoot from "@/lib/components/route-root";
 import {
@@ -56,15 +58,19 @@ export default function () {
       <SubMenuTopNav>
         <SubMenuBackButton />
 
-        {!isNamespace && (
-          <SubMenuIconButton
-            icon={LinkIcon}
-            onPress={() => {
-              openBrowserAsync("https://www.npmjs.com/package/" + name).catch(
-                logError
-              );
-            }}
-          />
+        {isNamespace ? (
+          <SubMenuTitle>{params.key}*</SubMenuTitle>
+        ) : (
+          <SubMenuActions>
+            <SubMenuIconButton
+              icon={LinkIcon}
+              onPress={() => {
+                openBrowserAsync("https://www.npmjs.com/package/" + name).catch(
+                  logError
+                );
+              }}
+            />
+          </SubMenuActions>
         )}
       </SubMenuTopNav>
 

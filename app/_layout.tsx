@@ -19,8 +19,8 @@ SplashScreen.preventAutoHideAsync().catch(logError);
 
 export default function RootLayout() {
   const [userData, setUserData] = useState<UserData | undefined>();
-  const colorScheme =
-    userData?.colorScheme || useSystemColorScheme() || "light";
+  const systemColorScheme = useSystemColorScheme();
+  const colorScheme = userData?.colorScheme || systemColorScheme || "light";
   const [t] = useTranslation();
 
   // derive theme from user data and color scheme
@@ -71,15 +71,20 @@ export default function RootLayout() {
           },
         ]}
       >
-        <GestureHandlerRootView>
-          <StatusBar style="auto" translucent={false} />
+        <GestureHandlerRootView style={theme.styles.root}>
+          <StatusBar translucent={false} />
 
           <Stack
             screenOptions={{
               navigationBarColor:
-                typeof theme.styles.bottomNav.backgroundColor == "string"
-                  ? theme.styles.bottomNav.backgroundColor
+                typeof theme.colors.bottomNav == "string"
+                  ? theme.colors.bottomNav
                   : undefined,
+              statusBarBackgroundColor:
+                typeof theme.colors.body == "string"
+                  ? theme.colors.body
+                  : undefined,
+              statusBarStyle: colorScheme == "light" ? "dark" : "light",
               headerShown: false,
               animation: "fade",
             }}
