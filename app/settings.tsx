@@ -40,7 +40,7 @@ export default function () {
 
       <ListPopup
         style={styles.row}
-        list={["dark", "light"]}
+        list={["light", "dark"]}
         getItemText={(value) => getColorSchemeText(t, value)}
         defaultItemText={t("System")}
         keyExtractor={(value) => value}
