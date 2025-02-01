@@ -276,7 +276,7 @@ export async function listWords(
 
   if (partOfSpeech != undefined) {
     query.push(
-      "INNER JOIN word_definition_data ON word_definition_data.id = word.sharedId"
+      "INNER JOIN word_definition_data ON word_definition_data.sharedId = word.id"
     );
   }
 
