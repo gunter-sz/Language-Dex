@@ -400,9 +400,10 @@ async function getOrCreateWordId(
   const lowerCaseWord = word.toLowerCase();
 
   const wordRow = await db.getFirstAsync<{ id: number }>(
-    "SELECT id FROM word_shared_data WHERE insensitiveSpelling = $lowerCase",
+    "SELECT id FROM word_shared_data WHERE insensitiveSpelling = $lowerCase AND dictionaryId = $dictionaryId",
     {
       $lowerCase: lowerCaseWord,
+      $dictionaryId: dictionaryId,
     }
   );
 
