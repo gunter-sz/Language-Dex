@@ -7,8 +7,9 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useTheme } from "../contexts/theme";
-import { Pressable, StyleSheet } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import useBackHandler from "../hooks/use-back-handler";
+import { Span } from "./text";
 
 type Props = {
   open: boolean;
@@ -16,6 +17,28 @@ type Props = {
 } & React.PropsWithChildren;
 
 let idCounter = 0;
+
+export function DialogTitle({ children }: React.PropsWithChildren) {
+  const theme = useTheme();
+
+  return (
+    <>
+      <View style={styles.header}>
+        <Span>{children}</Span>
+      </View>
+
+      <View style={theme.styles.separator} />
+    </>
+  );
+}
+
+export function DialogDescription({ children }: React.PropsWithChildren) {
+  return (
+    <View style={styles.description}>
+      <Span>{children}</Span>
+    </View>
+  );
+}
 
 export default function Dialog({ open, onClose, children }: Props) {
   const theme = useTheme();
@@ -122,5 +145,14 @@ const styles = StyleSheet.create({
   innerPressable: {
     flexGrow: 1,
     flexShrink: 1,
+  },
+  header: {
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+  },
+  description: {
+    padding: 8,
+    paddingTop: 16,
+    paddingLeft: 24,
   },
 });

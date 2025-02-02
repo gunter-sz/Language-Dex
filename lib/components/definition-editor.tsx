@@ -95,6 +95,63 @@ export default function DefinitionEditor(props: Props) {
     }
   }, [hasPendingChanges]);
 
+  const save = async () => {
+    setSaving(true);
+    setHasPendingChanges(false);
+
+    try {
+      const lowerCaseSpelling = spelling.toLowerCase();
+      const migratingWords =
+        props.lowerCaseWord != lowerCaseSpelling &&
+        props.definitionId != undefined;
+
+      // create or update the word
+      const definitionId = await upsertDefinition(
+        userData.activeDictionary,
+        lowerCaseSpelling,
+        {
+          id: props.definitionId,
+          partOfSpeech,
+          definition,
+          example,
+          notes,
+          confidence: definitionData?.confidence ?? 0,
+          images: [],
+        }
+      );
+
+      // update statistics
+      if (props.definitionId == undefined) {
+        setUserData((userData) => {
+          userData = updateStatistics(userData, (stats) => {
+            stats.definitions = (stats.definitions ?? 0) + 1;
+          });
+
+          return userData;
+        });
+      }
+
+      // keep identifiers in sync
+      props.setLowerCaseWord(lowerCaseSpelling);
+      props.setDefinitionId(definitionId);
+
+      // invalidate the old word
+      if (migratingWords && props.lowerCaseWord != undefined) {
+        invalidateWordDefinitions(
+          userData.activeDictionary,
+          props.lowerCaseWord
+        );
+      }
+
+      // invalidate the new word
+      invalidateWordDefinitions(userData.activeDictionary, lowerCaseSpelling);
+    } catch (e) {
+      logError(e);
+    }
+
+    setSaving(false);
+  };
+
   return (
     <>
       <SubMenuTopNav>
@@ -128,65 +185,7 @@ export default function DefinitionEditor(props: Props) {
               spelling.length == 0 ||
               !hasPendingChanges
             }
-            onPress={async () => {
-              setSaving(true);
-              setHasPendingChanges(false);
-
-              try {
-                const lowerCaseSpelling = spelling.toLowerCase();
-                const migratingWords =
-                  props.lowerCaseWord != lowerCaseSpelling &&
-                  props.definitionId != undefined;
-
-                // create or update the word
-                const definitionId = await upsertDefinition(
-                  userData.activeDictionary,
-                  lowerCaseSpelling,
-                  {
-                    id: props.definitionId,
-                    partOfSpeech,
-                    definition,
-                    example,
-                    notes,
-                    confidence: definitionData?.confidence ?? 0,
-                    images: [],
-                  }
-                );
-
-                // update statistics
-                if (props.definitionId == undefined) {
-                  setUserData((userData) => {
-                    userData = updateStatistics(userData, (stats) => {
-                      stats.definitions = (stats.definitions ?? 0) + 1;
-                    });
-
-                    return userData;
-                  });
-                }
-
-                // keep identifiers in sync
-                props.setLowerCaseWord(lowerCaseSpelling);
-                props.setDefinitionId(definitionId);
-
-                // invalidate the old word
-                if (migratingWords && props.lowerCaseWord != undefined) {
-                  invalidateWordDefinitions(
-                    userData.activeDictionary,
-                    props.lowerCaseWord
-                  );
-                }
-
-                // invalidate the new word
-                invalidateWordDefinitions(
-                  userData.activeDictionary,
-                  lowerCaseSpelling
-                );
-              } catch (e) {
-                logError(e);
-              }
-
-              setSaving(false);
-            }}
+            onPress={save}
           />
         </SubMenuActions>
       </SubMenuTopNav>
@@ -309,10 +308,15 @@ export default function DefinitionEditor(props: Props) {
       <DiscardDialog
         open={discardDialogOpen}
         onCancel={() => setDiscardDialogOpen(false)}
-        onConfirm={async () => {
+        onDiscard={async () => {
           setDiscardDialogOpen(false);
           router.back();
         }}
+        onSave={() =>
+          save().then(() => {
+            router.back();
+          })
+        }
       />
     </>
   );

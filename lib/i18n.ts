@@ -88,6 +88,8 @@ i18n
           // dialogs
           Cancel: "Cancel",
           Confirm: "Confirm",
+          Discard: "Discard",
+          Save_Changes: "Save Changes",
           Delete: "Delete",
           Delete_Title: "Delete {{name}}?",
 

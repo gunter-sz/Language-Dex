@@ -1,32 +1,108 @@
 import { Pressable, StyleSheet, View } from "react-native";
-import Dialog from "./dialog";
+import Dialog, { DialogDescription, DialogTitle } from "./dialog";
 import { useTheme } from "../contexts/theme";
 import { useTranslation } from "react-i18next";
 import { Span } from "./text";
-import { useState } from "react";
+import React, { useState } from "react";
 import { logError } from "../log";
+
+export function ConfirmationDialogActions({
+  children,
+}: React.PropsWithChildren) {
+  return <View style={styles.actions}>{children}</View>;
+}
+
+export type ConfirmationDialogActionProps = {
+  onPress?: () => void;
+  disabled?: boolean;
+} & React.PropsWithChildren;
+
+export function ConfirmationDialogAction({
+  onPress,
+  disabled,
+  children,
+}: ConfirmationDialogActionProps) {
+  const theme = useTheme();
+
+  return (
+    <Pressable
+      onPress={onPress}
+      android_ripple={theme.ripples.transparentButton}
+      disabled={disabled}
+    >
+      <Span style={[styles.action, disabled && theme.styles.disabledText]}>
+        {children}
+      </Span>
+    </Pressable>
+  );
+}
 
 type DiscardDialogProps = {
   open: boolean;
-  onConfirm: () => Promise<void>;
   onCancel: () => void;
+  onDiscard?: () => Promise<void>;
+  onSave?: () => Promise<void>;
 };
 
 export function DiscardDialog({
   open,
-  onConfirm,
+  onSave,
+  onDiscard,
   onCancel,
 }: DiscardDialogProps) {
   const [t] = useTranslation();
+  const [pending, setPending] = useState(false);
 
   return (
-    <ConfirmationDialog
-      title={t("Discard_Changes")}
-      description={t("Discard_Changes_Desc")}
+    <Dialog
       open={open}
-      onConfirm={onConfirm}
-      onCancel={onCancel}
-    />
+      onClose={() => {
+        if (!pending) {
+          onCancel();
+        }
+      }}
+    >
+      <DialogTitle>{t("Discard_Changes")}</DialogTitle>
+      <DialogDescription>{t("Discard_Changes_Desc")}</DialogDescription>
+
+      <View style={styles.actions}>
+        <ConfirmationDialogAction onPress={onCancel} disabled={pending}>
+          {t("Cancel")}
+        </ConfirmationDialogAction>
+
+        {onDiscard && (
+          <ConfirmationDialogAction
+            onPress={() => {
+              setPending(true);
+
+              onDiscard()
+                .catch((err) => logError(err))
+                .then(() => setPending(false))
+                .catch((err) => logError(err));
+            }}
+            disabled={pending}
+          >
+            {t("Discard")}
+          </ConfirmationDialogAction>
+        )}
+
+        {onSave && (
+          <ConfirmationDialogAction
+            onPress={() => {
+              setPending(true);
+
+              onSave()
+                .catch((err) => logError(err))
+                .then(() => setPending(false))
+                .catch((err) => logError(err));
+            }}
+            disabled={pending}
+          >
+            {t("Save_Changes")}
+          </ConfirmationDialogAction>
+        )}
+      </View>
+    </Dialog>
   );
 }
 
@@ -47,12 +123,8 @@ export default function ConfirmationDialog({
   onConfirm,
   onCancel,
 }: Props) {
-  const theme = useTheme();
   const [t] = useTranslation();
-
   const [pending, setPending] = useState(false);
-
-  const actionStyles = [styles.action, pending && theme.styles.disabledText];
 
   return (
     <Dialog
@@ -63,26 +135,15 @@ export default function ConfirmationDialog({
         }
       }}
     >
-      <View style={styles.header}>
-        <Span>{title}</Span>
-      </View>
+      <DialogTitle>{title}</DialogTitle>
+      <DialogDescription>{description}</DialogDescription>
 
-      <View style={theme.styles.separator} />
+      <ConfirmationDialogActions>
+        <ConfirmationDialogAction onPress={onCancel} disabled={pending}>
+          {t("Cancel")}
+        </ConfirmationDialogAction>
 
-      <View style={styles.description}>
-        <Span>{description}</Span>
-      </View>
-
-      <View style={styles.actions}>
-        <Pressable
-          onPress={onCancel}
-          android_ripple={theme.ripples.transparentButton}
-          disabled={pending}
-        >
-          <Span style={actionStyles}>{t("Cancel")}</Span>
-        </Pressable>
-
-        <Pressable
+        <ConfirmationDialogAction
           onPress={() => {
             setPending(true);
 
@@ -91,28 +152,16 @@ export default function ConfirmationDialog({
               .then(() => setPending(false))
               .catch((err) => logError(err));
           }}
-          android_ripple={theme.ripples.transparentButton}
           disabled={pending}
         >
-          <Span style={actionStyles}>
-            {confirmationText != undefined ? confirmationText : t("Confirm")}
-          </Span>
-        </Pressable>
-      </View>
+          {confirmationText != undefined ? confirmationText : t("Confirm")}
+        </ConfirmationDialogAction>
+      </ConfirmationDialogActions>
     </Dialog>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-  description: {
-    padding: 8,
-    paddingTop: 16,
-    paddingLeft: 24,
-  },
   actions: {
     flexDirection: "row",
     justifyContent: "flex-end",
