@@ -1,14 +1,13 @@
 import {
   AnimatableValue,
   Easing,
-  runOnJS,
   SharedValue,
   withSequence,
   withTiming,
 } from "react-native-reanimated";
 import { GameWord } from "./data";
 import { DefinitionMap } from "./hooks/use-word-definitions";
-import React, { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useRef, useState } from "react";
 
 export function pickIndexBiased<T>(list: T[]) {
   const value = Math.random();
@@ -163,4 +162,28 @@ export function useTimerSeconds(timer: Timer) {
   }, [timer]);
 
   return seconds;
+}
+
+export function useGettableState<S>(
+  initialState: S | (() => S)
+): [S, (value: SetStateAction<S>) => void, () => S] {
+  const [state, setState] = useState(initialState);
+  const ref = useRef(state);
+
+  return [
+    state,
+    (value: SetStateAction<S>) => {
+      if (typeof value == "function") {
+        setState((s) => {
+          s = (value as (s: S) => S)(s);
+          ref.current = s;
+          return s;
+        });
+      } else {
+        setState(value);
+        ref.current = value;
+      }
+    },
+    () => ref.current,
+  ];
 }

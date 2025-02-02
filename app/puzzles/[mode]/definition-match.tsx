@@ -17,6 +17,7 @@ import {
   getDefinition,
   pluckNBiased,
   Timer,
+  useGettableState,
   useTimerSeconds,
 } from "@/lib/puzzles";
 import { Theme } from "@/lib/themes";
@@ -258,8 +259,8 @@ export default function () {
 
   const [allWords, setAllWords] = useState<GameWord[] | null>(null);
 
-  const [gameState, setGameState] = useState<GameState>(() =>
-    initGameState([], params.mode as DefinitionMatchGameMode)
+  const [gameState, setGameState, getGameState] = useGettableState<GameState>(
+    () => initGameState([], params.mode as DefinitionMatchGameMode)
   );
 
   const seconds = useTimerSeconds(gameState.timer);
@@ -307,20 +308,17 @@ export default function () {
       setGameState((gameState) => ({ ...gameState, roundStarted: false }));
 
       const endCallback = () => {
-        setGameState((gameState) => {
-          // use setGameState to get the latest data for .over
-          if (gameState.over) {
-            return gameState;
-          }
+        const gameState = getGameState();
 
-          gameState.totalTimer.resume();
+        if (gameState.over) {
+          return;
+        }
 
-          if (gameState.maxTime != Infinity) {
-            gameState.timer.resume();
-          }
+        gameState.totalTimer.resume();
 
-          return gameState;
-        });
+        if (gameState.maxTime != Infinity) {
+          gameState.timer.resume();
+        }
       };
 
       opacity.value = withTiming(1, fadeTimingConfig, () => {
@@ -383,6 +381,17 @@ export default function () {
     // update stats
     setUserData((userData) => updateGameStats(userData, gameState));
   }, [gameOver]);
+
+  useEffect(() => {
+    return () => {
+      const gameState = getGameState();
+
+      if (!gameState.over) {
+        // add unsaved stats
+        setUserData((userData) => updateGameStats(userData, gameState));
+      }
+    };
+  }, []);
 
   if (gameState.loading) {
     return;
