@@ -175,7 +175,7 @@ function RowDummy({ text, onRename, onBlur }: RowDummyProps) {
     <View style={styles.rowStyle}>
       <CustomTextInput
         autoFocus
-        style={[styles.plainItem, styles.textInput]}
+        style={[styles.plainItem, styles.renameInput, styles.textInput]}
         onChangeText={(text) => {
           setCurrentText(text);
         }}
