@@ -174,11 +174,13 @@ export default function Dictionary() {
       </Pressable>
 
       <VirtualizedList
-        ListHeaderComponent={() => (
-          <View
-            style={[theme.styles.separator, theme.styles.definitionBorders]}
-          />
-        )}
+        ListHeaderComponent={() =>
+          finalWords.length > 0 && (
+            <View
+              style={[theme.styles.separator, theme.styles.definitionBorders]}
+            />
+          )
+        }
         style={styles.wordList}
         data={finalWords}
         getItemCount={getRowCount}
