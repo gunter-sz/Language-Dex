@@ -166,6 +166,7 @@ export default function () {
       ascending: false,
       orderBy: "longest",
       limit: 20,
+      minLength: 2,
     });
   }, [userData.activeDictionary, dictionaryVersion]);
 

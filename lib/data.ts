@@ -312,11 +312,13 @@ export async function listWords(
     ascending?: boolean;
     orderBy: WordOrder;
     partOfSpeech?: number;
+    minLength?: number;
     limit?: number;
   }
 ) {
   // build query
   const query = ["SELECT spelling FROM word_shared_data word"];
+  const bindParams: SQLite.SQLiteBindParams = {};
 
   if (options.partOfSpeech != undefined) {
     query.push(
@@ -324,23 +326,26 @@ export async function listWords(
     );
   }
 
-  const whereIndex = query.length;
-  query.push("WHERE");
-
-  let usedWhere = false;
+  const whereClause = [];
 
   if (dictionaryId != undefined) {
-    query.push("word.dictionaryId = $dictionaryId");
-    usedWhere = true;
+    whereClause.push("word.dictionaryId = $dictionaryId");
+    bindParams.$dictionaryId = dictionaryId;
   }
 
   if (options.partOfSpeech != undefined) {
-    query.push("AND word_definition_data.partOfSpeech = $partOfSpeech");
-    usedWhere = true;
+    whereClause.push("word_definition_data.partOfSpeech = $partOfSpeech");
+    bindParams.$partOfSpeech = options.partOfSpeech;
   }
 
-  if (!usedWhere) {
-    query.splice(whereIndex, 1);
+  if (options.minLength != undefined) {
+    whereClause.push("word.graphemeCount >= $minLength");
+    bindParams.$minLength = options.minLength;
+  }
+
+  if (whereClause.length > 0) {
+    query.push("WHERE");
+    query.push(whereClause.join(" AND "));
   }
 
   let ordering = "DESC";
@@ -371,21 +376,7 @@ export async function listWords(
 
   if (options.limit != undefined) {
     query.push("LIMIT $limit");
-  }
-
-  // build bind params
-  const bindParams: SQLite.SQLiteBindParams = {};
-
-  if (dictionaryId != undefined) {
-    bindParams.$dictionaryId = dictionaryId;
-  }
-
-  if (options.limit != undefined) {
     bindParams.$limit = options.limit;
-  }
-
-  if (options.partOfSpeech != undefined) {
-    bindParams.$partOfSpeech = options.partOfSpeech;
   }
 
   const results = db.getEachAsync<{ spelling: string }>(
