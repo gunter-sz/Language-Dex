@@ -171,20 +171,20 @@ CREATE TABLE IF NOT EXISTS word_definition_data (
   updatedAt             INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS word_definition_data_index ON word_definition_data(dictionaryId, sharedId);
-
-CREATE TABLE IF NOT EXISTS word_relations (
-  groupId          INTEGER PRIMARY KEY NOT NULL,
-  wordDefinitionId INTEGER NOT NULL REFERENCES word_definition_data(id) ON DELETE CASCADE,
-  type             INTEGER
-);
-
-CREATE TABLE IF NOT EXISTS scan_history (
-  id            INTEGER PRIMARY KEY NOT NULL,
-  dictionaryId  INTEGER NOT NULL,
-  text          TEXT NOT NULL,
-  createdAt     INTEGER NOT NULL
-);
 `);
+
+  // CREATE TABLE IF NOT EXISTS word_relations (
+  //   groupId          INTEGER PRIMARY KEY NOT NULL,
+  //   wordDefinitionId INTEGER NOT NULL REFERENCES word_definition_data(id) ON DELETE CASCADE,
+  //   type             INTEGER
+  // );
+
+  // CREATE TABLE IF NOT EXISTS scan_history (
+  //   id            INTEGER PRIMARY KEY NOT NULL,
+  //   dictionaryId  INTEGER NOT NULL,
+  //   text          TEXT NOT NULL,
+  //   createdAt     INTEGER NOT NULL
+  // );
 }
 
 function packFileList(list: FileName[]): string {
