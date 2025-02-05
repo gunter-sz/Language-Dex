@@ -111,7 +111,11 @@ export default function Dictionary() {
 
     let cancelled = false;
 
-    listWords(dictionary.id, false, orderBy, partOfSpeechId)
+    listWords(dictionary.id, {
+      ascending: false,
+      orderBy,
+      partOfSpeech: partOfSpeechId,
+    })
       .then((words) => {
         if (cancelled) {
           return;

@@ -53,8 +53,15 @@ i18n
 
           // games
           Match: "Match",
+          Match_Requirements: "Requires at least three word definitions.",
           Unscramble: "Unscramble",
+          Unscramble_Requirements:
+            "Requires at least three words longer than one letter.",
           Crosswords: "Crosswords",
+          Crosswords_Requirements:
+            "Requires at least twenty unique words longer than two letters.",
+
+          Locked: "Locked",
 
           mode_endless: "Endless",
           mode_timed: "Timed",
@@ -89,6 +96,7 @@ i18n
           // dialogs
           Cancel: "Cancel",
           Confirm: "Confirm",
+          Close: "Close",
           Discard: "Discard",
           Save_Changes: "Save Changes",
           Delete: "Delete",

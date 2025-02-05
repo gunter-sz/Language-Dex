@@ -268,7 +268,7 @@ export type GameWord = {
 
 export async function listGameWords(
   dictionaryId: number,
-  options?: { minLength: number }
+  options?: { minLength?: number; limit?: number }
 ) {
   if (!db) {
     throw new Error("DB closed");
@@ -290,6 +290,11 @@ export async function listGameWords(
 
   query.push("ORDER BY word_def.confidence ASC, word_def.createdAt DESC");
 
+  if (options?.limit != undefined) {
+    query.push("LIMIT $limit");
+    params.$limit = options.limit;
+  }
+
   return await db.getAllAsync<{ spelling: string; orderKey: number }>(
     query.join(" "),
     params
@@ -298,9 +303,12 @@ export async function listGameWords(
 
 export async function listWords(
   dictionaryId: number,
-  ascending: boolean,
-  orderBy: WordOrder,
-  partOfSpeech?: number
+  options: {
+    ascending?: boolean;
+    orderBy: WordOrder;
+    partOfSpeech?: number;
+    limit?: number;
+  }
 ) {
   if (!db) {
     throw new Error("DB closed");
@@ -309,7 +317,7 @@ export async function listWords(
   // build query
   const query = ["SELECT spelling FROM word_shared_data word"];
 
-  if (partOfSpeech != undefined) {
+  if (options.partOfSpeech != undefined) {
     query.push(
       "INNER JOIN word_definition_data ON word_definition_data.sharedId = word.id"
     );
@@ -317,19 +325,19 @@ export async function listWords(
 
   query.push("WHERE word.dictionaryId = $dictionaryId");
 
-  if (partOfSpeech != undefined) {
+  if (options.partOfSpeech != undefined) {
     query.push("AND word_definition_data.partOfSpeech = $partOfSpeech");
   }
 
   let ordering = "DESC";
   let invOrdering = "ASC";
 
-  if (ascending) {
+  if (options.ascending == undefined || options.ascending) {
     ordering = "ASC";
     invOrdering = "DESC";
   }
 
-  switch (orderBy) {
+  switch (options.orderBy) {
     case "confidence":
       query.push(
         `ORDER BY word.minConfidence ${ordering}, word.createdAt ${invOrdering}`
@@ -347,11 +355,19 @@ export async function listWords(
       query.push(`ORDER BY word.spelling ${ordering}`);
   }
 
+  if (options.limit != undefined) {
+    query.push("LIMIT $limit");
+  }
+
   // build bind params
   const bindParams: SQLite.SQLiteBindParams = { $dictionaryId: dictionaryId };
 
-  if (partOfSpeech != undefined) {
-    bindParams.$partOfSpeech = partOfSpeech;
+  if (options.limit != undefined) {
+    bindParams.$limit = options.limit;
+  }
+
+  if (options.partOfSpeech != undefined) {
+    bindParams.$partOfSpeech = options.partOfSpeech;
   }
 
   const results = db.getEachAsync<{ spelling: string }>(
