@@ -30,7 +30,8 @@ type GameListingProps = {
   label: string;
   style: StyleProp<ViewStyle>;
   theme: Theme;
-  lockedCallback: ((description: string) => void) | false;
+  lockStatus: LockStatus;
+  setLockDescription: (description: string) => void;
 } & (
   | {
       href?: undefined;
@@ -49,25 +50,27 @@ function GameListing({
   style,
   theme,
   href,
-  lockedCallback,
+  lockStatus,
+  setLockDescription,
   modes,
   onSelect,
 }: GameListingProps) {
   const [t] = useTranslation();
 
-  if (lockedCallback != false) {
+  if (lockStatus.locked) {
     return (
       <View style={style}>
         <Pressable
           style={styles.pressable}
           android_ripple={theme.ripples.transparentButton}
-          onPress={() => lockedCallback(t(label + "_Requirements"))}
+          onPress={() => setLockDescription(t(label + "_Requirements"))}
         >
-          <LockIcon
-            style={styles.lock}
-            size={24}
-            color={theme.colors.iconButton}
-          />
+          <View style={styles.lock}>
+            <Span style={theme.styles.poppingText}>
+              {lockStatus.obtained ?? "?"}/{lockStatus.required ?? "?"}
+            </Span>
+            <LockIcon size={24} color={theme.colors.iconButton} />
+          </View>
 
           <Span>{t(label)}</Span>
         </Pressable>
@@ -105,8 +108,14 @@ function GameListing({
   );
 }
 
+type LockStatus = {
+  obtained?: number;
+  required?: number;
+  locked: boolean;
+};
+
 function testLock<Options>(
-  lockFn: (lock: boolean) => void,
+  lockFn: (lock: LockStatus) => void,
   f: (
     dictionaryId: number,
     options: Options & { limit: number }
@@ -114,8 +123,19 @@ function testLock<Options>(
   dictionaryId: number,
   options: Options & { limit: number }
 ) {
+  lockFn({
+    required: options.limit,
+    locked: true,
+  });
+
   f(dictionaryId, options)
-    .then((list) => lockFn(list.length < options.limit))
+    .then((list) =>
+      lockFn({
+        obtained: list.length,
+        required: options.limit,
+        locked: list.length < options.limit,
+      })
+    )
     .catch(logError);
 }
 
@@ -124,29 +144,25 @@ export default function () {
   const [t] = useTranslation();
   const [userData] = useUserDataContext();
   const dictionaryVersion = useDictionaryVersioning();
-  const [matchLocked, setMatchLocked] = useState(true);
-  const [unscrambleLocked, setUnscrambledLocked] = useState(true);
-  const [crosswordsLocked, setCrosswordsLocked] = useState(true);
-  const [lockedDialogOpen, setLockedDialogOpen] = useState(true);
+  const [matchStatus, setMatchStatus] = useState({ locked: true });
+  const [unscrambleStatus, setUnscrambleStatus] = useState({ locked: true });
+  const [crosswordsStatus, setCrosswordsStatus] = useState({ locked: true });
+  const [lockedDialogOpen, setLockedDialogOpen] = useState(false);
   const [lockDescription, setLockDescription] = useState("");
 
   const listingStyles = [theme.styles.gameListing, styles.listing];
 
   useEffect(() => {
-    setMatchLocked(true);
-    setCrosswordsLocked(true);
-    setCrosswordsLocked(true);
-
-    testLock(setMatchLocked, listGameWords, userData.activeDictionary, {
+    testLock(setMatchStatus, listGameWords, userData.activeDictionary, {
       limit: 3,
     });
 
-    testLock(setUnscrambledLocked, listGameWords, userData.activeDictionary, {
+    testLock(setUnscrambleStatus, listGameWords, userData.activeDictionary, {
       minLength: 2,
       limit: 3,
     });
 
-    testLock(setCrosswordsLocked, listWords, userData.activeDictionary, {
+    testLock(setCrosswordsStatus, listWords, userData.activeDictionary, {
       ascending: false,
       orderBy: "longest",
       limit: 20,
@@ -170,7 +186,8 @@ export default function () {
           style={listingStyles}
           theme={theme}
           modes={definitionMatchModeList}
-          lockedCallback={matchLocked && lockCallback}
+          lockStatus={matchStatus}
+          setLockDescription={lockCallback}
           onSelect={(mode) =>
             router.navigate(`/puzzles/${mode}/definition-match`)
           }
@@ -180,7 +197,8 @@ export default function () {
           label="Unscramble"
           style={listingStyles}
           theme={theme}
-          lockedCallback={unscrambleLocked && lockCallback}
+          lockStatus={unscrambleStatus}
+          setLockDescription={lockCallback}
           modes={unscrambleModeList}
           onSelect={(mode) => router.navigate(`/puzzles/${mode}/unscramble`)}
         />
@@ -191,7 +209,8 @@ export default function () {
           label="Crosswords"
           style={listingStyles}
           theme={theme}
-          lockedCallback={crosswordsLocked && lockCallback}
+          lockStatus={crosswordsStatus}
+          setLockDescription={lockCallback}
         />
 
         <View style={styles.spacer} />
@@ -232,6 +251,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 2,
     top: 4,
+    flexDirection: "row",
+    alignItems: "flex-end",
   },
   pressable: {
     justifyContent: "center",
