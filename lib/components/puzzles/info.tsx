@@ -19,7 +19,7 @@ export function ScoreRow({ children }: React.PropsWithChildren) {
 export function GameClock({ seconds }: { seconds: number }) {
   const theme = useTheme();
 
-  seconds = Math.max(Math.floor(seconds), 0);
+  seconds = Math.max(Math.ceil(seconds), 0);
 
   return (
     <View style={styles.clockBlock}>
