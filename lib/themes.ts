@@ -28,7 +28,6 @@ export type Theme = {
     scanTextInput: ViewStyle;
     scanText: TextStyle;
     scanTextActive: TextStyle;
-    scanOutput: TextStyle;
     scanWord: ViewStyle;
     scanOldWord: ViewStyle;
     scanNewWord: ViewStyle;
@@ -168,11 +167,6 @@ function createSimpleTheme(colors: Palette): Theme {
         paddingHorizontal: 8,
         paddingVertical: 4,
         backgroundColor: colors.scanInput,
-      },
-      scanOutput: {
-        paddingHorizontal: 16.7,
-        paddingVertical: 5,
-        paddingBottom: 32,
       },
       scanText: {
         fontSize: 20,
