@@ -47,31 +47,29 @@ function StatsBlock({
   }, [dictionaryId, version]);
 
   return (
-    <>
-      <View style={styles.lists}>
-        {statsLists.map((list, i) => (
-          <View key={i}>
-            {i == 0 && (
-              <Span>
-                {t("label", { label: t("Longest Word") })}{" "}
-                <Span style={theme.styles.poppingText}>
-                  {longestWord != undefined ? longestWord : t("NA")}
-                </Span>
+    <View style={styles.lists}>
+      {statsLists.map((list, i) => (
+        <View key={i}>
+          {i == 0 && (
+            <Span>
+              {t("label", { label: t("Longest Word") })}{" "}
+              <Span style={theme.styles.poppingText}>
+                {longestWord != undefined ? longestWord : t("NA")}
               </Span>
-            )}
+            </Span>
+          )}
 
-            {list.map(([label, key]) => (
-              <Span key={key}>
-                {t("label", { label: t(label) })}{" "}
-                <Span style={theme.styles.poppingText}>
-                  {typeof stats[key] == "number" ? stats[key] : 0}
-                </Span>
+          {list.map(([label, key]) => (
+            <Span key={key}>
+              {t("label", { label: t(label) })}{" "}
+              <Span style={theme.styles.poppingText}>
+                {typeof stats[key] == "number" ? stats[key] : 0}
               </Span>
-            ))}
-          </View>
-        ))}
-      </View>
-    </>
+            </Span>
+          ))}
+        </View>
+      ))}
+    </View>
   );
 }
 
@@ -99,6 +97,7 @@ export default function Statistics() {
         <Span style={theme.styles.poppingText}>
           {t("label", { label: dictionary.name })}
         </Span>
+
         <StatsBlock
           theme={theme}
           version={version}
@@ -111,6 +110,7 @@ export default function Statistics() {
         <Span style={theme.styles.poppingText}>
           {t("label", { label: t("Overall") })}
         </Span>
+
         <StatsBlock
           theme={theme}
           version={version}
@@ -129,13 +129,13 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   lists: {
-    gap: 8,
+    gap: 12,
   },
   block: {
-    paddingVertical: 6,
-    paddingBottom: 8,
+    paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 8,
     borderWidth: 1,
+    gap: 2,
   },
 });
