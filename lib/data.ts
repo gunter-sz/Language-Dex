@@ -8,18 +8,19 @@ import db from "./db";
 type FileName = string;
 
 export type DictionaryStats = {
-  earnedPoints?: number;
+  // scans
   wordsScanned?: number;
   totalScans?: number;
+  // puzzles
   definitionsMatched?: number;
   definitionMatchBest?: { [mode: string]: number };
   unscrambled?: number;
   unscrambleBest?: { [mode: string]: number };
+  // words
   definitions?: number;
   documentedMaxConfidence?: number;
   totalImages?: number;
   totalPronounced?: number;
-  totalWords?: number;
 };
 
 export const negatableStats: (keyof DictionaryStats)[] = [
@@ -27,7 +28,6 @@ export const negatableStats: (keyof DictionaryStats)[] = [
   "documentedMaxConfidence",
   "totalImages",
   "totalPronounced",
-  "totalWords",
 ];
 
 export type PartOfSpeechData = { id: number; name: string };

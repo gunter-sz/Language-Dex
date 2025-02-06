@@ -119,6 +119,16 @@ export default function () {
       </Pressable>
 
       <View style={theme.styles.separator} />
+
+      <Pressable
+        style={styles.row}
+        android_ripple={theme.ripples.transparentButton}
+        onPress={() => router.navigate("/logs")}
+      >
+        <Span style={styles.label}>{t("View_Logs")}</Span>
+      </Pressable>
+
+      <View style={theme.styles.separator} />
     </>
   );
 }

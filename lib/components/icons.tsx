@@ -107,6 +107,10 @@ export function TrashIcon(props: IconProps) {
   return <MaterialDesignIcons name="delete-outline" {...props} />;
 }
 
+export function CopyIcon(props: IconProps) {
+  return <MaterialDesignIcons name="content-copy" {...props} />;
+}
+
 export function DragVerticalIcon(props: IconProps) {
   return <MaterialDesignIcons name="drag-horizontal-variant" {...props} />;
 }

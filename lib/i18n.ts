@@ -129,6 +129,10 @@ i18n
           Light: "Light",
           Dark: "Dark",
 
+          // logs
+          View_Logs: "View Logs",
+          Logs: "Logs",
+
           // attribution
           Third_Party_Licenses: "Third-party Licenses",
           version: "version",
