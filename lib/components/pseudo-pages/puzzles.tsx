@@ -6,6 +6,7 @@ import {
   Pressable,
   StyleProp,
   ViewStyle,
+  ScrollView,
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { Span } from "../text";
@@ -184,7 +185,7 @@ export default function () {
     <View style={styles.content}>
       <GameTitle>{t("Puzzles")}</GameTitle>
 
-      <View style={styles.list}>
+      <ScrollView contentContainerStyle={styles.list}>
         <View style={styles.row}>
           <GameListing
             label="Match"
@@ -220,18 +221,18 @@ export default function () {
 
           <View style={styles.spacer} />
         </View>
+      </ScrollView>
 
-        <Dialog open={lockedDialogOpen} onClose={closeLockDialog}>
-          <DialogTitle>{t("Locked")}</DialogTitle>
-          <DialogDescription>{lockDescription}</DialogDescription>
+      <Dialog open={lockedDialogOpen} onClose={closeLockDialog}>
+        <DialogTitle>{t("Locked")}</DialogTitle>
+        <DialogDescription>{lockDescription}</DialogDescription>
 
-          <ConfirmationDialogActions>
-            <ConfirmationDialogAction onPress={closeLockDialog}>
-              {t("Close")}
-            </ConfirmationDialogAction>
-          </ConfirmationDialogActions>
-        </Dialog>
-      </View>
+        <ConfirmationDialogActions>
+          <ConfirmationDialogAction onPress={closeLockDialog}>
+            {t("Close")}
+          </ConfirmationDialogAction>
+        </ConfirmationDialogActions>
+      </Dialog>
     </View>
   );
 }

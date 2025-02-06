@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, ScrollView } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/lib/contexts/theme";
 import { Span } from "../text";
@@ -93,31 +93,33 @@ export default function Statistics() {
     <View style={styles.content}>
       <GameTitle>{t("Statistics")}</GameTitle>
 
-      <View style={blockStyles}>
-        <Span style={theme.styles.poppingText}>
-          {t("label", { label: dictionary.name })}
-        </Span>
+      <ScrollView>
+        <View style={blockStyles}>
+          <Span style={theme.styles.poppingText}>
+            {t("label", { label: dictionary.name })}
+          </Span>
 
-        <StatsBlock
-          theme={theme}
-          version={version}
-          dictionaryId={userData.activeDictionary}
-          stats={dictionary.stats}
-        />
-      </View>
+          <StatsBlock
+            theme={theme}
+            version={version}
+            dictionaryId={userData.activeDictionary}
+            stats={dictionary.stats}
+          />
+        </View>
 
-      <View style={blockStyles}>
-        <Span style={theme.styles.poppingText}>
-          {t("label", { label: t("Overall") })}
-        </Span>
+        <View style={blockStyles}>
+          <Span style={theme.styles.poppingText}>
+            {t("label", { label: t("Overall") })}
+          </Span>
 
-        <StatsBlock
-          theme={theme}
-          version={version}
-          dictionaryId={null}
-          stats={userData.stats}
-        />
-      </View>
+          <StatsBlock
+            theme={theme}
+            version={version}
+            dictionaryId={null}
+            stats={userData.stats}
+          />
+        </View>
+      </ScrollView>
     </View>
   );
 }

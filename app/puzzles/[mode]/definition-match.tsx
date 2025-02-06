@@ -435,7 +435,7 @@ export default function () {
         </ScoreRow>
       )}
 
-      <Animated.View style={[styles.rows, opacityStyle]}>
+      <Animated.ScrollView contentContainerStyle={[styles.rows, opacityStyle]}>
         {gameState.rows.map(([left, right], i) => (
           <View key={i} style={styles.row}>
             <Card
@@ -531,7 +531,7 @@ export default function () {
             />
           </ResultsRow>
         </ResultsDialog>
-      </Animated.View>
+      </Animated.ScrollView>
     </>
   );
 }
