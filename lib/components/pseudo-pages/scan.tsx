@@ -1,12 +1,14 @@
-import { StyleSheet, View } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, View, Text } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/lib/contexts/theme";
-import React, { useState } from "react";
 import { CloseIcon, ConfirmReadyIcon, EditIcon, HistoryIcon } from "../icons";
 import CustomTextInput from "@/lib/components/custom-text-input";
 import ScanOutput from "@/lib/components/scan-output";
 import CircleButton from "@/lib/components/circle-button";
 import useKeyboardVisible from "@/lib/hooks/use-keyboard-visible";
+
+const MAX_LEN = 2000;
 
 export default function Scan() {
   const [t] = useTranslation();
@@ -29,7 +31,12 @@ export default function Scan() {
             value={text}
             placeholder={t("scan_placeholder")}
             onChangeText={setText}
+            maxLength={MAX_LEN}
           />
+
+          <Text style={[styles.characterCount, theme.styles.disabledText]}>
+            {text.length}/{MAX_LEN}
+          </Text>
         </View>
       )}
 
@@ -85,6 +92,9 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlignVertical: "top",
     padding: 0,
+  },
+  characterCount: {
+    marginLeft: "auto",
   },
   circleButtonBlock: {
     display: "flex",
