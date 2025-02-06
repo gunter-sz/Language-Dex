@@ -6,20 +6,13 @@ import { useTheme } from "@/lib/contexts/theme";
 import { useUserDataContext } from "@/lib/contexts/user-data";
 import CustomTextInput from "@/lib/components/custom-text-input";
 import { CloseIcon, ArrowUpIcon, ArrowDownIcon } from "../icons";
-import { listWords, WordOrder } from "@/lib/data";
+import { listWords, wordOrderOptions } from "@/lib/data";
 import { Span } from "../text";
 import { router } from "expo-router";
 import { logError } from "@/lib/log";
 import { useDictionaryVersioning } from "@/lib/hooks/use-word-definitions";
 
 const wordFilters = [-1];
-
-const orderByOptions: WordOrder[] = [
-  "alphabetical",
-  "confidence",
-  "latest",
-  "longest",
-];
 
 const COLUMNS = 2;
 
@@ -63,21 +56,27 @@ function WordRow({ item: words }: { item: string[] }) {
 }
 
 export default function Dictionary() {
-  const [allWords, setAllWords] = useState<string[]>([]);
-  const [searchValue, setSearchValue] = useState("");
-  const [partOfSpeechFilter, setPartOfSpeechFilter] = useState(wordFilters[0]);
-  const [orderBy, setOrderBy] = useState(orderByOptions[0]);
-  const [ascending, setAscending] = useState(true);
-
   const [t] = useTranslation();
   const theme = useTheme();
   const [userData] = useUserDataContext();
+
   const dictionary = userData.dictionaries.find(
     (d) => d.id == userData.activeDictionary
   )!;
   const [activeDictionaryId, setActiveDictionaryId] = useState(
     userData.activeDictionary
   );
+
+  const [allWords, setAllWords] = useState<string[]>([]);
+  const [searchValue, setSearchValue] = useState("");
+  const [partOfSpeechFilter, setPartOfSpeechFilter] = useState(wordFilters[0]);
+  const [orderBy, setOrderBy] = useState(() =>
+    userData.dictionaryOrder != undefined &&
+    wordOrderOptions.includes(userData.dictionaryOrder)
+      ? userData.dictionaryOrder
+      : wordOrderOptions[0]
+  );
+  const [ascending, setAscending] = useState(true);
 
   // resolve final word list
   const filteredWords = useMemo(() => {
@@ -223,7 +222,7 @@ export default function Dictionary() {
           <View style={[theme.styles.searchOptionContainer, styles.dropdown]}>
             <BottomListPopup
               label={t(orderBy)}
-              items={orderByOptions}
+              items={wordOrderOptions}
               mapItem={(value) => t(value)}
               onChange={setOrderBy}
             />

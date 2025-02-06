@@ -54,6 +54,7 @@ export function namePartOfSpeech(
 export type UserData = {
   version: number;
   home?: string;
+  dictionaryOrder?: WordOrder;
   theme?: string;
   colorScheme?: "dark" | "light";
   disabledFeatures: {
@@ -269,6 +270,13 @@ export async function deletePartOfSpeech(
 }
 
 export type WordOrder = "alphabetical" | "latest" | "confidence" | "longest";
+
+export const wordOrderOptions: WordOrder[] = [
+  "alphabetical",
+  "confidence",
+  "latest",
+  "longest",
+];
 
 export type GameWord = {
   spelling: string;

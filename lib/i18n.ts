@@ -123,6 +123,7 @@ i18n
           // settings
           Settings: "Settings",
           Default_View: "Default View",
+          Default_Sorting: "Default Sorting",
           Theme: "Theme",
           System: "System",
           Light: "Light",

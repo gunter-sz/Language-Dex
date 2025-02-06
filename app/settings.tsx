@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, View } from "react-native";
 import ListPopup from "@/lib/components/list-popup";
 import { useUserDataContext } from "@/lib/contexts/user-data";
-import { UserData } from "@/lib/data";
+import { UserData, wordOrderOptions } from "@/lib/data";
 import { TFunction } from "i18next";
 import { pages } from "./index";
 
@@ -69,7 +69,7 @@ export default function () {
         getItemText={(value) => t(value)}
         keyExtractor={(value) => value}
         onSelect={(value?: string) => {
-          if (value != userData.colorScheme) {
+          if (value != userData.home) {
             const updatedData = { ...userData };
             updatedData.home = value;
             setUserData(updatedData);
@@ -81,6 +81,30 @@ export default function () {
           {userData.home != undefined && pageList.includes(userData.home)
             ? t(userData.home)
             : t("Dictionary")}
+        </Span>
+      </ListPopup>
+
+      <View style={theme.styles.separator} />
+
+      <ListPopup
+        style={styles.row}
+        list={wordOrderOptions}
+        getItemText={(value) => t(value)}
+        keyExtractor={(value) => value}
+        onSelect={(value) => {
+          if (value != userData.dictionaryOrder) {
+            const updatedData = { ...userData };
+            updatedData.dictionaryOrder = value;
+            setUserData(updatedData);
+          }
+        }}
+      >
+        <Span style={styles.label}>{t("Default_Sorting")}</Span>
+        <Span style={[styles.value, theme.styles.disabledText]}>
+          {userData.dictionaryOrder != undefined &&
+          wordOrderOptions.includes(userData.dictionaryOrder)
+            ? t(userData.dictionaryOrder)
+            : t(wordOrderOptions[0])}
         </Span>
       </ListPopup>
 
