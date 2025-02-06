@@ -128,6 +128,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 8,
+    paddingBottom: 0,
     gap: 16,
   },
   lists: {
@@ -139,5 +140,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     gap: 2,
+    marginBottom: 8,
   },
 });

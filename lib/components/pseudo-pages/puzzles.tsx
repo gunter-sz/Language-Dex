@@ -239,21 +239,24 @@ export default function () {
 
 const styles = StyleSheet.create({
   content: {
-    gap: 16,
-    padding: 8,
+    gap: 8,
+    paddingTop: 8,
+    flex: 1,
   },
   list: {
     flexWrap: "wrap",
-    gap: 4,
+    gap: 8,
+    padding: 8,
   },
   row: {
     flexDirection: "row",
-    gap: 4,
+    gap: 8,
   },
   listing: {
     flexDirection: "column",
     aspectRatio: 1,
     flexGrow: 1,
+    flexShrink: 1,
     alignItems: "stretch",
     flexBasis: "50%",
   },
@@ -271,6 +274,7 @@ const styles = StyleSheet.create({
   },
   spacer: {
     flexGrow: 1,
+    flexShrink: 1,
     flexBasis: "50%",
   },
 });
