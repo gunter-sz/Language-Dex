@@ -138,6 +138,14 @@ export function useWordDefinition(
 const invalidationListeners = new Set<(v: number) => void>();
 let versionCount = 0;
 
+export function bumpDictionaryVersion() {
+  versionCount++;
+
+  for (const setState of invalidationListeners.values()) {
+    setState(versionCount);
+  }
+}
+
 export function invalidateWordDefinitions(
   dictionaryId: number,
   lowercaseWord: string
@@ -159,13 +167,7 @@ export function invalidateWordDefinitions(
   }
 
   fetchDefinition(dictionaryId, lowercaseWord, cachedWord)
-    .then(() => {
-      versionCount++;
-
-      for (const setState of invalidationListeners.values()) {
-        setState(versionCount);
-      }
-    })
+    .then(bumpDictionaryVersion)
     .catch(logError);
 }
 

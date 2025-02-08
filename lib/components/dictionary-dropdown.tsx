@@ -6,11 +6,11 @@ import { useUserDataContext } from "../contexts/user-data";
 import {
   deleteDictionary,
   DictionaryData,
-  DictionaryStats,
   negatableStats,
   prepareDictionaryUpdate,
 } from "../data";
 import ConfirmationDialog from "./confirmation-dialog";
+import { bumpDictionaryVersion } from "../hooks/use-word-definitions";
 
 type Props = {
   style?: StyleProp<ViewStyle>;
@@ -122,6 +122,8 @@ export default function DictionaryDropdown({
 
             return userData;
           });
+
+          bumpDictionaryVersion();
 
           setDeleteRequested(false);
         }}
