@@ -10,6 +10,7 @@ import { useTheme } from "../contexts/theme";
 import { Pressable, StyleSheet, View } from "react-native";
 import useBackHandler from "../hooks/use-back-handler";
 import { Span } from "./text";
+import * as Progress from "react-native-progress";
 
 type Props = {
   open: boolean;
@@ -36,6 +37,19 @@ export function DialogDescription({ children }: React.PropsWithChildren) {
   return (
     <View style={styles.description}>
       <Span>{children}</Span>
+    </View>
+  );
+}
+
+export function DialogProgressBar() {
+  return (
+    <View style={styles.progressContainer}>
+      <Progress.Bar
+        borderWidth={0}
+        borderRadius={0}
+        width={null}
+        indeterminate={true}
+      />
     </View>
   );
 }
@@ -155,5 +169,9 @@ const styles = StyleSheet.create({
     padding: 8,
     paddingTop: 16,
     paddingLeft: 24,
+  },
+  progressContainer: {
+    paddingTop: 4,
+    paddingVertical: 0,
   },
 });

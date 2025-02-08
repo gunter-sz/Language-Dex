@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import SubMenuTopNav, {
   SubMenuBackButton,
   SubMenuTitle,
@@ -10,9 +10,30 @@ import { useTranslation } from "react-i18next";
 import { Pressable, StyleSheet, View } from "react-native";
 import ListPopup from "@/lib/components/list-popup";
 import { useUserDataContext } from "@/lib/contexts/user-data";
-import { UserData, wordOrderOptions } from "@/lib/data";
+import {
+  DictionaryData,
+  exportData,
+  importData,
+  UserData,
+  wordOrderOptions,
+} from "@/lib/data";
 import { TFunction } from "i18next";
 import { pages } from "./index";
+import { logError } from "@/lib/log";
+import Dialog, {
+  DialogDescription,
+  DialogProgressBar,
+  DialogTitle,
+} from "@/lib/components/dialog";
+import {
+  ConfirmationDialogAction,
+  ConfirmationDialogActions,
+} from "@/lib/components/confirmation-dialog";
+import * as DocumentPicker from "expo-document-picker";
+import {
+  bumpDictionaryVersion,
+  invalidateWordDefinitions,
+} from "@/lib/hooks/use-word-definitions";
 
 function getColorSchemeText(
   t: TFunction<"translation", undefined>,
@@ -31,6 +52,11 @@ export default function () {
   const theme = useTheme();
   const [t] = useTranslation();
   const [userData, setUserData] = useUserDataContext();
+  const [longTaskName, setLongTaskName] = useState("");
+  const [longTaskOpen, setLongTaskOpen] = useState(false);
+  const [longTaskCompletedMessage, setLongTaskCompletedMessage] = useState<
+    string | undefined
+  >();
 
   const pageList = pages.map((page) => page.label);
 
@@ -113,6 +139,70 @@ export default function () {
       <Pressable
         style={styles.row}
         android_ripple={theme.ripples.transparentButton}
+        onPress={() => {
+          DocumentPicker.getDocumentAsync({ copyToCacheDirectory: false })
+            .then((result) => {
+              if (result.canceled) {
+                return;
+              }
+
+              const asset = result.assets[0];
+
+              setLongTaskOpen(true);
+              setLongTaskName(t("Importing"));
+              setLongTaskCompletedMessage(undefined);
+
+              importData(
+                userData,
+                (userData) => {
+                  setUserData(userData);
+                  bumpDictionaryVersion();
+                },
+                asset.uri
+              )
+                .then(() =>
+                  setLongTaskCompletedMessage(t("Success_exclamation"))
+                )
+                .catch((err) => {
+                  setLongTaskCompletedMessage(t("An_error_occurred"));
+                  logError(err);
+                });
+            })
+            .catch(logError);
+        }}
+      >
+        <Span style={styles.label}>{t("Import_Dictionaries")}</Span>
+      </Pressable>
+
+      <View style={theme.styles.separator} />
+
+      <ListPopup
+        style={styles.row}
+        list={userData.dictionaries.map((d) => d)}
+        getItemText={(value) => value.name}
+        keyExtractor={(value) => String(value.id)}
+        defaultItemText={t("All")}
+        onSelect={(value?: DictionaryData) => {
+          setLongTaskOpen(true);
+          setLongTaskName(t("Exporting"));
+          setLongTaskCompletedMessage(undefined);
+
+          exportData(userData, value?.id)
+            .then(() => setLongTaskCompletedMessage(t("Success_exclamation")))
+            .catch((err) => {
+              setLongTaskCompletedMessage(t("An_error_occurred"));
+              logError(err);
+            });
+        }}
+      >
+        <Span style={styles.label}>{t("Export_Dictionaries")}</Span>
+      </ListPopup>
+
+      <View style={theme.styles.separator} />
+
+      <Pressable
+        style={styles.row}
+        android_ripple={theme.ripples.transparentButton}
         onPress={() => router.navigate("/attribution")}
       >
         <Span style={styles.label}>{t("Third_Party_Licenses")}</Span>
@@ -129,6 +219,31 @@ export default function () {
       </Pressable>
 
       <View style={theme.styles.separator} />
+
+      <Dialog
+        open={longTaskOpen}
+        onClose={
+          longTaskCompletedMessage != undefined
+            ? () => setLongTaskOpen(false)
+            : undefined
+        }
+      >
+        <DialogTitle>{longTaskName}</DialogTitle>
+
+        {longTaskCompletedMessage == undefined ? (
+          <DialogProgressBar />
+        ) : (
+          <>
+            <DialogDescription>{longTaskCompletedMessage}</DialogDescription>
+
+            <ConfirmationDialogActions>
+              <ConfirmationDialogAction onPress={() => setLongTaskOpen(false)}>
+                {t("Close")}
+              </ConfirmationDialogAction>
+            </ConfirmationDialogActions>
+          </>
+        )}
+      </Dialog>
     </>
   );
 }

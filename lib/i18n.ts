@@ -104,6 +104,8 @@ i18n
           Save_Changes: "Save Changes",
           Delete: "Delete",
           Delete_Title: "Delete {{name}}?",
+          An_error_occurred: "An error occurred!",
+          Success_exclamation: "Success!",
 
           Discard_Changes: "Discard Changes",
           Discard_Changes_Desc: "You have pending changes, discard?",
@@ -128,6 +130,11 @@ i18n
           System: "System",
           Light: "Light",
           Dark: "Dark",
+          Import_Dictionaries: "Import Dictionaries",
+          Importing: "Importing",
+          Export_Dictionaries: "Export Dictionaries",
+          Exporting: "Exporting",
+          All: "All",
 
           // logs
           View_Logs: "View Logs",

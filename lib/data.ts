@@ -4,6 +4,8 @@ import * as SQLite from "expo-sqlite";
 import { logError } from "./log";
 import Unistring from "@akahuku/unistring";
 import db from "./db";
+import * as Sharing from "expo-sharing";
+import packageMeta from "../package.json";
 
 type FileName = string;
 
@@ -125,6 +127,9 @@ type WordDefinitionUpsertData = Omit<
 // local database operations
 
 async function initDb() {
+  await deleteImportDb();
+  await deleteExportDb();
+
   await db.execAsync(`
 PRAGMA journal_mode = WAL;
 
@@ -783,6 +788,374 @@ async function loadFileObject(id: string): Promise<any> {
 
 function deleteFileObject(id: string) {
   return FileSystem.deleteAsync(FILE_OBJECT_DIR + id);
+}
+
+// import / export
+
+async function fileExists(path: string) {
+  try {
+    return (await FileSystem.getInfoAsync(path)).exists;
+  } catch {
+    return false;
+  }
+}
+
+const EXPORT_DB_NAME = "export.sqlite";
+const IMPORT_DB_NAME = "import";
+
+async function deleteExportDb() {
+  try {
+    await SQLite.deleteDatabaseAsync(EXPORT_DB_NAME);
+  } catch {
+    //
+  }
+}
+
+async function deleteImportDb() {
+  try {
+    await SQLite.deleteDatabaseAsync(IMPORT_DB_NAME);
+  } catch {
+    //
+  }
+}
+
+export async function exportData(userData: UserData, dictionaryId?: number) {
+  const dictionary = userData.dictionaries.find((d) => d.id == dictionaryId);
+
+  // make sure we don't have existing export data
+  await deleteExportDb();
+
+  // init export db
+  const exportDb = await SQLite.openDatabaseAsync(EXPORT_DB_NAME);
+
+  try {
+    await exportDb.execAsync(`
+PRAGMA journal_mode = WAL;
+
+CREATE TABLE meta (
+  key  TEXT PRIMARY KEY NOT NULL,
+  data TEXT NOT NULL
+);
+
+CREATE TABLE dictionaries (
+  id   INTEGER PRIMARY KEY NOT NULL,
+  data TEXT NOT NULL
+);
+
+CREATE TABLE word_shared_data (
+  id            INTEGER PRIMARY KEY NOT NULL,
+  dictionaryId  INTEGER NOT NULL,
+  spelling      TEXT NOT NULL,
+  graphemeCount INTEGER NOT NULL,
+  minConfidence INTEGER NOT NULL,
+  latestAt      INTEGER NOT NULL,
+  createdAt     INTEGER NOT NULL,
+  updatedAt     INTEGER NOT NULL
+);
+
+CREATE TABLE word_definition_data (
+  dictionaryId       INTEGER NOT NULL,
+  sharedId           INTEGER NOT NULL REFERENCES word_shared_data(id),
+  orderKey           INTEGER NOT NULL,
+  confidence         INTEGER NOT NULL,
+  partOfSpeech       INTEGER,
+  pronunciationAudio TEXT,
+  definition         TEXT NOT NULL,
+  example            TEXT NOT NULL,
+  notes              TEXT NOT NULL,
+  createdAt          INTEGER NOT NULL,
+  updatedAt          INTEGER NOT NULL
+);
+
+CREATE TABLE files (
+  id   TEXT PRIMARY KEY NOT NULL,
+  data BLOB NOT NULL
+);
+`);
+
+    await exportDb.runAsync(
+      "INSERT INTO meta (key, data) VALUES ($key, $data)",
+      {
+        $key: "",
+        $data: packageMeta.version,
+      }
+    );
+
+    // load dictionary meta data
+    const dictionaries =
+      dictionary != undefined ? [dictionary] : userData.dictionaries;
+
+    for (const dictionary of dictionaries) {
+      await exportDb.runAsync(
+        "INSERT INTO dictionaries (id, data) VALUES ($id, $data)",
+        {
+          $id: dictionary.id,
+          $data: JSON.stringify({
+            name: dictionary.name,
+            partsOfSpeech: dictionary.partsOfSpeech,
+          }),
+        }
+      );
+    }
+
+    // start copying tables
+    async function copyTable(table: string, keys: string[]) {
+      const sourceQuery = ["SELECT", keys.join(", "), "FROM", table];
+      const sourceParams: SQLite.SQLiteBindParams = {};
+
+      if (dictionaryId != undefined) {
+        sourceQuery.push("WHERE dictionaryId = $dictionaryId");
+        sourceParams.$dictionaryId = dictionaryId;
+      }
+
+      const sourceResults = db.getEachAsync<{ [key: string]: unknown }>(
+        sourceQuery.join(" "),
+        sourceParams
+      );
+
+      const insertQuery = `INSERT INTO ${table} (${keys.join(
+        ", "
+      )}) VALUES (${keys.map((k) => "$" + k).join(", ")})`;
+
+      const bindParams: { [key: string]: any } = {};
+
+      const prepared = await exportDb.prepareAsync(insertQuery);
+
+      try {
+        for await (const result of sourceResults) {
+          for (const key of keys) {
+            bindParams["$" + key] = result[key];
+          }
+
+          await prepared.executeAsync(bindParams);
+        }
+      } finally {
+        await prepared.finalizeAsync();
+      }
+    }
+
+    await copyTable("word_shared_data", [
+      "id",
+      "dictionaryId",
+      "spelling",
+      "graphemeCount",
+      "minConfidence",
+      "latestAt",
+      "createdAt",
+      "updatedAt",
+    ]);
+
+    await copyTable("word_definition_data", [
+      "dictionaryId",
+      "sharedId",
+      "orderKey",
+      "confidence",
+      "partOfSpeech",
+      "pronunciationAudio",
+      "definition",
+      "example",
+      "notes",
+      "createdAt",
+      "updatedAt",
+    ]);
+
+    // // copy audio files
+    // const audioResults = db.getEachAsync<{ pronunciationAudio: string }>(
+    //   "SELECT pronunciationAudio FROM word_definition_data WHERE pronunciationAudio IS NOT NULL AND dictionaryId = ",
+    //   { $dictionaryId: dictionaryId }
+    // );
+
+    // const insertFileStatement = await exportDb.prepareAsync(
+    //   "INSERT INTO files (id, data) VALUES ($id, $data)"
+    // );
+
+    // try {
+    //   for await (const { pronunciationAudio } of audioResults) {
+    //     const data = await loadFileBytes(pronunciationAudio);
+
+    //     await insertFileStatement.executeAsync({
+    //       $id: pronunciationAudio,
+    //       $data: data,
+    //     });
+    //   }
+    // } finally {
+    //   await insertFileStatement.finalizeAsync();
+    // }
+  } finally {
+    await exportDb.closeAsync();
+  }
+
+  await Sharing.shareAsync("file://" + exportDb.databasePath);
+}
+
+export async function importData(
+  userData: UserData,
+  saveUserData: (userData: UserData) => void,
+  uri: string
+) {
+  await deleteExportDb();
+  await deleteImportDb();
+
+  await FileSystem.copyAsync({
+    from: uri,
+    to: "file://" + SQLite.defaultDatabaseDirectory + "/" + IMPORT_DB_NAME,
+  });
+
+  const importDb = await SQLite.openDatabaseAsync(IMPORT_DB_NAME);
+
+  userData = { ...userData };
+  userData.dictionaries = [...userData.dictionaries];
+  userData.stats = { ...userData.stats };
+  userData.stats.definitions = userData.stats.definitions ?? 0;
+
+  try {
+    // load dictionaries with a map from import id to new id
+    const importIdMap: { [importId: number]: DictionaryData | undefined } = {};
+
+    const dictionaryResults = importDb.getEachAsync<{
+      id: number;
+      data: string;
+    }>("SELECT * FROM dictionaries");
+
+    for await (const result of dictionaryResults) {
+      const data = JSON.parse(result.data) as Pick<
+        DictionaryData,
+        "name" | "partsOfSpeech"
+      >;
+
+      const dictionary = {
+        name: data.name,
+        id: userData.nextDictionaryId,
+        partsOfSpeech: data.partsOfSpeech,
+        nextPartOfSpeechId: data.partsOfSpeech.reduce(
+          (acc, p) => Math.max(acc, p.id + 1),
+          0
+        ),
+        stats: {
+          definitions: 0,
+          totalPronounced: 0,
+        },
+      };
+
+      userData.dictionaries.push(dictionary);
+      importIdMap[result.id] = dictionary;
+      userData.nextDictionaryId++;
+    }
+
+    async function bulkInsert(
+      table: string,
+      keys: string[],
+      callback: (statement: SQLite.SQLiteStatement) => Promise<void>
+    ) {
+      const statement = await db.prepareAsync(
+        `INSERT INTO ${table} (${keys.join(", ")}) VALUES (${keys
+          .map((k) => "$" + k)
+          .join(", ")})`
+      );
+
+      try {
+        await callback(statement);
+      } finally {
+        await statement.finalizeAsync();
+      }
+    }
+
+    // load words
+    const wordResults = importDb.getEachAsync<{
+      id: number;
+      dictionaryId: number;
+      spelling: string;
+    }>("SELECT * FROM word_shared_data");
+
+    const wordCopyKeys = [
+      "spelling",
+      "graphemeCount",
+      "minConfidence",
+      "latestAt",
+      "createdAt",
+      "updatedAt",
+    ];
+
+    // oldId -> newId
+    const sharedIdMap: { [oldId: number]: number } = {};
+
+    await bulkInsert(
+      "word_shared_data",
+      ["dictionaryId", "insensitiveSpelling", ...wordCopyKeys],
+      async (statement) => {
+        for await (const result of wordResults) {
+          const dictionary = importIdMap[result.dictionaryId];
+
+          if (!dictionary) {
+            continue;
+          }
+
+          const bindParams: { [key: string]: any } = {
+            $dictionaryId: dictionary.id,
+            $insensitiveSpelling: result.spelling.toLowerCase(),
+          };
+
+          for (const key of wordCopyKeys) {
+            bindParams["$" + key] = (result as { [key: string]: unknown })[key];
+          }
+
+          const execResult = await statement.executeAsync(bindParams);
+          sharedIdMap[result.id] = execResult.lastInsertRowId;
+        }
+      }
+    );
+
+    // load definitions
+    const definitionResults = importDb.getEachAsync<{
+      dictionaryId: number;
+      sharedId: number;
+      // pronunciationAudio?: string | null;
+    }>("SELECT * FROM word_definition_data");
+
+    const definitionCopyKeys = [
+      "orderKey",
+      "confidence",
+      "partOfSpeech",
+      // "pronunciationAudio", // todo, make sure to generate a new id
+      "definition",
+      "example",
+      "notes",
+      "createdAt",
+      "updatedAt",
+    ];
+
+    await bulkInsert(
+      "word_definition_data",
+      ["dictionaryId", "sharedId", ...definitionCopyKeys],
+      async (statement) => {
+        for await (const result of definitionResults) {
+          const dictionary = importIdMap[result.dictionaryId];
+
+          if (!dictionary) {
+            continue;
+          }
+
+          const bindParams: { [key: string]: any } = {
+            $dictionaryId: dictionary.id,
+            $sharedId: sharedIdMap[result.sharedId],
+          };
+
+          for (const key of definitionCopyKeys) {
+            bindParams["$" + key] = (result as { [key: string]: unknown })[key];
+          }
+
+          await statement.executeAsync(bindParams);
+
+          userData.stats.definitions! += 1;
+          dictionary.stats.definitions! += +1;
+        }
+      }
+    );
+  } finally {
+    await importDb.closeAsync();
+    await deleteImportDb();
+    saveUserData(userData);
+  }
 }
 
 // debug

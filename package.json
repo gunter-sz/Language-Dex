@@ -1,7 +1,7 @@
 {
   "name": "language-dex",
   "main": "expo-router/entry",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
@@ -33,12 +33,14 @@
     "expo-blur": "~14.0.2",
     "expo-clipboard": "~7.0.1",
     "expo-constants": "~17.0.4",
+    "expo-document-picker": "~13.0.3",
     "expo-file-system": "^18.0.7",
     "expo-font": "~13.0.3",
     "expo-haptics": "~14.0.1",
     "expo-linking": "~7.0.4",
     "expo-localization": "~16.0.1",
     "expo-router": "~4.0.17",
+    "expo-sharing": "~13.0.1",
     "expo-splash-screen": "~0.29.21",
     "expo-sqlite": "^15.0.6",
     "expo-status-bar": "~2.0.1",
@@ -50,10 +52,12 @@
     "react-i18next": "^15.4.0",
     "react-native": "0.76.6",
     "react-native-gesture-handler": "~2.20.2",
+    "react-native-progress": "^5.0.1",
     "react-native-reanimated": "3.16.2",
     "react-native-reorderable-list": "^0.9.0",
     "react-native-safe-area-context": "4.12.0",
     "react-native-screens": "~4.4.0",
+    "react-native-svg": "^15.11.1",
     "react-native-uuid": "^2.0.3"
   },
   "devDependencies": {
