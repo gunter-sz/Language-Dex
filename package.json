@@ -1,18 +1,18 @@
 {
   "name": "language-dex",
   "main": "expo-router/entry",
-  "version": "0.0.1",
-  "versionCode": 2,
+  "version": "0.0.2",
+  "versionCode": 3,
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
-    "build-android": "npx tsx android-prebuild.ts && cd android && ./gradlew app:bundleRelease",
+    "build-android": "npx tsx scripts/android-prebuild.ts && cd android && ./gradlew app:bundleRelease",
     "ios": "expo run:ios",
     "web": "expo start --web",
     "go": "expo start --go",
     "test": "jest --watchAll",
     "lint": "expo lint",
-    "licenses": "license-ripper --config license-ripper-config.json --output -licenses.json --compress; npx tsx license-post-rip.ts"
+    "licenses": "license-ripper --config license-ripper-config.json --output -licenses.json --compress; npx tsx scripts/license-post-rip.ts"
   },
   "jest": {
     "preset": "jest-expo"
