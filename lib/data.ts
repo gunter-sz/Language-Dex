@@ -230,10 +230,10 @@ export async function deleteDictionary(id: number) {
     "DELETE FROM word_shared_data WHERE dictionaryId = $dictionaryId",
     { $dictionaryId: id }
   );
-  await db.runAsync(
-    "DELETE FROM scan_history WHERE dictionaryId = $dictionaryId",
-    { $dictionaryId: id }
-  );
+  // await db.runAsync(
+  //   "DELETE FROM scan_history WHERE dictionaryId = $dictionaryId",
+  //   { $dictionaryId: id }
+  // );
 }
 
 export async function deletePartOfSpeech(
