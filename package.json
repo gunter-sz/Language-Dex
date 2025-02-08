@@ -2,10 +2,11 @@
   "name": "language-dex",
   "main": "expo-router/entry",
   "version": "0.0.1",
+  "versionCode": 2,
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
-    "build-android": "cd android && ./gradlew app:bundleRelease",
+    "build-android": "npx tsx android-prebuild.ts && cd android && ./gradlew app:bundleRelease",
     "ios": "expo run:ios",
     "web": "expo start --web",
     "go": "expo start --go",
