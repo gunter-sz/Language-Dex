@@ -8,7 +8,7 @@ export function GameTitle({ children }: React.PropsWithChildren) {
   const theme = useTheme();
 
   return (
-    <Span style={[styles.title, theme.styles.disabledText]}>{children}</Span>
+    <Span style={[styles.title, theme.styles.subMenuTitle]}>{children}</Span>
   );
 }
 
