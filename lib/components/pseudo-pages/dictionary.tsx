@@ -296,6 +296,7 @@ const styles = StyleSheet.create({
   },
   optionsRows: {
     padding: 8,
+    gap: 8,
   },
   optionsRow: {
     display: "flex",
@@ -303,7 +304,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     gap: 8,
-    marginTop: 8,
   },
   searchOption: {
     paddingHorizontal: 10,
