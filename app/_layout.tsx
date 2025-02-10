@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useColorScheme as useSystemColorScheme, View } from "react-native";
-import { StatusBar } from "expo-status-bar";
+import { useColorScheme as useSystemColorScheme } from "react-native";
 import * as SplashScreen from "expo-splash-screen";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ThemeContext } from "@/lib/contexts/theme";
@@ -74,8 +73,6 @@ export default function RootLayout() {
         ]}
       >
         <GestureHandlerRootView style={theme.styles.root}>
-          <StatusBar translucent={false} />
-
           <BottomSheetModalProvider>
             <KeyboardDismisser>
               <Stack
@@ -84,11 +81,9 @@ export default function RootLayout() {
                     typeof theme.colors.bottomNav == "string"
                       ? theme.colors.bottomNav
                       : undefined,
-                  statusBarBackgroundColor:
-                    typeof theme.colors.body == "string"
-                      ? theme.colors.body
-                      : undefined,
+                  statusBarBackgroundColor: "transparent",
                   statusBarStyle: colorScheme == "light" ? "dark" : "light",
+                  statusBarTranslucent: true,
                   headerShown: false,
                   contentStyle: theme.styles.root,
                   animation: "fade",

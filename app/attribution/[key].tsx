@@ -13,13 +13,13 @@ import {
   NamespacePackages,
 } from "@/lib/components/attribution";
 import { useTheme } from "@/lib/contexts/theme";
-
-import data from "../../-licenses.json";
 import { useTranslation } from "react-i18next";
 import { SubMenuIconButton } from "@/lib/components/icon-button";
 import { LinkIcon } from "@/lib/components/icons";
 import { openBrowserAsync } from "expo-web-browser";
 import { logError } from "@/lib/log";
+
+import data from "../../-licenses.json";
 
 type Package = NamespacePackages[0];
 

@@ -18,6 +18,9 @@
       },
       "package": "com.anonymous.languagelog"
     },
+    "androidStatusBar": {
+      "translucent": true
+    },
     "web": {
       "bundler": "metro",
       "output": "static",
@@ -30,8 +33,7 @@
         {
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "resizeMode": "contain"
         }
       ],
       "expo-localization",

@@ -1,6 +1,6 @@
-import { useTheme } from "@/lib/contexts/theme";
-import { Stack } from "expo-router";
 import { View } from "react-native";
+import { Stack } from "expo-router";
+import { useTheme } from "@/lib/contexts/theme";
 
 export default function () {
   const theme = useTheme();
@@ -10,10 +10,6 @@ export default function () {
       <Stack
         screenOptions={{
           navigationBarColor:
-            typeof theme.colors.definitionBackground == "string"
-              ? theme.colors.definitionBackground
-              : undefined,
-          statusBarBackgroundColor:
             typeof theme.colors.definitionBackground == "string"
               ? theme.colors.definitionBackground
               : undefined,

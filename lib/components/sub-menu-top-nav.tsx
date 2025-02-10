@@ -5,6 +5,7 @@ import { ArrowLeftIcon } from "./icons";
 import { router } from "expo-router";
 import { SubMenuIconButton } from "./icon-button";
 import { Span } from "./text";
+import StatusBarSpacer from "./status-bar-spacer";
 
 type Props = { style?: StyleProp<ViewStyle> } & React.PropsWithChildren;
 
@@ -12,9 +13,12 @@ export default function SubMenuTopNav({ style, children }: Props) {
   const theme = useTheme();
 
   return (
-    <View style={[styles.header, theme.styles.subMenuTopNav, style]}>
-      {children}
-    </View>
+    <>
+      <StatusBarSpacer />
+      <View style={[styles.header, theme.styles.subMenuTopNav, style]}>
+        {children}
+      </View>
+    </>
   );
 }
 
