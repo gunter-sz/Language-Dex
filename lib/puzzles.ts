@@ -12,7 +12,7 @@ import { SetStateAction, useEffect, useRef, useState } from "react";
 
 export function pickIndexBiased<T>(list: T[]) {
   const value = Math.random();
-  return Math.floor(value * value * list.length);
+  return Math.floor(value ** (8 / 5) * list.length);
 }
 
 export function pluckBiased<T>(list: T[]): T | undefined {
