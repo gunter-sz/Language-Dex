@@ -57,6 +57,8 @@ i18n
           Unscramble: "Unscramble",
           Unscramble_Requirements:
             "Requires at least three words longer than one letter.",
+          Guess: "Guess",
+          Guess_Requirements: "Requires at least ten unique words.",
           Crosswords: "Crosswords",
           Crosswords_Requirements:
             "Requires at least twenty unique words longer than two letters.",
@@ -67,10 +69,13 @@ i18n
           mode_timed: "Timed",
           mode_rush: "Rush",
 
+          Guess_Here: "Guess Here",
+
           Results: "Results",
           Top_Score: "Top Score",
           Total_Time: "Total Time",
           Score: "Score",
+          Guesses: "Guesses",
           Replay: "Replay",
           Quit: "Quit",
 
@@ -82,6 +87,7 @@ i18n
           Total_Scans: "Total Scans",
           Words_Matched: "Words Matched",
           Words_Unscrambled: "Words Unscrambled",
+          Words_Guessed: "Words Guessed",
 
           NA: "N/A",
 

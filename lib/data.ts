@@ -18,6 +18,7 @@ export type DictionaryStats = {
   definitionMatchBest?: { [mode: string]: number };
   unscrambled?: number;
   unscrambleBest?: { [mode: string]: number };
+  wordsGuessed?: number;
   // words
   definitions?: number;
   documentedMaxConfidence?: number;
@@ -264,6 +265,23 @@ export type GameWord = {
   spelling: string;
   orderKey: number;
 };
+
+export async function isValidWord(dictionaryId: number, word: string) {
+  const query = [
+    "SELECT COUNT(*) FROM word_shared_data",
+    "WHERE dictionaryId = $dictionaryId AND insensitiveSpelling = $spelling",
+  ];
+
+  const result = await db.getFirstAsync<{ ["COUNT(*)"]: number }>(
+    query.join(" "),
+    {
+      $dictionaryId: dictionaryId,
+      $spelling: word.toLowerCase(),
+    }
+  );
+
+  return result != null && result["COUNT(*)"] != 0;
+}
 
 export async function listGameWords(
   dictionaryId: number,

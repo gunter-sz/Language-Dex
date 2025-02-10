@@ -30,12 +30,12 @@ export type Theme = {
     scanOldWord: ViewStyle;
     scanNewWord: ViewStyle;
     definitionBubble: ViewStyle;
-    definitionBorders: ViewStyle;
-    definitionBackground: ViewStyle;
+    definitionBorders: { borderColor: string };
+    definitionBackground: { backgroundColor: string };
     partOfSpeech: TextStyle;
     example: TextStyle;
     separator: ViewStyle;
-    borders: ViewStyle;
+    borders: { borderColor: string };
     backgroundDefinitionBorder: ViewStyle;
     gameListing: ViewStyle;
     topNav: ViewStyle;

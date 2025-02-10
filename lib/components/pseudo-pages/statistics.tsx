@@ -19,6 +19,7 @@ const statsLists: [string, keyof DictionaryStats][][] = [
   [
     ["Words_Matched", "definitionsMatched"],
     ["Words_Unscrambled", "unscrambled"],
+    ["Words_Guessed", "wordsGuessed"],
   ],
 ];
 

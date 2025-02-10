@@ -134,3 +134,7 @@ export function TimerIcon(props: IconProps) {
 export function ShuffleIcon(props: IconProps) {
   return <MaterialDesignIcons name="shuffle" {...props} />;
 }
+
+export function IncorrectIcon(props: IconProps) {
+  return <MaterialDesignIcons name="close" {...props} />;
+}
