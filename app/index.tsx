@@ -22,6 +22,7 @@ import Scan from "@/lib/components/pseudo-pages/scan";
 import Puzzles from "@/lib/components/pseudo-pages/puzzles";
 import Statistics from "@/lib/components/pseudo-pages/statistics";
 import { useUserDataContext } from "@/lib/contexts/user-data";
+import RouteRoot from "@/lib/components/route-root";
 
 type PercentString = `${number}%`;
 
@@ -61,7 +62,7 @@ export default function () {
   const widthStyle = { width: dimensions.width };
 
   return (
-    <>
+    <RouteRoot>
       <TopNav>
         <TopNavDictionaryStack />
       </TopNav>
@@ -136,7 +137,7 @@ export default function () {
           />
         ))}
       </BottomNav>
-    </>
+    </RouteRoot>
   );
 }
 

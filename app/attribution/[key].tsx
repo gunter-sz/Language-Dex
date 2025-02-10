@@ -18,6 +18,7 @@ import { SubMenuIconButton } from "@/lib/components/icon-button";
 import { LinkIcon } from "@/lib/components/icons";
 import { openBrowserAsync } from "expo-web-browser";
 import { logError } from "@/lib/log";
+import RouteRoot from "@/lib/components/route-root";
 
 import data from "../../-licenses.json";
 
@@ -53,7 +54,7 @@ export default function () {
       : packageList.find((p) => p.name == name && p.version == version)!;
 
   return (
-    <>
+    <RouteRoot>
       <SubMenuTopNav>
         <SubMenuBackButton />
 
@@ -98,7 +99,7 @@ export default function () {
           </ScrollView>
         </>
       )}
-    </>
+    </RouteRoot>
   );
 }
 

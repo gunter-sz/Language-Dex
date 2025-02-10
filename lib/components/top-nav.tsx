@@ -1,6 +1,5 @@
 import { StyleProp, View, ViewStyle } from "react-native";
 import { useTheme } from "@/lib/contexts/theme";
-import StatusBarSpacer from "./status-bar-spacer";
 import React from "react";
 
 type PropsWithStyleAndChildren = {
@@ -10,10 +9,5 @@ type PropsWithStyleAndChildren = {
 export default function ({ style, children }: PropsWithStyleAndChildren) {
   const theme = useTheme();
 
-  return (
-    <>
-      <StatusBarSpacer />
-      <View style={[theme.styles.topNav, style]}>{children}</View>
-    </>
-  );
+  return <View style={[theme.styles.topNav, style]}>{children}</View>;
 }

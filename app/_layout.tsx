@@ -8,12 +8,12 @@ import { loadUserData, saveUserData, UserData } from "@/lib/data";
 import { UserDataContext } from "@/lib/contexts/user-data";
 import { Stack } from "expo-router";
 import { PortalHost } from "@rn-primitives/portal";
-
-import "@/lib/i18n";
-import { useTranslation } from "react-i18next";
 import { logError } from "@/lib/log";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import KeyboardDismisser from "@/lib/components/keyboard-dismisser";
+
+import "@/lib/i18n";
+import { useTranslation } from "react-i18next";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync().catch(logError);

@@ -56,7 +56,9 @@ function DefinitionsBubble({
                   style={[styles.bordered, theme.styles.definitionBorders]}
                   android_ripple={theme.ripples.popup}
                   onPress={() => {
-                    router.navigate(`/words/${encodeURIComponent(lowercase)}`);
+                    router.navigate(
+                      `/words/existing/${encodeURIComponent(lowercase)}`
+                    );
                     close();
                   }}
                 >
@@ -82,7 +84,7 @@ function DefinitionsBubble({
                       android_ripple={theme.ripples.popup}
                       onPress={() => {
                         router.navigate(
-                          `/words/${encodeURIComponent(
+                          `/words/existing/${encodeURIComponent(
                             lowercase
                           )}/definition/${encodeURIComponent(definition.id)}`
                         );
@@ -117,7 +119,9 @@ function DefinitionsBubble({
               android_ripple={theme.ripples.popup}
               onPress={() => {
                 router.navigate(
-                  `/words/${encodeURIComponent(lowercase)}/definition/add`
+                  `/words/existing/${encodeURIComponent(
+                    lowercase
+                  )}/definition/add`
                 );
                 close();
               }}

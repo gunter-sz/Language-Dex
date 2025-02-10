@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next";
 import { ScrollView, StyleSheet } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import packageMeta from "../package.json";
+import RouteRoot from "@/lib/components/route-root";
 
 const logHeader = `version ${packageMeta.version}\n`;
 
@@ -20,7 +21,7 @@ export default function () {
   const logs = useLogs();
 
   return (
-    <>
+    <RouteRoot>
       <SubMenuTopNav>
         <SubMenuBackButton />
 
@@ -46,7 +47,7 @@ export default function () {
           <Span key={i}>{s}</Span>
         ))}
       </ScrollView>
-    </>
+    </RouteRoot>
   );
 }
 

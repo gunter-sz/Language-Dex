@@ -10,6 +10,7 @@ import SubMenuTopNav, {
   SubMenuTitle,
 } from "@/lib/components/sub-menu-top-nav";
 import { useTranslation } from "react-i18next";
+import RouteRoot from "@/lib/components/route-root";
 
 import data from "../../-licenses.json";
 
@@ -25,7 +26,7 @@ export default function () {
   const [t] = useTranslation();
 
   return (
-    <>
+    <RouteRoot>
       <SubMenuTopNav>
         <SubMenuBackButton />
         <SubMenuTitle>{t("Third_Party_Licenses")}</SubMenuTitle>
@@ -37,6 +38,6 @@ export default function () {
         renderItem={renderItem}
         keyExtractor={keyExtractor}
       />
-    </>
+    </RouteRoot>
   );
 }

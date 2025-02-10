@@ -35,6 +35,7 @@ import {
   ConfirmReadyIcon,
   IncorrectIcon,
 } from "@/lib/components/icons";
+import RouteRoot from "@/lib/components/route-root";
 
 type Guess = { graphemes: Grapheme[]; pending: boolean; valid: boolean };
 
@@ -348,7 +349,7 @@ export default function () {
   };
 
   return (
-    <>
+    <RouteRoot>
       <SubMenuTopNav>
         <SubMenuBackButton />
       </SubMenuTopNav>
@@ -424,7 +425,7 @@ export default function () {
 
         <ResultsSpacer />
       </ResultsDialog>
-    </>
+    </RouteRoot>
   );
 }
 

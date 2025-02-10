@@ -59,6 +59,7 @@ import {
   ResultsScore,
   ResultsSpacer,
 } from "@/lib/components/puzzles/results";
+import RouteRoot from "@/lib/components/route-root";
 
 export type UnscrambleGameMode = "endless" | "timed" | "rush";
 export const unscrambleModeList: UnscrambleGameMode[] = [
@@ -544,7 +545,7 @@ export default function () {
   };
 
   return (
-    <>
+    <RouteRoot>
       <SubMenuTopNav>
         <SubMenuBackButton />
       </SubMenuTopNav>
@@ -658,7 +659,7 @@ export default function () {
           />
         </ResultsRow>
       </ResultsDialog>
-    </>
+    </RouteRoot>
   );
 }
 

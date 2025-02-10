@@ -30,10 +30,8 @@ import {
   ConfirmationDialogActions,
 } from "@/lib/components/confirmation-dialog";
 import * as DocumentPicker from "expo-document-picker";
-import {
-  bumpDictionaryVersion,
-  invalidateWordDefinitions,
-} from "@/lib/hooks/use-word-definitions";
+import { bumpDictionaryVersion } from "@/lib/hooks/use-word-definitions";
+import RouteRoot from "@/lib/components/route-root";
 
 function getColorSchemeText(
   t: TFunction<"translation", undefined>,
@@ -61,7 +59,7 @@ export default function () {
   const pageList = pages.map((page) => page.label);
 
   return (
-    <>
+    <RouteRoot>
       <SubMenuTopNav>
         <SubMenuBackButton />
         <SubMenuTitle>{t("Settings")}</SubMenuTitle>
@@ -252,7 +250,7 @@ export default function () {
           </>
         )}
       </Dialog>
-    </>
+    </RouteRoot>
   );
 }
 

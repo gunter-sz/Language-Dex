@@ -13,12 +13,9 @@ export default function SubMenuTopNav({ style, children }: Props) {
   const theme = useTheme();
 
   return (
-    <>
-      <StatusBarSpacer />
-      <View style={[styles.header, theme.styles.subMenuTopNav, style]}>
-        {children}
-      </View>
-    </>
+    <View style={[styles.header, theme.styles.subMenuTopNav, style]}>
+      {children}
+    </View>
   );
 }
 

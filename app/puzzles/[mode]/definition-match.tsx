@@ -52,6 +52,7 @@ import {
   ResultsScore,
   ResultsSpacer,
 } from "@/lib/components/puzzles/results";
+import RouteRoot from "@/lib/components/route-root";
 
 export type DefinitionMatchGameMode = "endless" | "timed" | "rush";
 export const definitionMatchModeList: DefinitionMatchGameMode[] = [
@@ -430,7 +431,7 @@ export default function () {
   };
 
   return (
-    <>
+    <RouteRoot>
       <SubMenuTopNav>
         <SubMenuBackButton />
       </SubMenuTopNav>
@@ -558,7 +559,7 @@ export default function () {
           </ResultsRow>
         </ResultsDialog>
       </Animated.View>
-    </>
+    </RouteRoot>
   );
 }
 

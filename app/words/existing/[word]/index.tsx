@@ -57,7 +57,7 @@ function Definition({
           style={styles.definitionBlock}
           android_ripple={theme.ripples.transparentButton}
           onPress={() =>
-            router.navigate(`/words/${word}/definition/${item.id}`)
+            router.navigate(`/words/existing/${word}/definition/${item.id}`)
           }
         >
           <Span style={[theme.styles.partOfSpeech]}>
@@ -132,7 +132,9 @@ export default function Word() {
 
           <SubMenuIconButton
             icon={PlusIcon}
-            onPress={() => router.navigate(`/words/${word}/definition/add`)}
+            onPress={() =>
+              router.navigate(`/words/existing/${word}/definition/add`)
+            }
           />
         </SubMenuActions>
       </SubMenuTopNav>
