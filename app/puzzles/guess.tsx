@@ -130,7 +130,7 @@ function GuessCharacter({
     } else if (
       correctGraphemes.some((g) => grapheme.rawString == g.rawString)
     ) {
-      backgroundColor = incorrectPositoinBackground;
+      backgroundColor = incorrectPositionBackground;
     }
 
     // animate
@@ -479,4 +479,4 @@ const styles = StyleSheet.create({
 
 const incorrectBackground = "#555";
 const correctBackground = "#1aba1f";
-const incorrectPositoinBackground = "#ddaa1f";
+const incorrectPositionBackground = "#eeaa1f";
