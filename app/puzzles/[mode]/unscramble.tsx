@@ -13,14 +13,14 @@ import { logError } from "@/lib/log";
 import { useLocalSearchParams } from "expo-router";
 import {
   cloneAndShuffle,
-  fadeTo,
-  flash,
-  pluckBiased,
+  pickIndexWithLenBiased,
+  swapToEnd,
   shuffle,
-  Timer,
-  useGettableState,
-  useTimerSeconds,
-} from "@/lib/puzzles";
+  swap,
+} from "@/lib/puzzles/random";
+import { fadeTo, flash } from "@/lib/puzzles/animations";
+import { Timer, useTimerSeconds } from "@/lib/puzzles/timer";
+import useGettableState from "@/lib/hooks/use-gettable-state";
 import Unistring, { Grapheme } from "@akahuku/unistring";
 import SubMenuTopNav, {
   SubMenuBackButton,
@@ -77,6 +77,7 @@ type GameState = {
   over: boolean;
   displayingResults: boolean;
   bagWords: GameWord[];
+  bagLen: number;
   activeWord?: GameWord;
   activeWords: string[];
   graphemes: Grapheme[];
@@ -101,6 +102,7 @@ function initGameState(words: GameWord[], mode: UnscrambleGameMode) {
     over: false,
     displayingResults: false,
     bagWords: words,
+    bagLen: words.length,
     activeWords: [],
     graphemes: [],
     graphemeBoxes: [],
@@ -125,7 +127,13 @@ function initGameState(words: GameWord[], mode: UnscrambleGameMode) {
 }
 
 function setUpNextRound(gameState: GameState) {
-  gameState.activeWord = pluckBiased(gameState.bagWords);
+  const bagIndex = pickIndexWithLenBiased(gameState.bagLen);
+  gameState.activeWord = swapToEnd(
+    gameState.bagWords,
+    gameState.bagLen,
+    bagIndex
+  );
+  gameState.bagLen -= 1;
 
   gameState.graphemes = [];
   gameState.graphemeSelected = undefined;
@@ -190,13 +198,6 @@ function overlappingGraphemeIndex(gameState: GameState, x: number, y: number) {
       return i;
     }
   }
-}
-
-function swapGraphemes(gameState: GameState, indexA: number, indexB: number) {
-  const originalList = gameState.graphemes;
-  gameState.graphemes = [...gameState.graphemes];
-  gameState.graphemes[indexA] = originalList[indexB];
-  gameState.graphemes[indexB] = originalList[indexA];
 }
 
 type ChipSlotProps = {
@@ -310,10 +311,12 @@ function ChipSlot({
       const i = overlappingGraphemeIndex(gameState, e.absoluteX, e.absoluteY);
 
       if (i != undefined) {
-        swapGraphemes(gameState, index, i);
+        gameState.graphemes = [...gameState.graphemes];
+        swap(gameState.graphemes, index, i);
       }
     } else if (gameState.graphemeSelected != undefined) {
-      swapGraphemes(gameState, index, gameState.graphemeSelected);
+      gameState.graphemes = [...gameState.graphemes];
+      swap(gameState.graphemes, index, gameState.graphemeSelected);
       gameState.graphemeSelected = undefined;
     } else {
       gameState.graphemeSelected = index;
@@ -406,7 +409,8 @@ export default function () {
 
         const updatedGameState = { ...gameState };
         updatedGameState.loading = false;
-        updatedGameState.bagWords = [...words];
+        updatedGameState.bagWords = words;
+        updatedGameState.bagLen = words.length;
         setUpNextRound(updatedGameState);
         setGameState(updatedGameState);
       })
@@ -621,7 +625,7 @@ export default function () {
         onReplay={() => {
           const complete = () => {
             // start next round when everything is cleaned up
-            const newState = initGameState([...allWords!], gameState.mode);
+            const newState = initGameState(allWords!, gameState.mode);
             newState.loading = false;
             setUpNextRound(newState);
             setGameState(newState);

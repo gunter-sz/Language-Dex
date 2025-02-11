@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { ScrollView, StyleSheet, View, Pressable } from "react-native";
 import { isValidWord, listWords, updateStatistics } from "@/lib/data";
 import Unistring, { Grapheme } from "@akahuku/unistring";
-import { pickIndexBiased, Timer, useGettableState } from "@/lib/puzzles";
+import { pickIndexBiased } from "@/lib/puzzles/random";
+import { Timer } from "@/lib/puzzles/timer";
+import useGettableState from "@/lib/hooks/use-gettable-state";
 import SubMenuTopNav, {
   SubMenuBackButton,
 } from "@/lib/components/sub-menu-top-nav";

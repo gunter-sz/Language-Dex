@@ -18,14 +18,13 @@ import { logError } from "@/lib/log";
 import useWordDefinitions from "@/lib/hooks/use-word-definitions";
 import {
   cloneAndShuffle,
-  fadeTo,
-  flash,
-  getDefinition,
-  pluckNBiased,
-  Timer,
-  useGettableState,
-  useTimerSeconds,
-} from "@/lib/puzzles";
+  pickIndexWithLenBiased,
+  swapNToEndWith,
+} from "@/lib/puzzles/random";
+import { getDefinition } from "@/lib/puzzles/definitions";
+import { fadeTo, flash } from "@/lib/puzzles/animations";
+import { Timer, useTimerSeconds } from "@/lib/puzzles/timer";
+import useGettableState from "@/lib/hooks/use-gettable-state";
 import { Theme } from "@/lib/themes";
 import { useTheme } from "@/lib/contexts/theme";
 import SubMenuTopNav, {
@@ -70,6 +69,7 @@ type GameState = {
   over: boolean;
   displayingResults: boolean;
   bagWords: GameWord[];
+  bagLen: number;
   rows: [GameWord, GameWord][];
   activeWords: string[];
   leftSelection?: number;
@@ -92,6 +92,7 @@ function initGameState(words: GameWord[], mode: DefinitionMatchGameMode) {
     over: false,
     displayingResults: false,
     bagWords: words,
+    bagLen: words.length,
     rows: [],
     activeWords: [],
     score: 0,
@@ -115,8 +116,14 @@ function initGameState(words: GameWord[], mode: DefinitionMatchGameMode) {
 }
 
 function setUpNextRound(gameState: GameState) {
-  const leftWords = pluckNBiased(gameState.bagWords, 3);
+  const leftWords = swapNToEndWith(
+    gameState.bagWords,
+    gameState.bagLen,
+    3,
+    pickIndexWithLenBiased
+  );
   const rightWords = cloneAndShuffle(leftWords);
+  gameState.bagLen -= 3;
 
   gameState.rows = [];
   gameState.activeWords = [];
@@ -135,7 +142,7 @@ function setUpNextRound(gameState: GameState) {
   if (gameState.mode == "rush") {
     gameState.timer.reset();
   } else if (gameState.mode == "endless") {
-    gameState.bagWords.push(...leftWords);
+    gameState.bagLen = gameState.bagWords.length;
   }
 }
 
@@ -280,7 +287,8 @@ export default function () {
 
         const updatedGameState = { ...gameState };
         updatedGameState.loading = false;
-        updatedGameState.bagWords = [...words];
+        updatedGameState.bagWords = words;
+        updatedGameState.bagLen = words.length;
         setUpNextRound(updatedGameState);
         setGameState(updatedGameState);
       })
@@ -518,7 +526,7 @@ export default function () {
           onReplay={() => {
             const complete = () => {
               // start next round when everything is cleaned up
-              const newState = initGameState([...allWords!], gameState.mode);
+              const newState = initGameState(allWords!, gameState.mode);
               newState.loading = false;
               setUpNextRound(newState);
               setGameState(newState);
