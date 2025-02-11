@@ -56,7 +56,7 @@ i18n
           Match_Requirements: "Requires at least three word definitions.",
           Unscramble: "Unscramble",
           Unscramble_Requirements:
-            "Requires at least three words longer than one letter.",
+            "Requires at least five words longer than one letter.",
           Guess: "Guess",
           Guess_Requirements: "Requires at least ten unique words.",
           Crossword: "Crossword",

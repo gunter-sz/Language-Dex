@@ -162,7 +162,7 @@ export default function () {
 
     testLock(setUnscrambleStatus, listGameWords, userData.activeDictionary, {
       minLength: 2,
-      limit: 3,
+      limit: 5,
     });
 
     testLock(setGuessStatus, listWords, userData.activeDictionary, {
@@ -175,7 +175,7 @@ export default function () {
       ascending: false,
       orderBy: "longest",
       limit: 20,
-      minLength: 2,
+      minLength: 3,
     });
   }, [userData.activeDictionary, dictionaryVersion]);
 
