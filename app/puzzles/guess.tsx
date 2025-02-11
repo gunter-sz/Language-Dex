@@ -382,7 +382,7 @@ export default function () {
       </ScrollView>
 
       <DockedTextInputContainer
-        style={keyboardVisible && styles.inputControlsKeyboardVisible}
+        style={!keyboardVisible && styles.inputControlsKeyboardHidden}
       >
         <DockedTextInput
           placeholder={t("Enter_Guess")}
@@ -445,9 +445,8 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
-  inputControlsKeyboardVisible: {
-    flexDirection: "row",
-    marginBottom: 0,
+  inputControlsKeyboardHidden: {
+    marginBottom: 12,
   },
 });
 

@@ -61,7 +61,6 @@ export function DockedTextInputSubmitButton({
 const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
-    marginBottom: 12,
     height: 48,
   },
   textInput: {
