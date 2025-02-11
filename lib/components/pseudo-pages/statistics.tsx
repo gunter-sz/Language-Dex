@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, ScrollView } from "react-native";
+import {
+  StyleSheet,
+  View,
+  ScrollView,
+  StyleProp,
+  ViewStyle,
+  Share,
+} from "react-native";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/lib/contexts/theme";
 import { Span } from "../text";
@@ -9,6 +16,8 @@ import { Theme } from "@/lib/themes";
 import { logError } from "@/lib/log";
 import { useDictionaryVersioning } from "@/lib/hooks/use-word-definitions";
 import { GameTitle } from "../puzzles/info";
+import IconButton from "../icon-button";
+import { ShareIcon } from "../icons";
 
 const statsLists: [string, keyof DictionaryStats][][] = [
   [
@@ -24,12 +33,16 @@ const statsLists: [string, keyof DictionaryStats][][] = [
 ];
 
 function StatsBlock({
+  style,
   theme,
+  label,
   version,
   dictionaryId,
   stats,
 }: {
+  style: StyleProp<ViewStyle>;
   theme: Theme;
+  label: string;
   version: number;
   dictionaryId: number | null;
   stats: DictionaryStats;
@@ -47,29 +60,58 @@ function StatsBlock({
       .catch(logError);
   }, [dictionaryId, version]);
 
-  return (
-    <View style={styles.lists}>
-      {statsLists.map((list, i) => (
-        <View key={i}>
-          {i == 0 && (
-            <Span>
-              {t("label", { label: t("Longest Word") })}{" "}
-              <Span style={theme.styles.poppingText}>
-                {longestWord != undefined ? longestWord : t("NA")}
-              </Span>
-            </Span>
-          )}
+  const sections = statsLists.map((list, i) => {
+    const rows = [];
 
-          {list.map(([label, key]) => (
-            <Span key={key}>
-              {t("label", { label: t(label) })}{" "}
-              <Span style={theme.styles.poppingText}>
-                {typeof stats[key] == "number" ? stats[key] : 0}
-              </Span>
-            </Span>
+    if (i == 0) {
+      rows.push([
+        t("label", { label: t("Longest Word") }),
+        longestWord != undefined ? longestWord : t("NA"),
+      ]);
+    }
+
+    list.forEach(([label, key]) => {
+      rows.push([
+        t("label", { label: t(label) }),
+        typeof stats[key] == "number" ? stats[key] : 0,
+      ]);
+    });
+
+    return rows;
+  });
+
+  return (
+    <View style={style}>
+      <View style={styles.blockBody}>
+        <Span style={[styles.blockHeader, theme.styles.poppingText]}>
+          {t("label", { label })}
+        </Span>
+
+        <View style={styles.lists}>
+          {sections.map((section, i) => (
+            <View key={i}>
+              {section.map(([label, value], i) => (
+                <Span key={i}>
+                  {label} <Span style={theme.styles.poppingText}>{value}</Span>
+                </Span>
+              ))}
+            </View>
           ))}
         </View>
-      ))}
+      </View>
+
+      <IconButton
+        icon={ShareIcon}
+        onPress={() => {
+          const headerText = t("label", { label });
+          const bodyText = sections
+            .map((list) => list.map((pair) => pair.join(" ")).join("\n"))
+            .join("\n\n");
+          const message = headerText + "\n" + bodyText;
+
+          Share.share({ message }).catch(logError);
+        }}
+      />
     </View>
   );
 }
@@ -95,31 +137,23 @@ export default function Statistics() {
       <GameTitle>{t("Statistics")}</GameTitle>
 
       <ScrollView>
-        <View style={blockStyles}>
-          <Span style={theme.styles.poppingText}>
-            {t("label", { label: dictionary.name })}
-          </Span>
+        <StatsBlock
+          style={blockStyles}
+          theme={theme}
+          label={dictionary.name}
+          version={version}
+          dictionaryId={userData.activeDictionary}
+          stats={dictionary.stats}
+        />
 
-          <StatsBlock
-            theme={theme}
-            version={version}
-            dictionaryId={userData.activeDictionary}
-            stats={dictionary.stats}
-          />
-        </View>
-
-        <View style={blockStyles}>
-          <Span style={theme.styles.poppingText}>
-            {t("label", { label: t("Overall") })}
-          </Span>
-
-          <StatsBlock
-            theme={theme}
-            version={version}
-            dictionaryId={null}
-            stats={userData.stats}
-          />
-        </View>
+        <StatsBlock
+          style={blockStyles}
+          theme={theme}
+          label={t("Overall")}
+          version={version}
+          dictionaryId={null}
+          stats={userData.stats}
+        />
       </ScrollView>
     </View>
   );
@@ -132,15 +166,23 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     gap: 16,
   },
-  lists: {
-    gap: 12,
-  },
   block: {
-    paddingVertical: 12,
-    paddingHorizontal: 12,
     borderRadius: 8,
     borderWidth: 1,
-    gap: 2,
     marginBottom: 16,
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
+  blockBody: {
+    paddingTop: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    flex: 1,
+  },
+  blockHeader: {
+    marginBottom: 2,
+  },
+  lists: {
+    gap: 12,
   },
 });

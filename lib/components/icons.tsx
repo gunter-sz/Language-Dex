@@ -138,3 +138,7 @@ export function ShuffleIcon(props: IconProps) {
 export function IncorrectIcon(props: IconProps) {
   return <MaterialDesignIcons name="close" {...props} />;
 }
+
+export function ShareIcon(props: IconProps) {
+  return <MaterialDesignIcons name="share-variant" {...props} />;
+}
