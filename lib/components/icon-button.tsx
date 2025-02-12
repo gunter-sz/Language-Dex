@@ -61,9 +61,8 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: "100%",
     overflow: "hidden",
-    margin: 4,
   },
   pressable: {
-    padding: 4,
+    padding: 8,
   },
 });
