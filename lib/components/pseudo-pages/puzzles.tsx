@@ -175,8 +175,8 @@ export default function () {
     testLock(setCrosswordStatus, listWords, userData.activeDictionary, {
       ascending: false,
       orderBy: "longest",
-      limit: 20,
-      minLength: 3,
+      limit: 10,
+      minLength: 4,
       belowMaxConfidence: true,
     });
   }, [userData.activeDictionary, dictionaryVersion]);
@@ -235,6 +235,7 @@ export default function () {
             theme={theme}
             lockStatus={crosswordStatus}
             setLockDescription={lockCallback}
+            href="/puzzles/crossword"
           />
         </View>
       </ScrollView>

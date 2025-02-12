@@ -70,6 +70,31 @@ export function ResultsScore({ score }: { score: number }) {
   return <Text style={[styles.result, theme.styles.poppingText]}>{score}</Text>;
 }
 
+export function ResultsHintScore({ score }: { score: number }) {
+  const theme = useTheme();
+
+  return (
+    <Text style={[styles.result, theme.styles.hintScoreText]}>{score}</Text>
+  );
+}
+
+export function ResultsIncorrectScore({ score }: { score: number }) {
+  const theme = useTheme();
+
+  return (
+    <Text
+      style={[
+        styles.result,
+        score == 0
+          ? theme.styles.disabledText
+          : theme.styles.incorrectScoreText,
+      ]}
+    >
+      {score}
+    </Text>
+  );
+}
+
 export function ResultsClock({ seconds }: { seconds: number }) {
   const theme = useTheme();
 

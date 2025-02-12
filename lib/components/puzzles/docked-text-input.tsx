@@ -8,7 +8,7 @@ import {
   ViewStyle,
 } from "react-native";
 import CustomTextInput from "../custom-text-input";
-import { ConfirmReadyIcon } from "../icons";
+import { ConfirmReadyIcon, HintIcon } from "../icons";
 
 type DockedTextInputContainerProps = {
   style?: StyleProp<ViewStyle>;
@@ -54,6 +54,30 @@ export function DockedTextInputSubmitButton({
       android_ripple={theme.ripples.primaryButton}
     >
       <ConfirmReadyIcon color={theme.colors.primary.contrast} size={30} />
+    </Pressable>
+  );
+}
+
+export function DockedTextInputHintButton({
+  disabled,
+  onPress,
+}: {
+  disabled?: boolean;
+  onPress?: () => void;
+}) {
+  const theme = useTheme();
+
+  return (
+    <Pressable
+      style={[
+        disabled ? theme.styles.circleButtonDisabled : theme.styles.hintButton,
+        styles.submitButton,
+      ]}
+      disabled={disabled}
+      onPress={onPress}
+      android_ripple={theme.ripples.primaryButton}
+    >
+      <HintIcon color={theme.colors.primary.contrast} size={30} />
     </Pressable>
   );
 }

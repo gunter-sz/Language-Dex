@@ -19,6 +19,7 @@ export type DictionaryStats = {
   unscrambled?: number;
   unscrambleBest?: { [mode: string]: number };
   wordsGuessed?: number;
+  crosswordsCompleted?: number;
   // words
   definitions?: number;
   documentedMaxConfidence?: number;

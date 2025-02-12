@@ -147,6 +147,10 @@ export function PuzzleResultsIcon(props: IconProps) {
   return <MaterialDesignIcons name="medal-outline" {...props} />;
 }
 
+export function HintIcon(props: IconProps) {
+  return <MaterialDesignIcons name="lightbulb-on-outline" {...props} />;
+}
+
 export function EducationIcon(props: IconProps) {
   return <MaterialDesignIcons name="school" {...props} />;
 }

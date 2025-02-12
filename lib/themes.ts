@@ -12,6 +12,8 @@ export type Theme = {
     text: TextStyle;
     disabledText: TextStyle;
     poppingText: TextStyle;
+    hintScoreText: TextStyle;
+    incorrectScoreText: TextStyle;
     dialog: ViewStyle;
     bottomSheet: ViewStyle;
     dictionaryAddWordButton: ViewStyle;
@@ -23,6 +25,7 @@ export type Theme = {
     searchOption: ViewStyle;
     circleButton: ViewStyle;
     circleButtonDisabled: ViewStyle;
+    hintButton: ViewStyle;
     scanTextInput: ViewStyle;
     scanText: TextStyle;
     scanTextActive: TextStyle;
@@ -67,6 +70,8 @@ type Palette = {
   subMenuIconButtonDisabled: string;
   borders: string;
   definitionBorder: string;
+  hintScore: string;
+  incorrectScore: string;
   primary: {
     default: string;
     light: string;
@@ -99,6 +104,12 @@ function createSimpleTheme(colors: Palette): Theme {
       },
       poppingText: {
         color: colors.primary.default,
+      },
+      hintScoreText: {
+        color: colors.hintScore,
+      },
+      incorrectScoreText: {
+        color: colors.incorrectScore,
       },
       dialog: {
         backgroundColor: colors.popup,
@@ -149,6 +160,9 @@ function createSimpleTheme(colors: Palette): Theme {
       },
       circleButtonDisabled: {
         backgroundColor: "#aaa",
+      },
+      hintButton: {
+        backgroundColor: colors.hintScore,
       },
       scanTextInput: {
         borderColor: colors.borders,
@@ -266,6 +280,8 @@ export const themeConstructors: {
         subMenuIconButtonDisabled: "grey",
         borders: "#303035",
         definitionBorder: "#09090b",
+        hintScore: "#e8a200",
+        incorrectScore: "#b14",
         ripples: {
           popup: "rgba(255,255,255,0.05)",
           primaryButton: "rgba(255,255,255,0.3)",
@@ -292,6 +308,8 @@ export const themeConstructors: {
       subMenuIconButtonDisabled: "#999",
       borders: "lightgrey",
       definitionBorder: "#eeeef2",
+      hintScore: "#ffb200",
+      incorrectScore: "#b14",
       ripples: {
         popup: "rgba(0,0,0,0.05)",
         primaryButton: "rgba(255,255,255,0.3)",

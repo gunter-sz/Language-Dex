@@ -1,3 +1,8 @@
+export function pickIndexWithLenUnbiased(len: number) {
+  const value = Math.random();
+  return Math.floor(value * len);
+}
+
 export function pickIndexWithLenBiased(len: number) {
   const value = Math.random();
   return Math.floor(value ** (8 / 5) * len);

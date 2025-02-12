@@ -2,7 +2,7 @@ import React from "react";
 import { Span } from "../text";
 import { StyleSheet, View } from "react-native";
 import { useTheme } from "@/lib/contexts/theme";
-import { TimerIcon } from "../icons";
+import { HintIcon, IncorrectIcon, TimerIcon } from "../icons";
 
 export function GameTitle({ children }: React.PropsWithChildren) {
   const theme = useTheme();
@@ -35,7 +35,44 @@ export function GameClock({ seconds }: { seconds: number }) {
 export function Score({ score }: { score: number }) {
   const theme = useTheme();
 
-  return <Span style={[styles.score, theme.styles.poppingText]}>{score}</Span>;
+  return (
+    <Span style={[styles.score, styles.scoreFont, theme.styles.poppingText]}>
+      {score}
+    </Span>
+  );
+}
+
+export function HintScore({ score }: { score: number }) {
+  const theme = useTheme();
+
+  return (
+    <View style={styles.hintBlock}>
+      <Span style={[styles.scoreFont, theme.styles.hintScoreText]}>
+        {score}
+      </Span>
+      <HintIcon size={28} color={theme.colors.text} />
+    </View>
+  );
+}
+
+export function IncorrectScore({ score }: { score: number }) {
+  const theme = useTheme();
+
+  return (
+    <View style={styles.incorrectBlock}>
+      <IncorrectIcon size={29} color={theme.colors.text} />
+      <Span
+        style={[
+          styles.scoreFont,
+          score == 0
+            ? theme.styles.disabledText
+            : theme.styles.incorrectScoreText,
+        ]}
+      >
+        {score}
+      </Span>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -59,10 +96,21 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 22,
   },
-  score: {
+  scoreFont: {
     fontWeight: "bold",
-    marginLeft: "auto",
     fontSize: 22,
+  },
+  score: {
+    marginLeft: "auto",
     marginRight: 4,
+  },
+  hintBlock: {
+    marginLeft: "auto",
+    flexDirection: "row",
+    gap: 6,
+  },
+  incorrectBlock: {
+    flexDirection: "row",
+    gap: 2,
   },
 });

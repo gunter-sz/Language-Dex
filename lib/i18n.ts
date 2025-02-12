@@ -57,13 +57,13 @@ i18n
             "Requires at least three word definitions below max confidence.",
           Unscramble: "Unscramble",
           Unscramble_Requirements:
-            "Requires at least five words longer than one letter below max confidence.",
+            "Requires at least five words longer than one character and below max confidence.",
           Guess_the_Word: "Guess the Word",
           Guess_the_Word_Requirements:
             "Requires at least ten unique words below max confidence.",
           Crossword: "Crossword",
           Crossword_Requirements:
-            "Requires at least twenty unique words longer than two letters below max confidence.",
+            "Requires at least ten unique words longer than four characters and below max confidence.",
 
           Locked: "Locked",
 
@@ -72,12 +72,15 @@ i18n
           mode_rush: "Rush",
 
           Enter_Guess: "Enter Guess",
+          Missing_Definition_brack: "[ Missing Definition ]",
 
           Results: "Results",
           Top_Score: "Top Score",
           Total_Time: "Total Time",
           Score: "Score",
           Guesses: "Guesses",
+          Hints_Used: "Hints Used",
+          Incorrect_Submissions: "Incorrect Submissions",
           Replay: "Replay",
           Quit: "Quit",
 
@@ -90,6 +93,7 @@ i18n
           Words_Matched: "Words Matched",
           Words_Unscrambled: "Words Unscrambled",
           Words_Guessed: "Words Guessed",
+          Crosswords_Completed: "Crosswords Completed",
 
           NA: "N/A",
 
