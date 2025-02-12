@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Pressable } from "react-native";
 import { SubMenuIconButton } from "@/lib/components/icon-button";
 import {
+  ConfidenceIcon,
   DragVerticalLongIcon,
   PlusIcon,
   TrashIcon,
@@ -60,21 +61,29 @@ function Definition({
             router.navigate(`/words/existing/${word}/definition/${item.id}`)
           }
         >
-          <Span style={[theme.styles.partOfSpeech]}>
-            {namePartOfSpeech(dictionary, item.partOfSpeech) ?? t("unknown")}
-          </Span>
-
-          <Span style={styles.definition}>{item.definition}</Span>
-
-          {item.example.trim().length > 0 && (
-            <Span style={[styles.example, theme.styles.example]}>
-              {item.example}
+          <View style={styles.definitionBody}>
+            <Span style={[theme.styles.partOfSpeech]}>
+              {namePartOfSpeech(dictionary, item.partOfSpeech) ?? t("unknown")}
             </Span>
-          )}
 
-          {item.notes.trim().length > 0 && (
-            <Span style={[styles.notes]}>{item.notes}</Span>
-          )}
+            <Span style={styles.definition}>{item.definition}</Span>
+
+            {item.example.trim().length > 0 && (
+              <Span style={[styles.example, theme.styles.example]}>
+                {item.example}
+              </Span>
+            )}
+
+            {item.notes.trim().length > 0 && (
+              <Span style={[styles.notes]}>{item.notes}</Span>
+            )}
+          </View>
+
+          <View>
+            {item.confidence != 0 && (
+              <ConfidenceIcon confidence={item.confidence} size={24} />
+            )}
+          </View>
         </Pressable>
       </View>
 
@@ -221,6 +230,10 @@ const styles = StyleSheet.create({
   },
   definitionBlock: {
     padding: 8,
+    flex: 1,
+    flexDirection: "row",
+  },
+  definitionBody: {
     flex: 1,
   },
   block: {

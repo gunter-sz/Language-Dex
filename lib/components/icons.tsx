@@ -1,4 +1,4 @@
-import { ColorValue, StyleProp, TextStyle } from "react-native";
+import { ColorValue, StyleProp, TextStyle, Text } from "react-native";
 import MaterialDesignIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 export type IconProps = {
@@ -145,4 +145,45 @@ export function ShareIcon(props: IconProps) {
 
 export function PuzzleResultsIcon(props: IconProps) {
   return <MaterialDesignIcons name="medal-outline" {...props} />;
+}
+
+export function EducationIcon(props: IconProps) {
+  return <MaterialDesignIcons name="school" {...props} />;
+}
+
+function createTextIcon(text: string) {
+  return (props: IconProps) => (
+    <Text
+      style={[
+        {
+          color: props.color,
+          fontSize: props.size,
+          width: props.size + 7,
+          height: props.size + 8,
+        },
+        props.style,
+      ]}
+    >
+      {text}
+    </Text>
+  );
+}
+
+export const LowConfidenceIcon = createTextIcon("😵‍💫");
+export const NeutralConfidenceIcon = createTextIcon("😶");
+export const HighConfidenceIcon = createTextIcon("🤓");
+
+export function ConfidenceIcon({
+  confidence,
+  ...props
+}: { confidence: number } & IconProps) {
+  let Icon = NeutralConfidenceIcon;
+
+  if (confidence < 0) {
+    Icon = LowConfidenceIcon;
+  } else if (confidence > 0) {
+    Icon = HighConfidenceIcon;
+  }
+
+  return <Icon {...props} />;
 }

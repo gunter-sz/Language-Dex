@@ -93,6 +93,7 @@ i18n
           NA: "N/A",
 
           // definition editor
+          Confidence_paren: "(Confidence)",
           Word: "Word",
           Part_of_Speech: "Part of Speech",
           Add_Part_of_Speech: "Add Part of Speech",

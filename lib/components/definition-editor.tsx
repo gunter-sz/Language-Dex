@@ -5,17 +5,21 @@ import CustomTextInput, {
   CustomMultilineTextInput,
 } from "@/lib/components/custom-text-input";
 import { useTranslation } from "react-i18next";
-import { StyleSheet, View, ScrollView } from "react-native";
+import { StyleSheet, View, ScrollView, Text, Pressable } from "react-native";
 import {
   ArrowLeftIcon,
   DefinitionIcon,
+  EducationIcon,
   ExampleIcon,
+  HighConfidenceIcon,
+  LowConfidenceIcon,
+  NeutralConfidenceIcon,
   NotesIcon,
   PartOfSpeechIcon,
   SaveIcon,
   TrashIcon,
 } from "@/lib/components/icons";
-import { SubMenuIconButton } from "@/lib/components/icon-button";
+import IconButton, { SubMenuIconButton } from "@/lib/components/icon-button";
 import {
   invalidateWordDefinitions,
   useWordDefinition,
@@ -60,6 +64,7 @@ export default function DefinitionEditor(props: Props) {
   const [discardDialogOpen, setDiscardDialogOpen] = useState(false);
 
   const [spelling, setSpelling] = useState(props.lowerCaseWord ?? "");
+  const [confidence, setConfidence] = useState(definitionData?.confidence ?? 0);
   const [partOfSpeech, setPartOfSpeech] = useState<number | undefined>(
     definitionData?.partOfSpeech
   );
@@ -71,6 +76,7 @@ export default function DefinitionEditor(props: Props) {
 
   useEffect(() => {
     if (definitionData) {
+      setConfidence(definitionData.confidence);
       setPartOfSpeech(definitionData.partOfSpeech);
       setDefinition(definitionData.definition);
       setExample(definitionData.example);
@@ -80,6 +86,7 @@ export default function DefinitionEditor(props: Props) {
 
   // detecting pending changes
   const [hasPendingChanges, setHasPendingChanges] = usePendingChangesDetection([
+    confidence,
     spelling,
     partOfSpeech,
     definition,
@@ -114,7 +121,7 @@ export default function DefinitionEditor(props: Props) {
           definition,
           example,
           notes,
-          confidence: definitionData?.confidence ?? 0,
+          confidence,
         }
       );
 
@@ -195,6 +202,52 @@ export default function DefinitionEditor(props: Props) {
           value={spelling}
           onChangeText={setSpelling}
         />
+
+        <View style={theme.styles.separator} />
+
+        <View style={styles.row}>
+          <EducationIcon
+            style={styles.iconLabel}
+            color={theme.colors.iconButton}
+            size={32}
+          />
+
+          <Text style={[styles.textInput, theme.styles.disabledText]}>
+            {t("Confidence_paren")}
+          </Text>
+
+          <View style={styles.confidenceGroup}>
+            <Pressable
+              style={styles.confidencePressable}
+              onPress={() => setConfidence(-1)}
+            >
+              <LowConfidenceIcon
+                style={confidence < 0 ? undefined : styles.transparentIcon}
+                size={32}
+              />
+            </Pressable>
+
+            <Pressable
+              style={styles.confidencePressable}
+              onPress={() => setConfidence(0)}
+            >
+              <NeutralConfidenceIcon
+                style={confidence == 0 ? undefined : styles.transparentIcon}
+                size={32}
+              />
+            </Pressable>
+
+            <Pressable
+              style={styles.confidencePressable}
+              onPress={() => setConfidence(1)}
+            >
+              <HighConfidenceIcon
+                style={confidence > 0 ? undefined : styles.transparentIcon}
+                size={32}
+              />
+            </Pressable>
+          </View>
+        </View>
 
         <View style={theme.styles.separator} />
 
@@ -344,5 +397,17 @@ const styles = StyleSheet.create({
   row: {
     display: "flex",
     flexDirection: "row",
+  },
+  confidenceGroup: {
+    marginLeft: "auto",
+    flexDirection: "row",
+    alignContent: "stretch",
+    paddingRight: 4,
+  },
+  confidencePressable: {
+    paddingHorizontal: 2,
+  },
+  transparentIcon: {
+    opacity: 0.5,
   },
 });
