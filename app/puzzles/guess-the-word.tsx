@@ -429,8 +429,6 @@ export default function () {
           <ResultsLabel>{t("Guesses")}</ResultsLabel>
           <ResultsScore score={gameState.guesses.length} />
         </ResultsRow>
-
-        <ResultsSpacer />
       </ResultsDialog>
     </RouteRoot>
   );

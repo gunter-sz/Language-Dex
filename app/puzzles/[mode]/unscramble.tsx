@@ -668,13 +668,13 @@ export default function () {
         }}
       >
         <ResultsRow>
-          <ResultsLabel>{t("Score")}</ResultsLabel>
-          <ResultsScore score={gameState.score} />
+          <ResultsLabel>{t("Total_Time")}</ResultsLabel>
+          <ResultsClock seconds={gameState.totalTimer.seconds()} />
         </ResultsRow>
 
         <ResultsRow>
-          <ResultsLabel>{t("Total_Time")}</ResultsLabel>
-          <ResultsClock seconds={gameState.totalTimer.seconds()} />
+          <ResultsLabel>{t("Score")}</ResultsLabel>
+          <ResultsScore score={gameState.score} />
         </ResultsRow>
 
         <ResultsSpacer />
