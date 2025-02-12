@@ -462,7 +462,7 @@ export default function () {
         </SubMenuActions>
       </SubMenuTopNav>
 
-      <GameTitle>{t("Match")}</GameTitle>
+      <GameTitle>{t("Definition_Match")}</GameTitle>
 
       {params.mode != "endless" && (
         <ScoreRow>

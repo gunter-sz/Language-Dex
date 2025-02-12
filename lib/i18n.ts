@@ -52,13 +52,14 @@ i18n
           Copy: "Copy",
 
           // games
-          Match: "Match",
-          Match_Requirements: "Requires at least three word definitions.",
+          Definition_Match: "Definition Match",
+          Definition_Match_Requirements:
+            "Requires at least three word definitions.",
           Unscramble: "Unscramble",
           Unscramble_Requirements:
             "Requires at least five words longer than one letter.",
-          Guess: "Guess",
-          Guess_Requirements: "Requires at least ten unique words.",
+          Guess_the_Word: "Guess the Word",
+          Guess_the_Word_Requirements: "Requires at least ten unique words.",
           Crossword: "Crossword",
           Crossword_Requirements:
             "Requires at least twenty unique words longer than two letters.",

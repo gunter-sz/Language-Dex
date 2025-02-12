@@ -376,7 +376,7 @@ export default function () {
         </SubMenuActions>
       </SubMenuTopNav>
 
-      <GameTitle>{t("Guess")}</GameTitle>
+      <GameTitle>{t("Guess_the_Word")}</GameTitle>
 
       <ScrollView
         ref={scrollViewRef}

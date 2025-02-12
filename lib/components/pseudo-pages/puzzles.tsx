@@ -195,7 +195,7 @@ export default function () {
       <ScrollView contentContainerStyle={styles.list}>
         <View style={styles.row}>
           <GameListing
-            label="Match"
+            label="Definition_Match"
             style={listingStyles}
             theme={theme}
             modes={definitionMatchModeList}
@@ -219,12 +219,12 @@ export default function () {
 
         <View style={styles.row}>
           <GameListing
-            label="Guess"
+            label="Guess_the_Word"
             style={listingStyles}
             theme={theme}
             lockStatus={guessStatus}
             setLockDescription={lockCallback}
-            href="/puzzles/guess"
+            href="/puzzles/guess-the-word"
           />
 
           <GameListing
