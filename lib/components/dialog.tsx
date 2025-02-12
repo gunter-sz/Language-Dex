@@ -12,6 +12,7 @@ import useBackHandler from "../hooks/use-back-handler";
 import { Span } from "./text";
 import * as Progress from "react-native-progress";
 import KeyboardSpacer from "./keyboard-spacer";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Props = {
   open: boolean;
@@ -119,10 +120,14 @@ export default function Dialog({ open, onClose, children }: Props) {
     };
   });
 
+  const insets = useSafeAreaInsets();
+
   return (
     <Portal name={id}>
       <Animated.View style={[styles.backdrop, backdropStyle]}>
         <Pressable style={styles.backdropButton} onPress={onClose}>
+          <View style={{ height: insets.top }} />
+
           <Animated.View
             style={[styles.dialog, theme.styles.dialog, dialogStyle]}
           >
