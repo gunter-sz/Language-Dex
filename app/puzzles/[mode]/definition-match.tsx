@@ -479,7 +479,7 @@ export default function () {
             h -= ROWS_PADDING + VERTICAL_GAP * 2;
 
             const width = (w - HORIZONTAL_GAP) / 2;
-            const height = (h - VERTICAL_GAP) / 2;
+            const height = (h - VERTICAL_GAP) / 3;
 
             setCardSizeStyle({
               width: Math.min(width, height),
