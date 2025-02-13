@@ -3,9 +3,23 @@ export function pickIndexWithLenUnbiased(len: number) {
   return Math.floor(value * len);
 }
 
+const top = 10;
+const topBias = 0.3;
+
 export function pickIndexWithLenBiased(len: number) {
+  let offset = 0;
+
+  if (len > top) {
+    if (Math.random() < topBias) {
+      return Math.floor(Math.random() * top);
+    }
+
+    offset += top;
+    len -= top;
+  }
+
   const value = Math.random();
-  return Math.floor(value ** (8 / 5) * len);
+  return Math.floor(value ** (8 / 5) * len) + offset;
 }
 
 export function pickIndexBiased<T>(list: T[]) {
