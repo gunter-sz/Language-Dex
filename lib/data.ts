@@ -851,7 +851,25 @@ async function deleteImportDb() {
   }
 }
 
-export async function exportData(userData: UserData, dictionaryId?: number) {
+export type ExportImportStage = "metadata" | "words" | "definitions";
+
+async function extractCount(
+  db: SQLite.SQLiteDatabase,
+  query: string,
+  params?: SQLite.SQLiteBindParams
+) {
+  const result = params
+    ? await db.getFirstAsync<{ "COUNT(*)": number }>(query, params)
+    : await db.getFirstAsync<{ "COUNT(*)": number }>(query);
+
+  return result?.["COUNT(*)"] ?? 0;
+}
+
+export async function exportData(
+  userData: UserData,
+  dictionaryId: number | undefined,
+  progressCallback: (stage: ExportImportStage, i: number, total: number) => void
+) {
   const dictionary = userData.dictionaries.find((d) => d.id == dictionaryId);
 
   // make sure we don't have existing export data
@@ -931,15 +949,26 @@ CREATE TABLE files (
     }
 
     // start copying tables
-    async function copyTable(table: string, keys: string[]) {
+    async function copyTable(
+      stage: ExportImportStage,
+      table: string,
+      keys: string[]
+    ) {
+      const sourceCountQuery = ["SELECT COUNT(*) FROM ", table];
       const sourceQuery = ["SELECT", keys.join(", "), "FROM", table];
       const sourceParams: SQLite.SQLiteBindParams = {};
 
       if (dictionaryId != undefined) {
+        sourceCountQuery.push("WHERE dictionaryId = $dictionaryId");
         sourceQuery.push("WHERE dictionaryId = $dictionaryId");
         sourceParams.$dictionaryId = dictionaryId;
       }
 
+      const sourceTotal = await extractCount(
+        db,
+        sourceCountQuery.join(" "),
+        sourceParams
+      );
       const sourceResults = db.getEachAsync<{ [key: string]: unknown }>(
         sourceQuery.join(" "),
         sourceParams
@@ -954,19 +983,23 @@ CREATE TABLE files (
       const prepared = await exportDb.prepareAsync(insertQuery);
 
       try {
+        let i = 0;
+
         for await (const result of sourceResults) {
           for (const key of keys) {
             bindParams["$" + key] = result[key];
           }
 
           await prepared.executeAsync(bindParams);
+
+          progressCallback(stage, ++i, sourceTotal);
         }
       } finally {
         await prepared.finalizeAsync();
       }
     }
 
-    await copyTable("word_shared_data", [
+    await copyTable("words", "word_shared_data", [
       "id",
       "dictionaryId",
       "spelling",
@@ -977,7 +1010,7 @@ CREATE TABLE files (
       "updatedAt",
     ]);
 
-    await copyTable("word_definition_data", [
+    await copyTable("definitions", "word_definition_data", [
       "dictionaryId",
       "sharedId",
       "orderKey",
@@ -1023,7 +1056,8 @@ CREATE TABLE files (
 export async function importData(
   userData: UserData,
   saveUserData: (userData: UserData) => void,
-  uri: string
+  uri: string,
+  progressCallback: (stage: ExportImportStage, i: number, total: number) => void
 ) {
   await deleteExportDb();
   await deleteImportDb();
@@ -1093,6 +1127,11 @@ export async function importData(
     }
 
     // load words
+    const totalWords = await extractCount(
+      importDb,
+      "SELECT COUNT(*) FROM word_shared_data"
+    );
+
     const wordResults = importDb.getEachAsync<{
       id: number;
       dictionaryId: number;
@@ -1115,8 +1154,12 @@ export async function importData(
       "word_shared_data",
       ["dictionaryId", "insensitiveSpelling", ...wordCopyKeys],
       async (statement) => {
+        let i = 0;
+
         for await (const result of wordResults) {
           const dictionary = importIdMap[result.dictionaryId];
+
+          i++;
 
           if (!dictionary) {
             continue;
@@ -1133,11 +1176,18 @@ export async function importData(
 
           const execResult = await statement.executeAsync(bindParams);
           sharedIdMap[result.id] = execResult.lastInsertRowId;
+
+          progressCallback("words", i, totalWords);
         }
       }
     );
 
     // load definitions
+    const totalDefinitions = await extractCount(
+      importDb,
+      "SELECT COUNT(*) FROM word_definition_data"
+    );
+
     const definitionResults = importDb.getEachAsync<{
       dictionaryId: number;
       sharedId: number;
@@ -1160,8 +1210,12 @@ export async function importData(
       "word_definition_data",
       ["dictionaryId", "sharedId", ...definitionCopyKeys],
       async (statement) => {
+        let i = 0;
+
         for await (const result of definitionResults) {
           const dictionary = importIdMap[result.dictionaryId];
+
+          i++;
 
           if (!dictionary) {
             continue;
@@ -1180,6 +1234,8 @@ export async function importData(
 
           userData.stats.definitions! += 1;
           dictionary.stats.definitions! += +1;
+
+          progressCallback("definitions", i, totalDefinitions);
         }
       }
     );

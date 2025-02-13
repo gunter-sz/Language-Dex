@@ -47,15 +47,35 @@ function getColorSchemeText(
   }
 }
 
+const progressThrottleMs = 1000 / 60;
+
+function throttle<T extends any[]>(
+  ms: number,
+  callback: (...args: T) => void
+): (...args: T) => void {
+  let lastCall = 0;
+
+  return (...params) => {
+    const now = performance.now();
+
+    if (now - lastCall > ms) {
+      lastCall = now;
+      callback(...params);
+    }
+  };
+}
+
 export default function () {
   const theme = useTheme();
   const [t] = useTranslation();
   const [userData, setUserData] = useUserDataContext();
   const [longTaskName, setLongTaskName] = useState("");
   const [longTaskOpen, setLongTaskOpen] = useState(false);
-  const [longTaskCompletedMessage, setLongTaskCompletedMessage] = useState<
-    string | undefined
+  const [longTaskMessage, setLongTaskMessage] = useState("");
+  const [longTaskProgress, setLongTaskProgress] = useState<
+    number | undefined
   >();
+  const [longTaskCompleted, setLongTaskCompleted] = useState(false);
 
   const pageList = pages.map((page) => page.label);
 
@@ -152,8 +172,18 @@ export default function () {
               const asset = result.assets[0];
 
               setLongTaskOpen(true);
-              setLongTaskName(t("Importing"));
-              setLongTaskCompletedMessage(undefined);
+              setLongTaskName(t("Dictionary_Import"));
+              setLongTaskCompleted(false);
+              setLongTaskMessage(t("importing_metadata_stage"));
+              setLongTaskProgress(undefined);
+
+              const progressCallback = throttle(
+                progressThrottleMs,
+                (stage, i, total) => {
+                  setLongTaskMessage(t("importing_" + stage + "_stage"));
+                  setLongTaskProgress(i / total);
+                }
+              );
 
               importData(
                 userData,
@@ -161,14 +191,16 @@ export default function () {
                   setUserData(userData);
                   bumpDictionaryVersion();
                 },
-                asset.uri
+                asset.uri,
+                progressCallback
               )
-                .then(() =>
-                  setLongTaskCompletedMessage(t("Success_exclamation"))
-                )
+                .then(() => setLongTaskMessage(t("Success_exclamation")))
                 .catch((err) => {
-                  setLongTaskCompletedMessage(t("An_error_occurred"));
+                  setLongTaskMessage(t("An_error_occurred"));
                   logError(err);
+                })
+                .finally(() => {
+                  setLongTaskCompleted(true);
                 });
             })
             .catch(logError);
@@ -187,14 +219,29 @@ export default function () {
         defaultItemText={t("All")}
         onSelect={(value?: DictionaryData) => {
           setLongTaskOpen(true);
-          setLongTaskName(t("Exporting"));
-          setLongTaskCompletedMessage(undefined);
+          setLongTaskName(t("Dictionary_Export"));
+          setLongTaskCompleted(false);
+          setLongTaskMessage(t("exporting_metadata_stage"));
+          setLongTaskProgress(undefined);
 
-          exportData(userData, value?.id)
-            .then(() => setLongTaskCompletedMessage(t("Success_exclamation")))
+          const progressCallback = throttle(
+            progressThrottleMs,
+            (stage, i, total) => {
+              setLongTaskMessage(t("exporting_" + stage + "_stage"));
+              setLongTaskProgress(i / total);
+            }
+          );
+
+          exportData(userData, value?.id, progressCallback)
+            .then(() => {
+              setLongTaskMessage(t("Success_exclamation"));
+            })
             .catch((err) => {
-              setLongTaskCompletedMessage(t("An_error_occurred"));
+              setLongTaskMessage(t("An_error_occurred"));
               logError(err);
+            })
+            .finally(() => {
+              setLongTaskCompleted(true);
             });
         }}
       >
@@ -250,10 +297,20 @@ export default function () {
 
               setLongTaskOpen(true);
               setLongTaskName("Generating Dictionary");
-              setLongTaskCompletedMessage(undefined);
+              setLongTaskMessage("Creating words...");
+              setLongTaskProgress(0);
+              setLongTaskCompleted(false);
 
-              const longtask = async () => {
-                for (let i = 0; i < 50000; i++) {
+              const totalWords = 5000;
+              const updateProgress = throttle(
+                progressThrottleMs,
+                (i: number) => {
+                  setLongTaskProgress(i / totalWords);
+                }
+              );
+
+              const longTask = async () => {
+                for (let i = 0; i < totalWords; i++) {
                   const length = Math.floor(Math.random() * 20) + 2;
                   const chars = [];
 
@@ -271,12 +328,15 @@ export default function () {
                     example: "",
                     notes: "",
                   });
+
+                  updateProgress(i);
                 }
 
-                setLongTaskCompletedMessage("Success");
+                setLongTaskMessage("Success");
+                setLongTaskCompleted(true);
               };
 
-              longtask().catch(logError);
+              longTask().catch(logError);
             }}
           >
             <Span style={styles.label}>Generate Large Dictionary</Span>
@@ -288,26 +348,22 @@ export default function () {
 
       <Dialog
         open={longTaskOpen}
-        onClose={
-          longTaskCompletedMessage != undefined
-            ? () => setLongTaskOpen(false)
-            : undefined
-        }
+        onClose={longTaskCompleted ? () => setLongTaskOpen(false) : undefined}
       >
         <DialogTitle>{longTaskName}</DialogTitle>
 
-        {longTaskCompletedMessage == undefined ? (
-          <DialogProgressBar />
-        ) : (
-          <>
-            <DialogDescription>{longTaskCompletedMessage}</DialogDescription>
+        {longTaskMessage != undefined && (
+          <DialogDescription>{longTaskMessage}</DialogDescription>
+        )}
 
-            <ConfirmationDialogActions>
-              <ConfirmationDialogAction onPress={() => setLongTaskOpen(false)}>
-                {t("Close")}
-              </ConfirmationDialogAction>
-            </ConfirmationDialogActions>
-          </>
+        {longTaskCompleted ? (
+          <ConfirmationDialogActions>
+            <ConfirmationDialogAction onPress={() => setLongTaskOpen(false)}>
+              {t("Close")}
+            </ConfirmationDialogAction>
+          </ConfirmationDialogActions>
+        ) : (
+          <DialogProgressBar progress={longTaskProgress} />
         )}
       </Dialog>
     </RouteRoot>

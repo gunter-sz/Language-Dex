@@ -43,14 +43,19 @@ export function DialogDescription({ children }: React.PropsWithChildren) {
   );
 }
 
-export function DialogProgressBar() {
+export function DialogProgressBar({ progress }: { progress?: number }) {
+  const theme = useTheme();
+
   return (
     <View style={styles.progressContainer}>
       <Progress.Bar
         borderWidth={0}
         borderRadius={0}
+        color={theme.colors.primary.default}
         width={null}
-        indeterminate={true}
+        animated={false}
+        indeterminate={progress == undefined || Number.isNaN(progress)}
+        progress={progress}
       />
     </View>
   );
