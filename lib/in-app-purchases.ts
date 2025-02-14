@@ -41,7 +41,7 @@ export async function initInAppPurchases(
 
 export async function requestAdRemoval() {
   const purchaseParams: RequestPurchase = {
-    skus: [""],
+    skus: ["remove_ads"],
     andDangerouslyFinishTransactionAutomaticallyIOS: false,
   };
 
