@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "dev.arthurcose.languagedex"
     },
     "android": {
       "adaptiveIcon": {
@@ -17,10 +18,12 @@
         "backgroundColor": "#ffffff"
       },
       "package": "dev.arthurcose.languagedex",
-      "softwareKeyboardLayoutMode": "adjustResize"
+      "softwareKeyboardLayoutMode": "adjustResize",
+      "blockedPermissions": ["com.google.android.gms.permission.AD_ID"]
     },
     "androidStatusBar": {
-      "translucent": true
+      "translucent": true,
+      "backgroundColor": "#ffffff"
     },
     "web": {
       "bundler": "metro",
@@ -37,6 +40,14 @@
           "resizeMode": "contain"
         }
       ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-1435328633777702~2026953023",
+          "delayAppMeasurementInit": true
+        }
+      ],
+      "react-native-iap",
       "expo-localization",
       "expo-sqlite"
     ],

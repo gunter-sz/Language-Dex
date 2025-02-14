@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Text,
   ScrollView,
@@ -51,6 +51,7 @@ import useKeyboardVisible from "@/lib/hooks/use-keyboard-visible";
 import { pickIndexWithLenUnbiased } from "@/lib/puzzles/random";
 import Dialog from "@/lib/components/dialog";
 import { Span } from "@/lib/components/text";
+import { PuzzleAd } from "@/lib/components/ads";
 
 type GameState = {
   over: boolean;
@@ -121,6 +122,7 @@ export default function () {
   const theme = useTheme();
   const [t] = useTranslation();
   const [userData, setUserData] = useUserDataContext();
+  const [resolvedAdSize, setResolvedAdSize] = useState(false);
   const [allWords, setAllWords] = useState<string[] | null>(null);
   const [gameState, setGameState, getGameState] = useGettableState(() =>
     initGameState()
@@ -162,10 +164,6 @@ export default function () {
 
   const keyboardVisible = useKeyboardVisible();
 
-  if (!allWords) {
-    return;
-  }
-
   const cellWidth = 48;
 
   const submitWordGuess = () => {
@@ -191,203 +189,223 @@ export default function () {
         </SubMenuActions>
       </SubMenuTopNav>
 
-      <GameTitle>{t("Crossword")}</GameTitle>
+      {/* <GameTitle>{t("Crossword")}</GameTitle> */}
+      <PuzzleAd onSizeChange={() => setResolvedAdSize(true)} />
 
-      <ScoreRow>
-        <IncorrectScore score={gameState.incorrectSubmissions} />
-        <HintScore score={gameState.hintsRemaining} />
-      </ScoreRow>
+      {resolvedAdSize && allWords && (
+        <>
+          <ScoreRow>
+            <IncorrectScore score={gameState.incorrectSubmissions} />
+            <HintScore score={gameState.hintsRemaining} />
+          </ScoreRow>
 
-      <ScrollView
-        style={styles.outerScrollView}
-        contentContainerStyle={styles.outerScrollViewContent}
-        keyboardShouldPersistTaps="handled"
-        keyboardDismissMode="none"
-      >
-        <ScrollView
-          nestedScrollEnabled
-          horizontal
-          style={styles.innerScrollView}
-          contentContainerStyle={styles.innerScrollViewContent}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="none"
-        >
-          <View
-            style={{
-              width: cellWidth * gameState.board.width,
-              height: cellWidth * gameState.board.height,
-              position: "relative",
-              margin: 8,
-            }}
+          <ScrollView
+            style={styles.outerScrollView}
+            contentContainerStyle={styles.outerScrollViewContent}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="none"
           >
-            {gameState.board.cells.map((cell, i) => (
-              <Pressable
-                key={i}
-                style={[
-                  theme.styles.borders,
-                  theme.styles.definitionBackground,
-                  styles.cell,
-                  {
-                    position: "absolute",
-                    left: cellWidth * (cell.x - gameState.board.left),
-                    top: cellWidth * (cell.y - gameState.board.top),
-                    width: cellWidth,
-                    height: cellWidth,
-                  },
-                ]}
-                disabled={gameState.over || cell.words.length > 1}
-                onTouchEnd={(e) => e.stopPropagation()}
-                onPress={() => {
-                  const { wordIndex } = cell.words[0];
-                  const word = gameState.board.words[wordIndex];
-                  let textValue = "";
-
-                  for (const hash of word.cells) {
-                    const cell = gameState.board.cellMap[hash];
-                    if (cell.submitted == undefined) {
-                      break;
-                    }
-                    textValue += cell.submitted;
-                  }
-
-                  setWordGuess(textValue);
-                  setWordGuessIndex(wordIndex);
+            <ScrollView
+              nestedScrollEnabled
+              horizontal
+              style={styles.innerScrollView}
+              contentContainerStyle={styles.innerScrollViewContent}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="none"
+            >
+              <View
+                style={{
+                  width: cellWidth * gameState.board.width,
+                  height: cellWidth * gameState.board.height,
+                  position: "relative",
+                  margin: 8,
                 }}
               >
-                <Text
-                  style={[
-                    cell.locked ? theme.styles.poppingText : theme.styles.text,
-                    styles.cellText,
-                  ]}
-                >
-                  {cell.submitted}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        </ScrollView>
-      </ScrollView>
+                {gameState.board.cells.map((cell, i) => (
+                  <Pressable
+                    key={i}
+                    style={[
+                      theme.styles.borders,
+                      theme.styles.definitionBackground,
+                      styles.cell,
+                      {
+                        position: "absolute",
+                        left: cellWidth * (cell.x - gameState.board.left),
+                        top: cellWidth * (cell.y - gameState.board.top),
+                        width: cellWidth,
+                        height: cellWidth,
+                      },
+                    ]}
+                    disabled={gameState.over || cell.words.length > 1}
+                    onTouchEnd={(e) => e.stopPropagation()}
+                    onPress={() => {
+                      const { wordIndex } = cell.words[0];
+                      const word = gameState.board.words[wordIndex];
+                      let textValue = "";
 
-      {!keyboardVisible && (
-        <View style={styles.submitView}>
-          <CircleButton
-            style={styles.submitButton}
-            disabled={
-              gameState.over ||
-              gameState.board.cells.some((cell) => cell.submitted == undefined)
-            }
-            onPress={() => {
-              const allCorrect = gameState.board.cells.every(
-                (cell) => cell.submitted == cell.expected
-              );
+                      for (const hash of word.cells) {
+                        const cell = gameState.board.cellMap[hash];
+                        if (cell.submitted == undefined) {
+                          break;
+                        }
+                        textValue += cell.submitted;
+                      }
 
-              const updatedGameState = { ...gameState };
+                      setWordGuess(textValue);
+                      setWordGuessIndex(wordIndex);
+                    }}
+                  >
+                    <Text
+                      style={[
+                        cell.locked
+                          ? theme.styles.poppingText
+                          : theme.styles.text,
+                        styles.cellText,
+                      ]}
+                    >
+                      {cell.submitted}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </ScrollView>
+          </ScrollView>
 
-              if (allCorrect) {
-                updatedGameState.totalTimer.pause();
-                updatedGameState.displayingResults = true;
-                updatedGameState.over = true;
+          {!keyboardVisible && (
+            <View style={styles.submitView}>
+              <CircleButton
+                style={styles.submitButton}
+                disabled={
+                  gameState.over ||
+                  gameState.board.cells.some(
+                    (cell) => cell.submitted == undefined
+                  )
+                }
+                onPress={() => {
+                  const allCorrect = gameState.board.cells.every(
+                    (cell) => cell.submitted == cell.expected
+                  );
 
-                setUserData((userData) => {
-                  return updateStatistics(userData, (stats) => {
-                    stats.crosswordsCompleted =
-                      (stats.crosswordsCompleted ?? 0) + 1;
-                  });
-                });
-              } else {
-                updatedGameState.incorrectSubmissions++;
-              }
+                  const updatedGameState = { ...gameState };
 
-              setGameState(updatedGameState);
-            }}
-          >
-            <ConfirmReadyIcon size={48} color={theme.colors.primary.contrast} />
-          </CircleButton>
-        </View>
-      )}
+                  if (allCorrect) {
+                    updatedGameState.totalTimer.pause();
+                    updatedGameState.displayingResults = true;
+                    updatedGameState.over = true;
 
-      {selectedWord && wordGuessIndex != null && (
-        <DockedTextInputContainer>
-          <DockedTextInputHintButton
-            hintsRemaining={
-              selectedWord.hintUsed ? undefined : gameState.hintsRemaining
-            }
-            onPress={() => {
-              if (selectedWord.hintUsed) {
-                setHintDialogOpen(true);
-                return;
-              }
-
-              gameState.hintsRemaining--;
-              selectedWord.hintUsed = true;
-              setGameState({ ...gameState });
-
-              const word = selectedWord.word;
-              getWordDefinitions(userData.activeDictionary, word.toLowerCase())
-                .then((result) => {
-                  const gameState = { ...getGameState() };
-                  const wordData = gameState.board.words[wordGuessIndex];
-
-                  if (result && result.definitions.length > 0) {
-                    const index = pickIndexWithLenUnbiased(
-                      result.definitions.length
-                    );
-                    wordData.hint = result.definitions[index].definition;
+                    setUserData((userData) => {
+                      return updateStatistics(userData, (stats) => {
+                        stats.crosswordsCompleted =
+                          (stats.crosswordsCompleted ?? 0) + 1;
+                      });
+                    });
                   } else {
-                    wordData.hint = t("Missing_Definition_brack");
+                    updatedGameState.incorrectSubmissions++;
                   }
 
-                  setHintDialogOpen(true);
-                })
-                .catch(logError);
+                  setGameState(updatedGameState);
+                }}
+              >
+                <ConfirmReadyIcon
+                  size={48}
+                  color={theme.colors.primary.contrast}
+                />
+              </CircleButton>
+            </View>
+          )}
+
+          {selectedWord && wordGuessIndex != null && (
+            <DockedTextInputContainer>
+              <DockedTextInputHintButton
+                hintsRemaining={
+                  selectedWord.hintUsed ? undefined : gameState.hintsRemaining
+                }
+                onPress={() => {
+                  if (selectedWord.hintUsed) {
+                    setHintDialogOpen(true);
+                    return;
+                  }
+
+                  gameState.hintsRemaining--;
+                  selectedWord.hintUsed = true;
+                  setGameState({ ...gameState });
+
+                  const word = selectedWord.word;
+                  getWordDefinitions(
+                    userData.activeDictionary,
+                    word.toLowerCase()
+                  )
+                    .then((result) => {
+                      const gameState = { ...getGameState() };
+                      const wordData = gameState.board.words[wordGuessIndex];
+
+                      if (result && result.definitions.length > 0) {
+                        const index = pickIndexWithLenUnbiased(
+                          result.definitions.length
+                        );
+                        wordData.hint = result.definitions[index].definition;
+                      } else {
+                        wordData.hint = t("Missing_Definition_brack");
+                      }
+
+                      setHintDialogOpen(true);
+                    })
+                    .catch(logError);
+                }}
+              />
+              <DockedTextInput
+                autoFocus
+                onChangeText={(text) => {
+                  setWordGuess(text);
+                  setHintDialogOpen(false);
+                }}
+                onSubmitEditing={submitWordGuess}
+                submitBehavior="submit"
+                value={wordGuess}
+              />
+              <DockedTextInputSubmitButton onPress={submitWordGuess} />
+            </DockedTextInputContainer>
+          )}
+
+          <Dialog
+            open={hintDialogOpen}
+            onClose={() => setHintDialogOpen(false)}
+          >
+            <Span style={styles.hintDialog}>
+              {gameState.board.words[wordGuessIndex!]?.hint}
+            </Span>
+          </Dialog>
+
+          <ResultsDialog
+            open={gameState.displayingResults}
+            onClose={() =>
+              setGameState({ ...gameState, displayingResults: false })
+            }
+            onReplay={() => {
+              const newState = initGameState();
+              startGame(newState, allWords);
+              setGameState(newState);
             }}
-          />
-          <DockedTextInput
-            autoFocus
-            onChangeText={(text) => {
-              setWordGuess(text);
-              setHintDialogOpen(false);
-            }}
-            onSubmitEditing={submitWordGuess}
-            submitBehavior="submit"
-            value={wordGuess}
-          />
-          <DockedTextInputSubmitButton onPress={submitWordGuess} />
-        </DockedTextInputContainer>
+          >
+            <ResultsRow>
+              <ResultsLabel>{t("Total_Time")}</ResultsLabel>
+              <ResultsClock seconds={gameState.totalTimer.seconds()} />
+            </ResultsRow>
+
+            <ResultsRow>
+              <ResultsLabel>{t("Incorrect_Submissions")}</ResultsLabel>
+              <ResultsIncorrectScore score={gameState.incorrectSubmissions} />
+            </ResultsRow>
+
+            <ResultsRow>
+              <ResultsLabel>{t("Hints_Used")}</ResultsLabel>
+              <ResultsHintScore
+                score={gameState.board.words.length - gameState.hintsRemaining}
+              />
+            </ResultsRow>
+          </ResultsDialog>
+        </>
       )}
-
-      <Dialog open={hintDialogOpen} onClose={() => setHintDialogOpen(false)}>
-        <Span style={styles.hintDialog}>
-          {gameState.board.words[wordGuessIndex!]?.hint}
-        </Span>
-      </Dialog>
-
-      <ResultsDialog
-        open={gameState.displayingResults}
-        onClose={() => setGameState({ ...gameState, displayingResults: false })}
-        onReplay={() => {
-          const newState = initGameState();
-          startGame(newState, allWords);
-          setGameState(newState);
-        }}
-      >
-        <ResultsRow>
-          <ResultsLabel>{t("Total_Time")}</ResultsLabel>
-          <ResultsClock seconds={gameState.totalTimer.seconds()} />
-        </ResultsRow>
-
-        <ResultsRow>
-          <ResultsLabel>{t("Incorrect_Submissions")}</ResultsLabel>
-          <ResultsIncorrectScore score={gameState.incorrectSubmissions} />
-        </ResultsRow>
-
-        <ResultsRow>
-          <ResultsLabel>{t("Hints_Used")}</ResultsLabel>
-          <ResultsHintScore
-            score={gameState.board.words.length - gameState.hintsRemaining}
-          />
-        </ResultsRow>
-      </ResultsDialog>
     </RouteRoot>
   );
 }
@@ -419,6 +437,7 @@ const styles = StyleSheet.create({
   submitView: {
     alignItems: "center",
     marginVertical: 12,
+    marginBottom: 20,
   },
   submitButton: {
     padding: 8,

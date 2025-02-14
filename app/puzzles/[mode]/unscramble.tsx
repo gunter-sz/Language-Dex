@@ -66,6 +66,7 @@ import {
 } from "@/lib/components/puzzles/results";
 import RouteRoot from "@/lib/components/route-root";
 import { SubMenuIconButton } from "@/lib/components/icon-button";
+import { PuzzleAd } from "@/lib/components/ads";
 
 export type UnscrambleGameMode = "endless" | "timed" | "rush";
 export const unscrambleModeList: UnscrambleGameMode[] = [
@@ -399,6 +400,7 @@ export default function () {
     (d) => d.id == userData.activeDictionary
   )!;
 
+  const [resolvedAdSize, setResolvedAdSize] = useState(false);
   const [allWords, setAllWords] = useState<GameWord[] | null>(null);
   const [gameState, setGameState, getGameState] = useGettableState(() =>
     initGameState([], params.mode as UnscrambleGameMode)
@@ -514,10 +516,6 @@ export default function () {
     };
   }, []);
 
-  if (gameState.loading) {
-    return;
-  }
-
   const checkSelection = () => {
     if (gameState.allCorrect) {
       return;
@@ -583,64 +581,71 @@ export default function () {
         </ScoreRow>
       )}
 
-      <Animated.View style={[styles.definitionBlock, opacityStyle]}>
-        <View
-          style={[
-            styles.definitionBubble,
-            theme.styles.definitionBorders,
-            theme.styles.definitionBackground,
-          ]}
-        >
-          <Span style={styles.definition}>
-            {
-              definitionMap[gameState.activeWords[0]]?.definitionsResult
-                ?.definitions[gameState.activeWord?.orderKey ?? 0]?.definition
-            }
-          </Span>
-        </View>
-      </Animated.View>
+      <PuzzleAd onSizeChange={() => setResolvedAdSize(true)} />
 
-      <Animated.View style={[styles.chipsBlock, opacityStyle]}>
-        {!gameState.roundStarted &&
-          gameState.graphemes.map((grapheme, i) => (
-            <ChipSlot
-              index={i}
-              key={grapheme.rawIndex}
-              puzzleColors={puzzleColors}
-              gameState={gameState}
-              setGameState={setGameState}
-              getGameState={getGameState}
-              opacity={opacity}
+      {resolvedAdSize && !gameState.loading && (
+        <>
+          <Animated.View style={[styles.definitionBlock, opacityStyle]}>
+            <View
+              style={[
+                styles.definitionBubble,
+                theme.styles.definitionBorders,
+                theme.styles.definitionBackground,
+              ]}
             >
-              {grapheme.rawString}
-            </ChipSlot>
-          ))}
-      </Animated.View>
+              <Span style={styles.definition}>
+                {
+                  definitionMap[gameState.activeWords[0]]?.definitionsResult
+                    ?.definitions[gameState.activeWord?.orderKey ?? 0]
+                    ?.definition
+                }
+              </Span>
+            </View>
+          </Animated.View>
 
-      <View style={styles.buttonsBlock}>
-        <CircleButton
-          style={[styles.button, theme.styles.definitionBackground]}
-          android_ripple={theme.ripples.transparentButton}
-          onPress={() => {
-            setGameState({
-              ...gameState,
-              graphemeSelected: undefined,
-              graphemes: cloneAndShuffle(gameState.graphemes),
-            });
-          }}
-        >
-          <ShuffleIcon size={48} color={theme.colors.iconButton} />
-        </CircleButton>
+          <Animated.View style={[styles.chipsBlock, opacityStyle]}>
+            {!gameState.roundStarted &&
+              gameState.graphemes.map((grapheme, i) => (
+                <ChipSlot
+                  index={i}
+                  key={grapheme.rawIndex}
+                  puzzleColors={puzzleColors}
+                  gameState={gameState}
+                  setGameState={setGameState}
+                  getGameState={getGameState}
+                  opacity={opacity}
+                >
+                  {grapheme.rawString}
+                </ChipSlot>
+              ))}
+          </Animated.View>
 
-        <CircleButton
-          style={styles.button}
-          android_ripple={theme.ripples.transparentButton}
-          disabled={gameOver}
-          onPress={checkSelection}
-        >
-          <ArrowRightIcon size={48} color={theme.colors.primary.contrast} />
-        </CircleButton>
-      </View>
+          <View style={styles.buttonsBlock}>
+            <CircleButton
+              style={[styles.button, theme.styles.definitionBackground]}
+              android_ripple={theme.ripples.transparentButton}
+              onPress={() => {
+                setGameState({
+                  ...gameState,
+                  graphemeSelected: undefined,
+                  graphemes: cloneAndShuffle(gameState.graphemes),
+                });
+              }}
+            >
+              <ShuffleIcon size={48} color={theme.colors.iconButton} />
+            </CircleButton>
+
+            <CircleButton
+              style={styles.button}
+              android_ripple={theme.ripples.transparentButton}
+              disabled={gameOver}
+              onPress={checkSelection}
+            >
+              <ArrowRightIcon size={48} color={theme.colors.primary.contrast} />
+            </CircleButton>
+          </View>
+        </>
+      )}
 
       <ResultsDialog
         open={gameState.displayingResults}

@@ -5,7 +5,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ThemeContext } from "@/lib/contexts/theme";
 import { themeList, themeConstructors } from "@/lib/themes";
 import { loadUserData, saveUserData, UserData } from "@/lib/data";
-import { UserDataContext } from "@/lib/contexts/user-data";
+import { SetUserDataCallback, UserDataContext } from "@/lib/contexts/user-data";
 import { Stack } from "expo-router";
 import { PortalHost } from "@rn-primitives/portal";
 import { logError } from "@/lib/log";
@@ -14,6 +14,7 @@ import KeyboardDismisser from "@/lib/components/keyboard-dismisser";
 
 import "@/lib/i18n";
 import { useTranslation } from "react-i18next";
+import { initInAppPurchases } from "@/lib/in-app-purchases";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync().catch(logError);
@@ -33,10 +34,26 @@ export default function RootLayout() {
     return themeConstructor(colorScheme);
   }, [userData?.theme, colorScheme]);
 
+  const setAndSaveUserData: SetUserDataCallback = (setStateAction) => {
+    if (typeof setStateAction == "function") {
+      setUserData((d) => {
+        const data = setStateAction(d!);
+        saveUserData(data).catch(logError);
+        return data;
+      });
+    } else {
+      saveUserData(setStateAction).catch(logError);
+      setUserData(setStateAction);
+    }
+  };
+
   // load user data
   useEffect(() => {
     loadUserData(t)
-      .then((data) => setUserData(data))
+      .then((data) => {
+        setUserData(data);
+        return initInAppPurchases(data, setAndSaveUserData);
+      })
       .catch(logError);
   }, []);
 
@@ -55,23 +72,7 @@ export default function RootLayout() {
 
   return (
     <ThemeContext.Provider value={theme}>
-      <UserDataContext.Provider
-        value={[
-          userData,
-          (setStateAction) => {
-            if (typeof setStateAction == "function") {
-              setUserData((d) => {
-                const data = setStateAction(d!);
-                saveUserData(data).catch(logError);
-                return data;
-              });
-            } else {
-              saveUserData(setStateAction).catch(logError);
-              setUserData(setStateAction);
-            }
-          },
-        ]}
-      >
+      <UserDataContext.Provider value={[userData, setAndSaveUserData]}>
         <GestureHandlerRootView style={theme.styles.root}>
           <BottomSheetModalProvider>
             <KeyboardDismisser>

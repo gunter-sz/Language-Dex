@@ -153,8 +153,11 @@ i18n
           exporting_metadata_stage: "Initializing...",
           exporting_words_stage: "Exporting Words...",
           exporting_definitions_stage: "Exporting Definitions...",
+          Remove_Ads: "Remove Ads",
+          Removed_Ads: "Removed Ads",
           All: "All",
 
+          Ads: "Ads",
           Dictionaries: "Dictionaries",
           Development: "Development",
 

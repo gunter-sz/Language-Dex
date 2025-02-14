@@ -43,6 +43,7 @@ import {
   DockedTextInputSubmitButton,
 } from "@/lib/components/puzzles/docked-text-input";
 import { SubMenuIconButton } from "@/lib/components/icon-button";
+import { PuzzleAd } from "@/lib/components/ads";
 
 type Guess = { graphemes: Grapheme[]; pending: boolean; valid: boolean };
 
@@ -377,6 +378,7 @@ export default function () {
       </SubMenuTopNav>
 
       <GameTitle>{t("Guess_the_Word")}</GameTitle>
+      <PuzzleAd />
 
       <ScrollView
         ref={scrollViewRef}
@@ -436,7 +438,6 @@ export default function () {
 const styles = StyleSheet.create({
   guessesView: {
     flex: 1,
-    marginTop: 12,
   },
   guesses: {
     gap: 4,

@@ -56,6 +56,7 @@ import RouteRoot from "@/lib/components/route-root";
 import { useColorScheme } from "@/lib/contexts/color-scheme";
 import { SubMenuIconButton } from "@/lib/components/icon-button";
 import { PuzzleResultsIcon } from "@/lib/components/icons";
+import { PuzzleAd } from "@/lib/components/ads";
 
 export type DefinitionMatchGameMode = "endless" | "timed" | "rush";
 export const definitionMatchModeList: DefinitionMatchGameMode[] = [
@@ -470,6 +471,8 @@ export default function () {
           <Score score={gameState.score} />
         </ScoreRow>
       )}
+
+      <PuzzleAd />
 
       <Animated.View
         style={[styles.rows, opacityStyle]}

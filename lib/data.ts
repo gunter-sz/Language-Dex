@@ -55,6 +55,7 @@ export function namePartOfSpeech(
 
 export type UserData = {
   version: number;
+  removeAds?: boolean;
   home?: string;
   dictionaryOrder?: WordOrder;
   theme?: string;
