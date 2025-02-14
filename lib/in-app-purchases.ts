@@ -14,6 +14,7 @@ import { logError } from "./log";
 import { SetUserDataCallback } from "./contexts/user-data";
 import { UserData } from "./data";
 
+const REMOVE_ADS_PRODUCT_ID = "remove_ads";
 const ignoredErrors = [ErrorCode.E_USER_CANCELLED, ErrorCode.E_NETWORK_ERROR];
 
 export async function initInAppPurchases(
@@ -46,12 +47,12 @@ export async function initInAppPurchases(
     }
   });
 
-  await getProducts({ skus: ["remove_ads"] });
+  await getProducts({ skus: [REMOVE_ADS_PRODUCT_ID] });
 }
 
 export async function requestAdRemoval() {
   const purchaseParams: RequestPurchase = {
-    skus: ["remove_ads"],
+    skus: [REMOVE_ADS_PRODUCT_ID],
     andDangerouslyFinishTransactionAutomaticallyIOS: false,
   };
 
@@ -68,7 +69,9 @@ async function restorePurchases(
 
   const purchases = await getAvailablePurchases();
 
-  if (purchases.length > 0) {
-    setUserData({ ...userData, removeAds: true });
+  for (const purchase of purchases) {
+    if (purchase.productId == REMOVE_ADS_PRODUCT_ID) {
+      setUserData({ ...userData, removeAds: true });
+    }
   }
 }

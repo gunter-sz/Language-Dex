@@ -33,6 +33,7 @@ import {
 import * as DocumentPicker from "expo-document-picker";
 import { bumpDictionaryVersion } from "@/lib/hooks/use-word-definitions";
 import RouteRoot from "@/lib/components/route-root";
+import { requestAdRemoval } from "@/lib/in-app-purchases";
 
 function getColorSchemeText(
   t: TFunction<"translation", undefined>,
@@ -85,6 +86,26 @@ export default function () {
         <SubMenuBackButton />
         <SubMenuTitle>{t("Settings")}</SubMenuTitle>
       </SubMenuTopNav>
+
+      {/* <Pressable
+        style={styles.row}
+        android_ripple={theme.ripples.transparentButton}
+        onPress={requestAdRemoval}
+        disabled={userData.removeAds}
+      >
+        <Span
+          style={[
+            styles.label,
+            userData.removeAds && theme.styles.disabledText,
+          ]}
+        >
+          {userData.removeAds ? t("Removed_Ads") : t("Remove_Ads")}
+        </Span>
+
+        {userData.removeAds && <Span style={styles.value}>✅</Span>}
+      </Pressable>
+
+      <View style={theme.styles.separator} /> */}
 
       <ListPopup
         style={styles.row}
