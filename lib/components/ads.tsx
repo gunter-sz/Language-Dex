@@ -57,7 +57,19 @@ export function PuzzleAd({ onSizeChange }: { onSizeChange?: () => void }) {
 
   return (
     <BannerAd
-      requestOptions={{ requestNonPersonalizedAdsOnly: true }}
+      requestOptions={{
+        requestNonPersonalizedAdsOnly: true,
+        keywords: [
+          "education",
+          "learn",
+          "learning",
+          "language",
+          "words",
+          "word",
+          "game",
+          "puzzle",
+        ],
+      }}
       onSizeChange={onSizeChange}
       unitId={
         __DEV__ ? TestIds.BANNER : "ca-app-pub-1435328633777702/8919664433"
