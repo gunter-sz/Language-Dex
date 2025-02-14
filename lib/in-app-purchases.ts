@@ -7,10 +7,14 @@ import {
   getAvailablePurchases,
   RequestPurchase,
   requestPurchase,
+  getProducts,
+  ErrorCode,
 } from "react-native-iap";
 import { logError } from "./log";
 import { SetUserDataCallback } from "./contexts/user-data";
 import { UserData } from "./data";
+
+const ignoredErrors = [ErrorCode.E_USER_CANCELLED, ErrorCode.E_NETWORK_ERROR];
 
 export async function initInAppPurchases(
   userData: UserData,
@@ -22,7 +26,7 @@ export async function initInAppPurchases(
     // - there are pending purchases that are still pending (we can't consume a pending purchase)
     // in any case, you might not want to do anything special with the error
   });
-  await restorePurchases(userData, setUserData).catch(logError);
+  await restorePurchases(userData, setUserData).catch(() => logError);
 
   purchaseUpdatedListener((purchase) => {
     const receipt = purchase.transactionReceipt;
@@ -36,7 +40,13 @@ export async function initInAppPurchases(
     }
   });
 
-  purchaseErrorListener(logError);
+  purchaseErrorListener((err) => {
+    if (err.code == undefined || !ignoredErrors.includes(err.code)) {
+      logError(err);
+    }
+  });
+
+  await getProducts({ skus: ["remove_ads"] });
 }
 
 export async function requestAdRemoval() {
@@ -45,7 +55,7 @@ export async function requestAdRemoval() {
     andDangerouslyFinishTransactionAutomaticallyIOS: false,
   };
 
-  requestPurchase(purchaseParams).catch(logError);
+  requestPurchase(purchaseParams).catch(() => {});
 }
 
 async function restorePurchases(
