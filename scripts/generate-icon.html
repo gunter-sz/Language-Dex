@@ -1,0 +1,131 @@
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+  rel="stylesheet"
+/>
+
+<style>
+  html {
+    background: black;
+  }
+
+  html,
+  body {
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    align-content: center;
+    justify-items: center;
+    align-items: center;
+
+    font-family: "Roboto";
+    color: white;
+  }
+
+  canvas {
+    border: 1px solid gray;
+  }
+</style>
+
+Favicon:
+<canvas id="favicon" width="48" height="48"></canvas>
+
+<br />
+Play Store:
+<canvas id="play_store" width="512" height="512"></canvas>
+
+<br />
+Adaptive Icon:
+<canvas id="adaptive" width="1024" height="1024"></canvas>
+
+<br />
+Icon:
+<canvas id="icon" width="1024" height="1024"></canvas>
+
+<br />
+Splash:
+<canvas id="splash" width="1024" height="1024"></canvas>
+
+<script>
+  const backgroundColor = "#a3f";
+  const faviconFontRatio = 256 / 512;
+  const iconFontRatio = 240 / 512;
+  const adaptiveFontRatio = 160 / 512;
+
+  window.onload = function () {
+    renderFavicon();
+    renderPlayStore();
+    renderIcon();
+    renderAdaptive();
+    renderSplash();
+  };
+
+  function renderFavicon() {
+    const canvas = document.getElementById("favicon");
+    const ctx = canvas.getContext("2d");
+
+    ctx.fillStyle = backgroundColor;
+    ctx.roundRect(0, 0, canvas.width, canvas.height, 8);
+    ctx.fill();
+    drawText(canvas, ctx, "Aあ", 256 / 512);
+  }
+
+  function renderPlayStore() {
+    const canvas = document.getElementById("play_store");
+    const ctx = canvas.getContext("2d");
+    drawBackground(canvas, ctx);
+    drawText(canvas, ctx, "Aあ", iconFontRatio);
+  }
+
+  function renderAdaptive() {
+    const canvas = document.getElementById("adaptive");
+    const ctx = canvas.getContext("2d");
+    drawText(canvas, ctx, "Aあ", adaptiveFontRatio);
+  }
+
+  function renderIcon() {
+    const canvas = document.getElementById("icon");
+    const ctx = canvas.getContext("2d");
+    drawBackground(canvas, ctx);
+    drawText(canvas, ctx, "Aあ", iconFontRatio);
+  }
+
+  function renderSplash() {
+    const canvas = document.getElementById("splash");
+    const ctx = canvas.getContext("2d");
+    drawText(canvas, ctx, "Aあ", iconFontRatio);
+  }
+
+  function drawText(canvas, ctx, text, fontRatio) {
+    ctx.fillStyle = "white";
+    ctx.font = `bold ${fontRatio * canvas.width}px Roboto`;
+
+    const textMetrics = ctx.measureText(text);
+    const textHeight =
+      textMetrics.actualBoundingBoxAscent -
+      textMetrics.actualBoundingBoxDescent * 2;
+
+    ctx.fillText(
+      text,
+      (canvas.width - textMetrics.width) / 2,
+      (canvas.height + textHeight) / 2
+    );
+  }
+
+  function drawBackground(canvas, ctx) {
+    ctx.fillStyle = backgroundColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  function drawGrid(canvas, ctx) {
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height / 2);
+    ctx.lineTo(canvas.width, canvas.height / 2);
+    ctx.moveTo(canvas.width / 2, 0);
+    ctx.lineTo(canvas.width / 2, canvas.height);
+    ctx.stroke();
+  }
+</script>

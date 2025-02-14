@@ -15,15 +15,14 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#aa33ff"
       },
       "package": "dev.arthurcose.languagedex",
       "softwareKeyboardLayoutMode": "adjustResize",
       "blockedPermissions": ["com.google.android.gms.permission.AD_ID"]
     },
     "androidStatusBar": {
-      "translucent": true,
-      "backgroundColor": "#ffffff"
+      "translucent": true
     },
     "web": {
       "bundler": "metro",
@@ -37,7 +36,11 @@
         {
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
-          "resizeMode": "contain"
+          "resizeMode": "contain",
+          "backgroundColor": "#aa33ff",
+          "dark": {
+            "backgroundColor": "#000000"
+          }
         }
       ],
       [
