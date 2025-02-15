@@ -44,7 +44,7 @@ export type DictionaryData = {
 
 export function namePartOfSpeech(
   dictionary: DictionaryData | undefined,
-  id?: number
+  id?: number | null
 ) {
   if (id == undefined) {
     return;
