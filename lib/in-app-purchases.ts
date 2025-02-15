@@ -17,37 +17,41 @@ import { UserData } from "./data";
 const REMOVE_ADS_PRODUCT_ID = "remove_ads";
 const ignoredErrors = [ErrorCode.E_USER_CANCELLED, ErrorCode.E_NETWORK_ERROR];
 
-export async function initInAppPurchases(
+export function initInAppPurchases(
   userData: UserData,
   setUserData: SetUserDataCallback
 ) {
-  await initConnection();
-  await flushFailedPurchasesCachedAsPendingAndroid().catch(() => {
-    // exception can happen here if:
-    // - there are pending purchases that are still pending (we can't consume a pending purchase)
-    // in any case, you might not want to do anything special with the error
-  });
-  await restorePurchases(userData, setUserData).catch(() => logError);
+  const promise = (async function () {
+    await initConnection();
+    await flushFailedPurchasesCachedAsPendingAndroid().catch(() => {
+      // exception can happen here if:
+      // - there are pending purchases that are still pending (we can't consume a pending purchase)
+      // in any case, you might not want to do anything special with the error
+    });
+    await restorePurchases(userData, setUserData).catch(() => logError);
 
-  purchaseUpdatedListener((purchase) => {
-    const receipt = purchase.transactionReceipt;
+    purchaseUpdatedListener((purchase) => {
+      const receipt = purchase.transactionReceipt;
 
-    if (receipt) {
-      finishTransaction({ purchase, isConsumable: false })
-        .then(() =>
-          setUserData((userData) => ({ ...userData, removeAds: true }))
-        )
-        .catch(logError);
-    }
-  });
+      if (receipt) {
+        finishTransaction({ purchase, isConsumable: false })
+          .then(() =>
+            setUserData((userData) => ({ ...userData, removeAds: true }))
+          )
+          .catch(logError);
+      }
+    });
 
-  purchaseErrorListener((err) => {
-    if (err.code == undefined || !ignoredErrors.includes(err.code)) {
-      logError(err);
-    }
-  });
+    purchaseErrorListener((err) => {
+      if (err.code == undefined || !ignoredErrors.includes(err.code)) {
+        logError(err);
+      }
+    });
 
-  await getProducts({ skus: [REMOVE_ADS_PRODUCT_ID] });
+    await getProducts({ skus: [REMOVE_ADS_PRODUCT_ID] });
+  })();
+
+  promise.catch(logError);
 }
 
 export async function requestAdRemoval() {

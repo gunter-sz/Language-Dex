@@ -9,21 +9,31 @@ import mobileAds, {
 import { logError } from "../log";
 import { useUserDataContext } from "../contexts/user-data";
 import { useTheme } from "../contexts/theme";
+import { UserData } from "../data";
 
 let isMobileAdsStartCalled = false;
 
-// 1. Request consent information and load/present a consent form if necessary.
-// 2. Check if you can initialize the Google Mobile Ads SDK in parallel
-// using consent obtained in the previous session.
-// [AdsConsent.gatherConsent(), AdsConsent.getConsentInfo()].forEach((result) =>
-//   result
-//     .then(({ canRequestAds }) => {
-//       if (canRequestAds) {
-//         return startGoogleMobileAdsSDK();
-//       }
-//     })
-//     .catch(logError)
-// );
+export function initAds(userData: UserData) {
+  if (!__DEV__ || userData.removeAds) {
+    return;
+  }
+
+  // 1. Request consent information and load/present a consent form if necessary.
+  // 2. Check if you can initialize the Google Mobile Ads SDK in parallel
+  // using consent obtained in the previous session.
+  [
+    AdsConsent.gatherConsent({ tagForUnderAgeOfConsent: true }),
+    AdsConsent.getConsentInfo(),
+  ].forEach((result) =>
+    result
+      .then(({ canRequestAds }) => {
+        if (canRequestAds) {
+          return startGoogleMobileAdsSDK();
+        }
+      })
+      .catch(logError)
+  );
+}
 
 async function startGoogleMobileAdsSDK() {
   if (isMobileAdsStartCalled) return;
@@ -49,12 +59,12 @@ export function PuzzleAd({ onSizeChange }: { onSizeChange?: () => void }) {
   const theme = useTheme();
 
   useEffect(() => {
-    if (userData.removeAds) {
+    if (!isMobileAdsStartCalled || userData.removeAds) {
       onSizeChange?.();
     }
   }, []);
 
-  if (userData.removeAds) {
+  if (!isMobileAdsStartCalled || userData.removeAds) {
     return;
   }
 

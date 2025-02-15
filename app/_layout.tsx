@@ -15,6 +15,7 @@ import KeyboardDismisser from "@/lib/components/keyboard-dismisser";
 import "@/lib/i18n";
 import { useTranslation } from "react-i18next";
 import { initInAppPurchases } from "@/lib/in-app-purchases";
+import { initAds } from "@/lib/components/ads";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync().catch(logError);
@@ -52,7 +53,8 @@ export default function RootLayout() {
     loadUserData(t)
       .then((data) => {
         setUserData(data);
-        return initInAppPurchases(data, setAndSaveUserData);
+        initAds(data);
+        initInAppPurchases(data, setAndSaveUserData);
       })
       .catch(logError);
   }, []);
