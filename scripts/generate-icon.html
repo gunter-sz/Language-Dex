@@ -38,6 +38,10 @@ Play Store:
 <canvas id="play_store" width="512" height="512"></canvas>
 
 <br />
+Feature Graphic:
+<canvas id="feature_graphic" width="1024" height="500"></canvas>
+
+<br />
 Adaptive Icon:
 <canvas id="adaptive" width="1024" height="1024"></canvas>
 
@@ -58,6 +62,7 @@ Splash:
   window.onload = function () {
     renderFavicon();
     renderPlayStore();
+    renderFeatuereGraphic();
     renderIcon();
     renderAdaptive();
     renderSplash();
@@ -78,6 +83,50 @@ Splash:
     const ctx = canvas.getContext("2d");
     drawBackground(canvas, ctx);
     drawText(canvas, ctx, "Aあ", iconFontRatio);
+  }
+
+  function renderFeatuereGraphic() {
+    const canvas = document.getElementById("feature_graphic");
+    const ctx = canvas.getContext("2d");
+
+    // draw bg
+    ctx.fillStyle = "#eeeef2";
+    ctx.fillRect(0, 0, canvas.width, canvas.height, 8);
+
+    // draw text
+    ctx.fillStyle = "black";
+    ctx.font = `128px Roboto`;
+
+    const text = "Language Dex";
+    const textMetrics = ctx.measureText(text);
+    const textHeight =
+      textMetrics.actualBoundingBoxAscent -
+      textMetrics.actualBoundingBoxDescent;
+
+    const textX = (canvas.width - textMetrics.width) / 2;
+    const textY = (canvas.height + textHeight) / 2;
+
+    ctx.fillText(text, textX, textY);
+
+    // draw underlines
+    const lineY = textY + textMetrics.actualBoundingBoxDescent + 12;
+    const underlineWidth = 8;
+
+    // oldWord: "#bbb"
+    ctx.strokeStyle = "#bbb";
+    ctx.beginPath();
+    ctx.moveTo(textX, lineY);
+    ctx.lineTo(textX + ctx.measureText("Language").width, lineY);
+    ctx.lineWidth = underlineWidth;
+    ctx.stroke();
+
+    // primary color
+    ctx.strokeStyle = "#a3f";
+    ctx.beginPath();
+    ctx.moveTo(textX + ctx.measureText("Language ").width, lineY);
+    ctx.lineTo(textX + textMetrics.width, lineY);
+    ctx.lineWidth = underlineWidth;
+    ctx.stroke();
   }
 
   function renderAdaptive() {
