@@ -1,8 +1,8 @@
 {
   "name": "language-dex",
   "main": "expo-router/entry",
-  "version": "0.7.0",
-  "versionCode": 18,
+  "version": "0.8.0",
+  "versionCode": 19,
   "scripts": {
     "start": "expo start",
     "android": "expo prebuild -p android && expo run:android",
