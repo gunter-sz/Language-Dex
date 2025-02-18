@@ -27,7 +27,7 @@ import {
 import { fadeTo, flash } from "@/lib/puzzles/animations";
 import { Timer, useTimerSeconds } from "@/lib/puzzles/timer";
 import useGettableState from "@/lib/hooks/use-gettable-state";
-import Unistring, { Grapheme } from "@akahuku/unistring";
+import { Grapheme } from "@akahuku/unistring";
 import SubMenuTopNav, {
   SubMenuActions,
   SubMenuBackButton,
@@ -73,6 +73,11 @@ import {
 import RouteRoot from "@/lib/components/route-root";
 import { SubMenuIconButton } from "@/lib/components/icon-button";
 import { PuzzleAd } from "@/lib/components/ads";
+import {
+  joinGraphemes,
+  toGraphemes,
+  toGraphemeStrings,
+} from "@/lib/puzzles/words";
 
 export type UnscrambleGameMode = "endless" | "timed" | "rush";
 export const unscrambleModeList: UnscrambleGameMode[] = [
@@ -161,14 +166,9 @@ function setUpNextRound(gameState: GameState) {
 
   gameState.activeWords = [gameState.activeWord.spelling.toLowerCase()];
 
-  Unistring(gameState.activeWord.spelling).forEach((grapheme) => {
-    gameState.graphemes.push(grapheme);
-  });
+  gameState.graphemes = toGraphemes(gameState.activeWord.spelling);
 
-  while (
-    gameState.graphemes.map((g) => g.rawString).join("") ==
-    gameState.activeWord.spelling
-  ) {
+  while (joinGraphemes(gameState.graphemes) == gameState.activeWord.spelling) {
     shuffle(gameState.graphemes);
   }
 
@@ -532,16 +532,11 @@ export default function () {
         return gameState;
       }
 
-      const correctList: boolean[] = [];
-      gameState.allCorrect = true;
+      gameState.correctList = toGraphemeStrings(
+        gameState.activeWord.spelling
+      ).map((g, i) => gameState.graphemes[i].rawString == g);
 
-      Unistring(gameState.activeWord.spelling).forEach((g, i) => {
-        const correct = gameState.graphemes[i].rawString == g.rawString;
-        correctList.push(correct);
-        gameState.allCorrect &&= correct;
-      });
-
-      gameState.correctList = correctList;
+      gameState.allCorrect = gameState.correctList.every((b) => b);
 
       gameState = { ...gameState };
 

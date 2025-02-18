@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { isValidWord, listWords, updateStatistics } from "@/lib/data";
-import Unistring, { Grapheme } from "@akahuku/unistring";
+import { Grapheme } from "@akahuku/unistring";
 import { pickIndexBiased } from "@/lib/puzzles/random";
 import { Timer } from "@/lib/puzzles/timer";
 import useGettableState from "@/lib/hooks/use-gettable-state";
@@ -44,6 +44,7 @@ import {
 } from "@/lib/components/puzzles/docked-text-input";
 import { SubMenuIconButton } from "@/lib/components/icon-button";
 import { PuzzleAd } from "@/lib/components/ads";
+import { toGraphemes } from "@/lib/puzzles/words";
 
 type Guess = { graphemes: Grapheme[]; pending: boolean; valid: boolean };
 
@@ -69,16 +70,6 @@ function initGameState() {
   };
 
   return gameState;
-}
-
-function toGraphemes(word: string) {
-  const graphemes: Grapheme[] = [];
-
-  Unistring(word).forEach((grapheme) => {
-    graphemes.push(grapheme);
-  });
-
-  return graphemes;
 }
 
 function startGame(gameState: GameState, words: string[]) {

@@ -45,7 +45,7 @@ import {
   Crossword,
   generateCrossword,
 } from "@/lib/puzzles/crossword-generation";
-import { splitByGrapheme } from "@/lib/puzzles/words";
+import { toGraphemeStrings } from "@/lib/puzzles/words";
 import CircleButton from "@/lib/components/circle-button";
 import useKeyboardVisible from "@/lib/hooks/use-keyboard-visible";
 import { pickIndexWithLenUnbiased } from "@/lib/puzzles/random";
@@ -100,7 +100,7 @@ function updateWordSubmission(
   const board = { ...gameState.board };
   const selectedWord = board.words[wordIndex];
 
-  const submittedGraphemes = splitByGrapheme(text.toLowerCase());
+  const submittedGraphemes = toGraphemeStrings(text.toLowerCase());
 
   // iterate over cells to update submissions even on crossing words
   for (let i = 0; i < selectedWord.cells.length; i++) {

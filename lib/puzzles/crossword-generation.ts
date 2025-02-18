@@ -1,5 +1,5 @@
 import { pickIndexWithLenUnbiased, swapToEnd } from "./random";
-import { splitByGrapheme } from "./words";
+import { toGraphemeStrings } from "./words";
 
 const maxTrialBoards = 5;
 const finalContestants = 3;
@@ -191,7 +191,7 @@ function generateTrialBoard(words: string[]) {
         break;
       }
 
-      const graphemes = splitByGrapheme(word.toLowerCase());
+      const graphemes = toGraphemeStrings(word.toLowerCase());
       tempLen -= 1;
 
       // find a valid placement
