@@ -289,9 +289,9 @@ export default function () {
             <Span style={styles.label}>{t("Show_Privacy_Options")}</Span>
           </Pressable>
         </>
-      )} */}
 
-      <View style={theme.styles.separator} />
+        <View style={theme.styles.separator} />
+      )} */}
 
       <Span style={[styles.sectionHeader, theme.styles.poppingText]}>
         {t("Development")}
