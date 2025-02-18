@@ -170,7 +170,7 @@ export default function DefinitionEditor(props: Props) {
             FileSystem.copyAsync({
               from: pronunciationUri,
               to: getFileObjectPath(pronunciationAudio)!,
-            })
+            }).catch(logError)
           );
         }
       }
