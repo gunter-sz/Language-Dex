@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Pressable } from "react-native";
-import { SubMenuIconButton } from "@/lib/components/icon-button";
+import IconButton, { SubMenuIconButton } from "@/lib/components/icon-button";
 import {
   ConfidenceIcon,
   DragVerticalLongIcon,
+  PlayAudioIcon,
   PlusIcon,
   TrashIcon,
 } from "@/lib/components/icons";
@@ -26,6 +27,7 @@ import ReorderableList, {
 import {
   deleteWord,
   DictionaryData,
+  getFileObjectPath,
   namePartOfSpeech,
   updateDefinitionOrderKey,
   updateStatistics,
@@ -33,15 +35,18 @@ import {
 } from "@/lib/data";
 import { logError } from "@/lib/log";
 import ConfirmationDialog from "@/lib/components/confirmation-dialog";
+import { useAudioPlayer } from "expo-audio";
 
 function Definition({
   item,
   word,
   dictionary,
+  setPronunciationUri,
 }: {
   item: WordDefinitionData;
   word: string;
   dictionary: DictionaryData;
+  setPronunciationUri: (uri: string) => void;
 }) {
   const theme = useTheme();
   const [t] = useTranslation();
@@ -79,9 +84,21 @@ function Definition({
             )}
           </View>
 
-          <View>
+          <View style={styles.stickersContainer}>
             {item.confidence != 0 && (
               <ConfidenceIcon confidence={item.confidence} size={24} />
+            )}
+
+            {item.pronunciationAudio != undefined && (
+              <IconButton
+                icon={PlayAudioIcon}
+                disabled={item.pronunciationAudio == undefined}
+                onPress={() =>
+                  setPronunciationUri(
+                    getFileObjectPath(item.pronunciationAudio)!
+                  )
+                }
+              />
             )}
           </View>
         </Pressable>
@@ -126,6 +143,14 @@ export default function Word() {
 
     setDefinitions(definitionData.definitionsResult.definitions);
   }, [definitionData?.definitionsResult]);
+
+  // handle pronunciation
+  const [pronunciationUri, setPronunciationUri] = useState<
+    string | undefined
+  >();
+  const audioPlayer = useAudioPlayer(pronunciationUri);
+
+  useEffect(() => audioPlayer.play(), [pronunciationUri]);
 
   return (
     <>
@@ -174,7 +199,12 @@ export default function Word() {
             .catch(logError);
         }}
         renderItem={({ item }) => (
-          <Definition dictionary={dictionary} word={word} item={item} />
+          <Definition
+            dictionary={dictionary}
+            word={word}
+            setPronunciationUri={setPronunciationUri}
+            item={item}
+          />
         )}
         cellAnimations={{ scale: false }}
         keyExtractor={(item) => item.id.toString()}
@@ -249,5 +279,9 @@ const styles = StyleSheet.create({
   notes: {
     marginTop: 16,
     paddingLeft: 16,
+  },
+  stickersContainer: {
+    flexDirection: "column",
+    alignItems: "center",
   },
 });

@@ -114,7 +114,7 @@ export type WordDefinitionData = {
   orderKey: number;
   confidence: number;
   partOfSpeech?: number | null;
-  pronunciationAudio?: FileName;
+  pronunciationAudio?: FileName | null;
   definition: string;
   example: string;
   notes: string;
@@ -805,6 +805,14 @@ function saveFileObject(id: string, data: any) {
   );
 }
 
+export function createNewFileObjectId() {
+  return uuid.v4();
+}
+
+export function getFileObjectPath(id?: string | null) {
+  return id != undefined ? FILE_OBJECT_DIR + id : id;
+}
+
 async function saveNewFileObject(data: any) {
   const id = uuid.v4();
 
@@ -1019,7 +1027,7 @@ CREATE TABLE files (
       "orderKey",
       "confidence",
       "partOfSpeech",
-      "pronunciationAudio",
+      // "pronunciationAudio",
       "definition",
       "example",
       "notes",

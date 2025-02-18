@@ -99,6 +99,7 @@ i18n
 
           // definition editor
           Pronunciation: "Pronunciation",
+          Saved_Pronunciation: "Saved Pronunciation",
           Recording_number: "Recording {{count}}",
           Confidence_paren: "(Confidence)",
           Word: "Word",

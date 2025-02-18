@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next";
 import Dialog, { DialogTitle } from "../dialog";
 import { AudioModule, AudioPlayer, RecordingPresets } from "expo-audio";
 import RecordingModule, {
-  AndroidAudioSource,
   AudioRecorder,
+  RecordingOptions,
 } from "recording-module";
 import { useTheme } from "@/lib/contexts/theme";
 import { logError } from "@/lib/log";
@@ -20,16 +20,25 @@ import { Span } from "../text";
 import IconButton from "../icon-button";
 import RadioButton from "../radio-button";
 import * as FileSystem from "expo-file-system";
-import ListPopup from "../list-popup";
 
-export default function PronunciationEditor() {
+type PronunciationEditorProps = {
+  saved: boolean;
+  pronunciationUri?: string | null;
+  setPronunciationUri: (uri: string | null) => void;
+};
+
+export default function PronunciationEditor(props: PronunciationEditorProps) {
   const [open, setOpen] = useState(false);
 
   return (
     <>
       <IconButton icon={MicrophoneIcon} onPress={() => setOpen(true)} />
 
-      <PronunciationEditorDialog open={open} onClose={() => setOpen(false)} />
+      <PronunciationEditorDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        {...props}
+      />
     </>
   );
 }
@@ -77,10 +86,13 @@ function PermissionRequester({
 function PronunciationEditorDialog({
   open,
   onClose,
+  saved,
+  pronunciationUri,
+  setPronunciationUri,
 }: {
   open: boolean;
   onClose: () => void;
-}) {
+} & PronunciationEditorProps) {
   const [t] = useTranslation();
   const theme = useTheme();
 
@@ -92,7 +104,17 @@ function PronunciationEditorDialog({
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const [audioSource, setAudioSource] = useState<AndroidAudioSource>("default");
+  const handleClose = () => {
+    if (selectedIndex == 0) {
+      setPronunciationUri(null);
+    } else if (selectedIndex == 1) {
+      setPronunciationUri(pronunciationUri ?? null);
+    } else {
+      setPronunciationUri(recordings[selectedIndex - 2]);
+    }
+
+    onClose();
+  };
 
   const requestPermission = () =>
     AudioModule.requestRecordingPermissionsAsync().then((status) => {
@@ -107,10 +129,25 @@ function PronunciationEditorDialog({
       playerRef.current?.release();
 
       recordings.forEach((uri) => {
-        FileSystem.deleteAsync("file:/" + uri).catch(logError);
+        FileSystem.deleteAsync(uri).catch(logError);
       });
     };
   }, []);
+
+  useEffect(() => {
+    if (!saved) {
+      return;
+    }
+
+    recordings.forEach((uri) => {
+      FileSystem.deleteAsync(uri).catch(logError);
+    });
+    setRecordings([]);
+  }, [saved]);
+
+  useEffect(() => {
+    setSelectedIndex(pronunciationUri != undefined ? 1 : 0);
+  }, [pronunciationUri]);
 
   const playIndex = (i: number, uri: string) => {
     playerRef.current?.release();
@@ -156,14 +193,19 @@ function PronunciationEditorDialog({
       const options = {
         ...preset,
         android: {
+          // this doesn't seem to do anything?
           ...preset.android,
-          audioSource,
+          audioSource: "voice_communication",
         },
-        audioSource,
+        // duplicated here since audio module seems to read this as a flat structure
+        ...preset.android,
+        audioSource: "voice_communication",
         numberOfChannels: 1,
       };
 
-      const recorder = new RecordingModule.AudioRecorder(options);
+      const recorder = new RecordingModule.AudioRecorder(
+        options as Partial<RecordingOptions>
+      );
 
       recorder
         .prepareToRecordAsync()
@@ -194,7 +236,8 @@ function PronunciationEditorDialog({
       const { uri } = recordingRef.current;
 
       if (uri != null) {
-        setRecordings([...recordings, uri]);
+        setRecordings([...recordings, "file://" + uri]);
+        setSelectedIndex(recordings.length + 2);
       }
 
       if (recordingRef.current.isRecording) {
@@ -211,7 +254,7 @@ function PronunciationEditorDialog({
   };
 
   return (
-    <Dialog open={open} onClose={recording ? undefined : onClose}>
+    <Dialog open={open} onClose={recording ? undefined : handleClose}>
       {open && <PermissionRequester requestPermission={requestPermission} />}
 
       <DialogTitle>{t("Pronunciation")}</DialogTitle>
@@ -224,37 +267,36 @@ function PronunciationEditorDialog({
           onPress={() => setSelectedIndex(0)}
         />
 
+        {pronunciationUri != undefined && (
+          <Option
+            selected={selectedIndex == 1}
+            theme={theme}
+            label={t("Saved_Pronunciation")}
+            playing={playingIndex == 1}
+            onPress={() => {
+              setSelectedIndex(1);
+              playIndex(1, pronunciationUri);
+            }}
+          />
+        )}
+
         {recordings.slice(0).map((uri, i) => (
           <Option
             key={i}
-            selected={selectedIndex - 2 == i}
+            selected={selectedIndex == i + 2}
             theme={theme}
             label={t("Recording_number", { count: i + 1 })}
-            playing={playingIndex == i}
+            playing={playingIndex == i + 2}
             onPress={() => {
               setSelectedIndex(i + 2);
-              playIndex(i, uri);
+              playIndex(i + 2, uri);
             }}
           />
         ))}
       </ScrollView>
 
       <View style={styles.dialogActionsRow}>
-        <ListPopup
-          style={styles.dialogAction}
-          list={[
-            "default",
-            "camcorder",
-            "mic",
-            "unprocessed",
-            "voice_communication",
-          ]}
-          getItemText={(t) => t}
-          keyExtractor={(t) => t}
-          onSelect={(t: AndroidAudioSource) => setAudioSource(t)}
-        >
-          <Span>{audioSource}</Span>
-        </ListPopup>
+        <View style={styles.dialogAction} />
 
         <View style={styles.dialogAction}>
           <View
@@ -291,10 +333,7 @@ function PronunciationEditorDialog({
           <Pressable
             style={styles.confirmButton}
             android_ripple={theme.ripples.transparentButton}
-            onPress={() => {
-              // todo: confirm selection
-              onClose();
-            }}
+            onPress={handleClose}
           >
             <Span>{t("Confirm")}</Span>
           </Pressable>

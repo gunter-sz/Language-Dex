@@ -14,10 +14,11 @@ import {
   ExampleIcon,
   NotesIcon,
   PartOfSpeechIcon,
+  PlayAudioIcon,
   SaveIcon,
   TrashIcon,
 } from "@/lib/components/icons";
-import { SubMenuIconButton } from "@/lib/components/icon-button";
+import IconButton, { SubMenuIconButton } from "@/lib/components/icon-button";
 import {
   invalidateWordDefinitions,
   useWordDefinition,
@@ -28,7 +29,9 @@ import ConfirmationDialog, {
   DiscardDialog,
 } from "@/lib/components/confirmation-dialog";
 import {
+  createNewFileObjectId,
   deleteDefinition,
+  getFileObjectPath,
   updateStatistics,
   upsertDefinition,
 } from "@/lib/data";
@@ -39,6 +42,9 @@ import SubMenuTopNav, {
 import useBackHandler from "@/lib/hooks/use-back-handler";
 import { usePendingChangesDetection } from "@/lib/hooks/use-pending-changes-detection";
 import PronunciationEditor from "./pronunciation-editor";
+import * as FileSystem from "expo-file-system";
+import { useAudioPlayer } from "expo-audio";
+import { copyExtension } from "@/lib/path";
 
 type Props = {
   lowerCaseWord?: string;
@@ -90,6 +96,9 @@ export default function DefinitionEditor(props: Props) {
   const [discardDialogOpen, setDiscardDialogOpen] = useState(false);
 
   const [spelling, setSpelling] = useState(props.lowerCaseWord ?? "");
+  const [pronunciationUri, setPronunciationUri] = useState(
+    getFileObjectPath(definitionData?.pronunciationAudio) ?? null
+  );
   const [confidence, setConfidence] = useState(definitionData?.confidence ?? 0);
   const [partOfSpeech, setPartOfSpeech] = useState(
     definitionData?.partOfSpeech ?? null
@@ -102,6 +111,9 @@ export default function DefinitionEditor(props: Props) {
 
   useEffect(() => {
     if (definitionData) {
+      setPronunciationUri(
+        getFileObjectPath(definitionData.pronunciationAudio) ?? null
+      );
       setConfidence(definitionData.confidence);
       setPartOfSpeech(definitionData.partOfSpeech ?? null);
       setDefinition(definitionData.definition);
@@ -137,12 +149,47 @@ export default function DefinitionEditor(props: Props) {
         props.lowerCaseWord != lowerCaseSpelling &&
         props.definitionId != undefined;
 
+      // handle pronunciation files
+      const fileTasks: (() => Promise<void>)[] = [];
+
+      let pronunciationAudio = definitionData?.pronunciationAudio ?? null;
+      const prevPronunciationUri = getFileObjectPath(pronunciationAudio);
+
+      if (prevPronunciationUri != pronunciationUri) {
+        if (pronunciationUri == undefined) {
+          pronunciationAudio = null;
+        } else {
+          const newExtension = copyExtension(pronunciationUri);
+          pronunciationAudio ??= createNewFileObjectId() + newExtension;
+
+          if (copyExtension(pronunciationAudio) != newExtension) {
+            pronunciationAudio = createNewFileObjectId() + newExtension;
+          }
+
+          fileTasks.push(() =>
+            FileSystem.copyAsync({
+              from: pronunciationUri,
+              to: getFileObjectPath(pronunciationAudio)!,
+            })
+          );
+        }
+      }
+
+      if (
+        prevPronunciationUri != undefined &&
+        prevPronunciationUri != getFileObjectPath(pronunciationAudio)
+      ) {
+        // delete the pronunciation file before saving to avoid dangling files
+        await FileSystem.deleteAsync(prevPronunciationUri).catch(logError);
+      }
+
       // create or update the word
       const definitionId = await upsertDefinition(
         userData.activeDictionary,
         lowerCaseSpelling,
         {
           id: props.definitionId,
+          pronunciationAudio,
           partOfSpeech,
           definition,
           example,
@@ -150,6 +197,9 @@ export default function DefinitionEditor(props: Props) {
           confidence,
         }
       );
+
+      // create files after a successful save
+      await Promise.all(fileTasks.map((task) => task()));
 
       // update statistics
       if (props.definitionId == undefined) {
@@ -182,6 +232,8 @@ export default function DefinitionEditor(props: Props) {
 
     setSaving(false);
   };
+
+  const audioPlayer = useAudioPlayer(pronunciationUri);
 
   return (
     <>
@@ -231,7 +283,24 @@ export default function DefinitionEditor(props: Props) {
           />
 
           <View style={styles.pronunciationGroup}>
-            <PronunciationEditor />
+            <PronunciationEditor
+              saved={!saving}
+              pronunciationUri={
+                getFileObjectPath(definitionData?.pronunciationAudio) ?? null
+              }
+              setPronunciationUri={(uri) => {
+                if (uri != pronunciationUri) {
+                  setPronunciationUri(uri);
+                  setHasPendingChanges(true);
+                }
+              }}
+            />
+
+            <IconButton
+              icon={PlayAudioIcon}
+              disabled={pronunciationUri == undefined}
+              onPress={() => audioPlayer.play()}
+            />
           </View>
         </View>
 
