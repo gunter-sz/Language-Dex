@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useLocalSearchParams } from "expo-router";
 import {
   Pressable,
+  ScrollView,
   StyleProp,
   StyleSheet,
   View,
@@ -251,15 +252,14 @@ function Card({
 
   return (
     <Animated.View style={[style, styles.card, animatedStyle]}>
-      <Pressable
-        style={styles.pressable}
-        onPressIn={onPress}
-        disabled={correct}
+      <ScrollView
+        contentContainerStyle={styles.textContainer}
+        onTouchStart={correct ? undefined : onPress}
       >
         <Animated.Text style={{ fontSize: 16, color }}>
           {children}
         </Animated.Text>
-      </Pressable>
+      </ScrollView>
     </Animated.View>
   );
 }
@@ -618,9 +618,11 @@ const styles = StyleSheet.create({
     aspectRatio: 1,
     borderWidth: 1,
   },
-  pressable: {
-    flex: 1,
+  textContainer: {
     justifyContent: "center",
     alignItems: "center",
+    alignContent: "center",
+    minHeight: "100%",
+    padding: 6,
   },
 });

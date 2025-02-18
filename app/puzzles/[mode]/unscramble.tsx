@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, View, StyleProp, ViewStyle } from "react-native";
+import {
+  StyleSheet,
+  View,
+  StyleProp,
+  ViewStyle,
+  ScrollView,
+} from "react-native";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/lib/contexts/theme";
 import { useUserDataContext } from "@/lib/contexts/user-data";
@@ -586,12 +592,13 @@ export default function () {
       {resolvedAdSize && !gameState.loading && (
         <>
           <Animated.View style={[styles.definitionBlock, opacityStyle]}>
-            <View
+            <ScrollView
               style={[
                 styles.definitionBubble,
                 theme.styles.definitionBorders,
                 theme.styles.definitionBackground,
               ]}
+              contentContainerStyle={styles.definitionContent}
             >
               <Span style={styles.definition}>
                 {
@@ -600,7 +607,7 @@ export default function () {
                     ?.definition
                 }
               </Span>
-            </View>
+            </ScrollView>
           </Animated.View>
 
           <Animated.View style={[styles.chipsBlock, opacityStyle]}>
@@ -706,6 +713,9 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
     borderWidth: 1,
     borderRadius: 8,
+    flexGrow: 0,
+  },
+  definitionContent: {
     justifyContent: "center",
     alignItems: "center",
   },
