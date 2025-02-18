@@ -4,11 +4,13 @@ import { router } from "expo-router";
 import { useTheme } from "@/lib/contexts/theme";
 import data from "../../-licenses.json";
 
-export type NamespacePackages = (typeof data)["namespaces"][0];
+export type NamespacePackages = (typeof data)["npm"][0];
 
 export function AttributionRow({
+  section,
   packageList,
 }: {
+  section: string;
   packageList: NamespacePackages;
 }) {
   const item = packageList[0];
@@ -25,7 +27,9 @@ export function AttributionRow({
           style={styles.pressable}
           android_ripple={theme.ripples.transparentButton}
           onPress={() =>
-            router.navigate(`/attribution/${encodeURIComponent(key)}`)
+            router.navigate(
+              `/attribution/${section}/${encodeURIComponent(key)}`
+            )
           }
         >
           <Span style={styles.name} numberOfLines={1}>
@@ -46,15 +50,19 @@ export function AttributionRow({
           style={styles.pressable}
           android_ripple={theme.ripples.transparentButton}
           onPress={() =>
-            router.navigate(`/attribution/${encodeURIComponent(key)}`)
+            router.navigate(
+              `/attribution/${section}/${encodeURIComponent(key)}`
+            )
           }
         >
           <Span style={styles.name} numberOfLines={1}>
             {item.name}
           </Span>
-          <Span style={styles.version} numberOfLines={1}>
-            @{item.version}
-          </Span>
+          {item.version != "" && (
+            <Span style={styles.version} numberOfLines={1}>
+              @{item.version}
+            </Span>
+          )}
         </Pressable>
       </View>
     );
@@ -63,10 +71,11 @@ export function AttributionRow({
 
 export const styles = StyleSheet.create({
   listStyles: {
-    gap: 8,
-    padding: 8,
+    marginBottom: 4,
   },
   row: {
+    marginVertical: 4,
+    marginHorizontal: 8,
     borderRadius: 48,
     overflow: "hidden",
   },

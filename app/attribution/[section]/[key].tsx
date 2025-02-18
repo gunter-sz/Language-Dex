@@ -20,35 +20,37 @@ import { openBrowserAsync } from "expo-web-browser";
 import { logError } from "@/lib/log";
 import RouteRoot from "@/lib/components/route-root";
 
-import data from "../../-licenses.json";
+import data from "@/-licenses.json";
 
-type Package = NamespacePackages[0];
+type Package = NamespacePackages[0] & { homepage?: string };
 
 function keyExtractor(_: Package, i: number) {
   return i.toString();
 }
 
-function renderItem({ item }: { item: Package }) {
-  return <AttributionRow packageList={[item]} />;
+function renderItem({ item, section }: { item: Package; section: string }) {
+  return <AttributionRow section={section} packageList={[item]} />;
 }
 
 export default function () {
-  const params = useLocalSearchParams<{ key: string }>();
+  const params = useLocalSearchParams<{ key: string; section: string }>();
   const theme = useTheme();
   const [t] = useTranslation();
 
+  const sectionKey = params.section as "npm" | "icons";
   const isNamespace = params.key.endsWith("/");
 
   const name = params.key.slice(0, params.key.lastIndexOf("@"));
   const version = params.key.slice(params.key.lastIndexOf("@") + 1);
 
+  const sectionList = data[sectionKey];
   const packageList = isNamespace
-    ? data.namespaces.find((list) => list[0].name.startsWith(params.key))!
-    : data.namespaces.find((list) =>
+    ? sectionList.find((list) => list[0].name.startsWith(params.key))!
+    : sectionList.find((list) =>
         list.some((p) => p.name == name && p.version == version)
       )!;
 
-  const item =
+  const item: Package =
     packageList.length == 1
       ? packageList[0]
       : packageList.find((p) => p.name == name && p.version == version)!;
@@ -65,9 +67,9 @@ export default function () {
             <SubMenuIconButton
               icon={LinkIcon}
               onPress={() => {
-                openBrowserAsync("https://www.npmjs.com/package/" + name).catch(
-                  logError
-                );
+                openBrowserAsync(
+                  item.homepage ?? "https://www.npmjs.com/package/" + name
+                ).catch(logError);
               }}
             />
           </SubMenuActions>
@@ -76,10 +78,12 @@ export default function () {
 
       {isNamespace ? (
         <FlatList
-          contentContainerStyle={attributionStyles.listStyles}
+          style={attributionStyles.listStyles}
           data={packageList}
           keyExtractor={keyExtractor}
-          renderItem={renderItem}
+          renderItem={({ item }) =>
+            renderItem({ item, section: params.section })
+          }
         />
       ) : (
         <>

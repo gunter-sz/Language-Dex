@@ -6,9 +6,18 @@ const rawData = fs.readFileSync(path, "utf-8");
 const input = <OutputCompressed>JSON.parse(rawData);
 
 const flatList = input.packages;
-const mergedList = [];
+const npmList: ResolvedPackageCompressed[][] = [];
+const iconsList: ResolvedPackageCompressed[][] = [];
 const namespaceMap: { [key: string]: ResolvedPackageCompressed[] | undefined } =
   {};
+
+function mergeNamespace(name: string, list: ResolvedPackageCompressed[]) {
+  if (name == "Pictogrammers") {
+    iconsList.push(list);
+  } else {
+    npmList.push(list);
+  }
+}
 
 for (const p of flatList) {
   if (p.name[0] == "@") {
@@ -20,15 +29,17 @@ for (const p of flatList) {
     } else {
       const list = [p];
       namespaceMap[namespace] = list;
-      mergedList.push(list);
+      mergeNamespace(namespace, list);
     }
   } else {
-    mergedList.push([p]);
+    mergeNamespace(p.name, [p]);
   }
 }
 
 const output = {
-  namespaces: mergedList,
+  sections: ["icons", "npm"],
+  npm: npmList,
+  icons: iconsList,
   licenseText: input.licenseText,
 };
 

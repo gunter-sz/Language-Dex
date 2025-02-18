@@ -14,6 +14,19 @@
     "lightningcss-linux-x64-gnu",
     "@react-native/debugger-frontend"
   ],
+  "append": [
+    {
+      "name": "Pictogrammers",
+      "licenseExpression": "(Apache-2.0 AND MIT)",
+      "licenses": [
+        {
+          "expression": "(Apache-2.0 AND MIT)",
+          "file": "licenses/pictogrammers.txt"
+        }
+      ],
+      "homepage": "https://pictogrammers.com/"
+    }
+  ],
   "overrides": {
     "fs.realpath": {
       "licenseExpression": "(ISC AND MIT)"

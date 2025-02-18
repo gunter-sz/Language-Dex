@@ -168,6 +168,8 @@ i18n
 
           // attribution
           Third_Party_Licenses: "Third-party Licenses",
+          third_party_icons: "Icons",
+          third_party_npm: "npm",
           version: "version",
         },
       },
