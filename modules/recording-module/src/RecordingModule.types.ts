@@ -230,17 +230,4 @@ export type RecordingOptionsAndroid = {
   maxFileSize?: number;
 };
 
-export type AudioMode = {
-  playsInSilentMode: boolean;
-  /**
-   * Determines how the audio session interacts with other sessions.
-   *
-   * @platform ios
-   */
-  interruptionMode: InterruptionMode;
-  allowsRecording: boolean;
-  shouldPlayInBackground: boolean;
-  shouldRouteThroughEarpiece: boolean;
-};
-
 export type InterruptionMode = "mixWithOthers" | "doNotMix" | "duckOthers";

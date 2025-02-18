@@ -11,11 +11,6 @@ class AudioSource(
   @Field val headers: Map<String, String>?
 ) : Record
 
-class AudioMode(
-  @Field val shouldPlayInBackground: Boolean = true,
-  @Field val shouldRouteThroughEarpiece: Boolean?
-) : Record
-
 // Data class because we want `equals`
 data class RecordingOptions(
   @Field val extension: String,
