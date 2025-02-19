@@ -573,7 +573,10 @@ export default function () {
         >
           <ResultsRow>
             <ResultsLabel>{t("Total_Time")}</ResultsLabel>
-            <ResultsClock seconds={gameState.totalTimer.seconds()} />
+            <ResultsClock
+              maxSeconds={gameState.maxTime}
+              seconds={gameState.totalTimer.seconds()}
+            />
           </ResultsRow>
 
           <ResultsRow>

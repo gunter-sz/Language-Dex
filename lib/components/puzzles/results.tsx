@@ -95,10 +95,16 @@ export function ResultsIncorrectScore({ score }: { score: number }) {
   );
 }
 
-export function ResultsClock({ seconds }: { seconds: number }) {
+export function ResultsClock({
+  seconds,
+  maxSeconds,
+}: {
+  seconds: number;
+  maxSeconds: number;
+}) {
   const theme = useTheme();
 
-  seconds = Math.max(Math.ceil(seconds), 0);
+  seconds = Math.min(Math.max(Math.ceil(seconds), 0), maxSeconds);
 
   return (
     <Text style={[styles.result, theme.styles.disabledText]}>
