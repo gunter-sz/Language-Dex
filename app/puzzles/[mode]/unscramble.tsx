@@ -59,8 +59,6 @@ import {
   GestureStateChangeEvent,
   PanGestureHandlerEventPayload,
 } from "react-native-gesture-handler";
-import { Portal } from "@rn-primitives/portal";
-import uuid from "react-native-uuid";
 import usePuzzleColors, { PuzzleColors } from "@/lib/hooks/use-puzzle-colors";
 import {
   ResultsClock,
@@ -240,7 +238,6 @@ const ChipSlot = React.memo(function ({
   const interacting = useSharedValue(false);
   const originalPos = useSharedValue({ x: 0, y: 0 });
   const position = useSharedValue({ x: 0, y: 0 });
-  const [portalName] = useState(() => uuid.v4());
   const color = useSharedValue(theme.colors.text);
   const backgroundColor = useSharedValue(theme.colors.definitionBackground);
   const borderColor = useSharedValue(theme.colors.borders);
@@ -248,14 +245,14 @@ const ChipSlot = React.memo(function ({
   const selected = gameState.graphemeSelected == index;
 
   const animatedStyle = useAnimatedStyle(() => {
-    const moving =
-      position.value.x != originalPos.value.x ||
-      position.value.y != originalPos.value.y;
+    const x = position.value.x;
+    const y = position.value.y;
+    const moving = x != originalPos.value.x || y != originalPos.value.y;
 
     return {
       position: "absolute",
-      left: position.value.x,
-      top: position.value.y,
+      left: x,
+      top: y,
       zIndex: moving || interacting.value ? 1 : 0,
       borderColor: selected ? theme.colors.primary.default : borderColor.value,
       color: color.value,
@@ -357,42 +354,42 @@ const ChipSlot = React.memo(function ({
     .onFinalize((e, success) => runOnJS(finalizedGesture)(e, success));
 
   return (
-    <View
-      style={[styles.slot, { backgroundColor: theme.colors.borders }]}
-      onLayout={(e) => {
-        e.target.measure((_x, _y, w, h, pageX, pageY) => {
-          const p = { x: pageX, y: pageY };
+    <>
+      <View
+        style={[styles.slot, { backgroundColor: theme.colors.borders }]}
+        onLayout={(e) => {
+          e.target.measure((x, y, w, h, pageX, pageY) => {
+            const p = { x, y };
 
-          if (originalPos.value.x == 0 && originalPos.value.y == 0) {
-            position.value = p;
-          } else {
-            position.value = withSpring(p, springConfig);
-          }
+            originalPos.value = p;
 
-          originalPos.value = p;
+            if (originalPos.value.x == 0 && originalPos.value.y == 0) {
+              position.value = p;
+            } else {
+              position.value = withSpring(p, springConfig);
+            }
 
-          // not using setGameState, since we're modifying directly
-          gameState.graphemeBoxes[index] = {
-            x: pageX,
-            y: pageY,
-            w,
-            h,
-          };
-        });
-      }}
-    >
-      <Portal name={portalName}>
-        <GestureDetector gesture={gesture}>
-          <Animated.View style={[styles.chip, animatedStyle]}>
-            <Animated.Text
-              style={[styles.chipText, theme.styles.text, { color }]}
-            >
-              {children}
-            </Animated.Text>
-          </Animated.View>
-        </GestureDetector>
-      </Portal>
-    </View>
+            // not using setGameState, since we're modifying directly
+            gameState.graphemeBoxes[index] = {
+              x: pageX,
+              y: pageY,
+              w,
+              h,
+            };
+          });
+        }}
+      />
+
+      <GestureDetector gesture={gesture}>
+        <Animated.View style={[styles.chip, animatedStyle]}>
+          <Animated.Text
+            style={[styles.chipText, theme.styles.text, { color }]}
+          >
+            {children}
+          </Animated.Text>
+        </Animated.View>
+      </GestureDetector>
+    </>
   );
 });
 
@@ -728,6 +725,7 @@ const styles = StyleSheet.create({
     gap: 2,
     justifyContent: "center",
     alignContent: "center",
+    zIndex: 1,
   },
   slot: {
     borderRadius: 5,
