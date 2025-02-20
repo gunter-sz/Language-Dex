@@ -780,7 +780,7 @@ export default function () {
 const styles = StyleSheet.create({
   definitionBlock: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-end",
     marginHorizontal: 16,
   },
   definitionBubble: {
@@ -831,7 +831,7 @@ const styles = StyleSheet.create({
   },
   buttonsBlock: {
     flex: 1,
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "center",
     flexDirection: "row",
     gap: 16,
