@@ -54,7 +54,6 @@ import {
   ResultsSpacer,
 } from "@/lib/components/puzzles/results";
 import RouteRoot from "@/lib/components/route-root";
-import { useColorScheme } from "@/lib/contexts/color-scheme";
 import { SubMenuIconButton } from "@/lib/components/icon-button";
 import { PuzzleResultsIcon } from "@/lib/components/icons";
 import { PuzzleAd } from "@/lib/components/ads";
