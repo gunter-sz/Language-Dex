@@ -1,5 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Pressable, StyleSheet, View, VirtualizedList } from "react-native";
+import {
+  FlatList,
+  Pressable,
+  StyleSheet,
+  View,
+  VirtualizedList,
+} from "react-native";
 import BottomListPopup from "@/lib/components/bottom-list-popup";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/lib/contexts/theme";
@@ -17,44 +23,24 @@ const PART_OF_SPEECH_UNKNOWN = -2;
 
 const COLUMNS = 2;
 
-function getRowCount(words: string[]) {
-  return Math.ceil(words.length / COLUMNS);
-}
-
-function getRowWords(words: string[], start: number) {
-  start *= 2;
-  const end = start + COLUMNS;
-  const list = [];
-
-  for (let i = start; i < words.length && i < end; i++) {
-    list.push(words[i]);
-  }
-
-  return list;
-}
-
-function WordRow({ item: words }: { item: string[] }) {
+function Word({ item: word }: { item: string }) {
   const theme = useTheme();
 
   return (
-    <View style={styles.wordRow}>
-      {words.map((word) => (
-        <Pressable
-          key={word}
-          style={[styles.wordButton, theme.styles.dictionaryWordButton]}
-          android_ripple={theme.ripples.transparentButton}
-          onPress={() =>
-            router.navigate(
-              `/words/existing/${encodeURIComponent(word.toLowerCase())}`
-            )
-          }
-        >
-          <Span numberOfLines={1} style={theme.styles.dictionaryWordButtonText}>
-            {word}
-          </Span>
-        </Pressable>
-      ))}
-    </View>
+    <Pressable
+      key={word}
+      style={[styles.wordButton, theme.styles.dictionaryWordButton]}
+      android_ripple={theme.ripples.transparentButton}
+      onPress={() =>
+        router.navigate(
+          `/words/existing/${encodeURIComponent(word.toLowerCase())}`
+        )
+      }
+    >
+      <Span numberOfLines={1} style={theme.styles.dictionaryWordButtonText}>
+        {word}
+      </Span>
+    </Pressable>
   );
 }
 
@@ -189,7 +175,7 @@ export default function Dictionary() {
         </Span>
       </Pressable>
 
-      <VirtualizedList
+      <FlatList
         ListHeaderComponent={() =>
           finalWords.length > 0 && (
             <View
@@ -199,10 +185,10 @@ export default function Dictionary() {
         }
         style={[styles.wordList, theme.styles.backgroundDefinitionBorder]}
         data={finalWords}
-        getItemCount={getRowCount}
-        getItem={getRowWords}
+        numColumns={COLUMNS}
+        initialNumToRender={12}
         keyExtractor={(_, i) => String(i)}
-        renderItem={({ item }) => <WordRow item={item} />}
+        renderItem={({ item }) => <Word item={item} />}
       />
 
       <View
