@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   StyleSheet,
   View,
-  StyleProp,
   ViewStyle,
   ScrollView,
+  Animated,
+  useAnimatedValue,
+  TextStyle,
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/lib/contexts/theme";
@@ -46,13 +48,7 @@ import {
   PuzzleResultsIcon,
   ShuffleIcon,
 } from "@/lib/components/icons";
-import Animated, {
-  runOnJS,
-  SharedValue,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
+import { runOnJS } from "react-native-reanimated";
 import {
   Gesture,
   GestureDetector,
@@ -214,10 +210,11 @@ function overlappingGraphemeIndex(gameState: GameState, x: number, y: number) {
 type ChipSlotProps = {
   index: number;
   puzzleColors: PuzzleColors;
-  gameState: GameState;
+  selected: boolean;
+  correctList?: boolean[];
   setGameState: (gameState: GameState) => void;
   getGameState: () => GameState;
-  opacity: SharedValue<number>;
+  opacity: Animated.Value;
 } & React.PropsWithChildren;
 
 const springConfig = {
@@ -225,45 +222,79 @@ const springConfig = {
   damping: 22,
 };
 
+function springTo(value: Animated.Value, to: number, callback: () => void) {
+  Animated.spring(value, {
+    toValue: to,
+    useNativeDriver: true,
+    ...springConfig,
+  }).start(callback);
+}
+
 const ChipSlot = React.memo(function ({
   index,
   puzzleColors,
-  gameState,
+  selected,
+  correctList,
   setGameState,
   getGameState,
   opacity,
   children,
 }: ChipSlotProps) {
   const theme = useTheme();
-  const interacting = useSharedValue(false);
-  const originalPos = useSharedValue({ x: 0, y: 0 });
-  const position = useSharedValue({ x: 0, y: 0 });
-  const color = useSharedValue(theme.colors.text);
-  const backgroundColor = useSharedValue(theme.colors.definitionBackground);
-  const borderColor = useSharedValue(theme.colors.borders);
+  const [originalPos, setOriginalPos] = useState<
+    | {
+        x: number;
+        y: number;
+      }
+    | undefined
+  >(undefined);
+  const [interacting, setInteracting] = useState(false);
+  const [movingCount, setMovingCount] = useState(0);
+  const interactingRef = useRef(false);
+  const left = useAnimatedValue(0);
+  const top = useAnimatedValue(0);
+  const colorValue = useAnimatedValue(0);
+  const [colorRange, setColorRange] = useState([
+    theme.colors.text,
+    theme.colors.text,
+  ]);
+  const [backgroundColorRange, setBackgroundColorRange] = useState([
+    theme.colors.definitionBackground,
+    theme.colors.definitionBackground,
+  ]);
+  const [borderColorRange, setBorderColorRange] = useState([
+    theme.colors.borders,
+    theme.colors.borders,
+  ]);
 
-  const selected = gameState.graphemeSelected == index;
+  const animatedStyle: Animated.WithAnimatedObject<ViewStyle> = {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    transform: [{ translateX: left }, { translateY: top }],
+    zIndex: movingCount > 0 || interacting ? 1 : 0,
+    borderColor: selected
+      ? theme.colors.primary.default
+      : colorValue.interpolate({
+          inputRange: [0, 1],
+          outputRange: borderColorRange,
+        }),
+    backgroundColor: colorValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: backgroundColorRange,
+    }),
+    opacity,
+  };
 
-  const animatedStyle = useAnimatedStyle(() => {
-    const x = position.value.x;
-    const y = position.value.y;
-    const moving = x != originalPos.value.x || y != originalPos.value.y;
-
-    return {
-      position: "absolute",
-      left: x,
-      top: y,
-      zIndex: moving || interacting.value ? 1 : 0,
-      borderColor: selected ? theme.colors.primary.default : borderColor.value,
-      color: color.value,
-      backgroundColor: backgroundColor.value,
-      opacity: opacity.value,
-    };
-  }, [selected]);
+  const animatedTextStyle: Animated.WithAnimatedObject<TextStyle> = {
+    position: "absolute",
+    opacity: colorValue,
+    color: colorRange[1],
+  };
 
   // highlight on correctness check
   useEffect(() => {
-    if (!gameState.correctList) {
+    if (!correctList) {
       return;
     }
 
@@ -271,7 +302,7 @@ const ChipSlot = React.memo(function ({
     let targetBackgroundColor;
     let targetBorderColor;
 
-    if (gameState.correctList[index]) {
+    if (correctList[index]) {
       // correct colors
       targetColor = puzzleColors.correct.color;
       targetBackgroundColor = puzzleColors.correct.backgroundColor;
@@ -283,75 +314,87 @@ const ChipSlot = React.memo(function ({
       targetBorderColor = puzzleColors.mistake.borderColor;
     }
 
-    flash(color, targetColor, theme.colors.text);
-    flash(
-      backgroundColor,
+    flash(colorValue, 1, 0);
+    setColorRange([theme.colors.text, targetColor]);
+    setBackgroundColorRange([
+      theme.colors.definitionBackground,
       targetBackgroundColor,
-      theme.colors.definitionBackground
-    );
-    flash(borderColor, targetBorderColor, theme.colors.borders);
-  }, [gameState.correctList]);
+    ]);
+    setBorderColorRange([theme.colors.borders, targetBorderColor]);
+  }, [correctList]);
 
-  const beginGesture = () => {
-    const gameState = getGameState();
+  const gesture = useMemo(() => {
+    const begin = () => {
+      const gameState = getGameState();
 
-    if (gameState.graphemeInteraction) {
-      return;
-    }
+      if (gameState.graphemeInteraction) {
+        return;
+      }
 
-    interacting.value = true;
-    setGameState({ ...gameState, graphemeInteraction: true });
-  };
+      interactingRef.current = true;
+      setInteracting(true);
+      setGameState({ ...gameState, graphemeInteraction: true });
+    };
 
-  const startGesture = () => {
-    if (interacting.value) {
-      setGameState({ ...gameState, graphemeSelected: undefined });
-    }
-  };
+    const start = () => {
+      if (interactingRef.current) {
+        setGameState({ ...getGameState(), graphemeSelected: undefined });
+      }
+    };
 
-  const finalizedGesture = (
-    e: GestureStateChangeEvent<PanGestureHandlerEventPayload>,
-    dragged: boolean
-  ) => {
-    if (!interacting.value) {
-      return;
-    }
+    const update = (x: number, y: number) => {
+      if (interactingRef.current && originalPos) {
+        left.setValue(x + originalPos.x);
+        top.setValue(y + originalPos.y);
+      }
+    };
 
-    const gameState = { ...getGameState(), graphemeInteraction: false };
+    const finalize = (
+      e: GestureStateChangeEvent<PanGestureHandlerEventPayload>,
+      dragged: boolean
+    ) => {
+      if (!interactingRef.current) {
+        return;
+      }
 
-    if (dragged) {
-      const i = overlappingGraphemeIndex(gameState, e.absoluteX, e.absoluteY);
+      const gameState = { ...getGameState(), graphemeInteraction: false };
 
-      if (i != undefined) {
+      if (dragged) {
+        const i = overlappingGraphemeIndex(gameState, e.absoluteX, e.absoluteY);
+
+        if (i != undefined) {
+          gameState.graphemes = [...gameState.graphemes];
+          swap(gameState.graphemes, index, i);
+        }
+      } else if (gameState.graphemeSelected != undefined) {
         gameState.graphemes = [...gameState.graphemes];
-        swap(gameState.graphemes, index, i);
+        swap(gameState.graphemes, index, gameState.graphemeSelected);
+        gameState.graphemeSelected = undefined;
+      } else {
+        gameState.graphemeSelected = index;
       }
-    } else if (gameState.graphemeSelected != undefined) {
-      gameState.graphemes = [...gameState.graphemes];
-      swap(gameState.graphemes, index, gameState.graphemeSelected);
-      gameState.graphemeSelected = undefined;
-    } else {
-      gameState.graphemeSelected = index;
-    }
 
-    position.value = withSpring(originalPos.value, springConfig);
-    interacting.value = false;
+      if (originalPos) {
+        setMovingCount((c) => c + 2);
+        const decrement = () => setMovingCount((c) => c - 1);
 
-    setGameState(gameState);
-  };
-
-  const gesture = Gesture.Pan()
-    .onBegin(() => runOnJS(beginGesture)())
-    .onStart(() => runOnJS(startGesture)())
-    .onUpdate((e) => {
-      if (interacting.value) {
-        position.value = {
-          x: e.translationX + originalPos.value.x,
-          y: e.translationY + originalPos.value.y,
-        };
+        springTo(left, originalPos.x, decrement);
+        springTo(top, originalPos.y, decrement);
       }
-    })
-    .onFinalize((e, success) => runOnJS(finalizedGesture)(e, success));
+
+      interactingRef.current = false;
+      setInteracting(false);
+      setGameState(gameState);
+    };
+
+    return Gesture.Pan()
+      .onBegin(() => runOnJS(begin)())
+      .onStart(() => runOnJS(start)())
+      .onUpdate((e) => {
+        runOnJS(update)(e.translationX, e.translationY);
+      })
+      .onFinalize((e, success) => runOnJS(finalize)(e, success));
+  }, [originalPos]);
 
   return (
     <>
@@ -359,18 +402,21 @@ const ChipSlot = React.memo(function ({
         style={[styles.slot, { backgroundColor: theme.colors.borders }]}
         onLayout={(e) => {
           e.target.measure((x, y, w, h, pageX, pageY) => {
-            const p = { x, y };
+            setOriginalPos({ x, y });
 
-            originalPos.value = p;
-
-            if (originalPos.value.x == 0 && originalPos.value.y == 0) {
-              position.value = p;
+            if (originalPos == undefined) {
+              left.setValue(x);
+              top.setValue(y);
             } else {
-              position.value = withSpring(p, springConfig);
+              setMovingCount((c) => c + 2);
+              const decrement = () => setMovingCount((c) => c - 1);
+
+              springTo(left, x, decrement);
+              springTo(top, y, decrement);
             }
 
             // not using setGameState, since we're modifying directly
-            gameState.graphemeBoxes[index] = {
+            getGameState().graphemeBoxes[index] = {
               x: pageX,
               y: pageY,
               w,
@@ -382,8 +428,11 @@ const ChipSlot = React.memo(function ({
 
       <GestureDetector gesture={gesture}>
         <Animated.View style={[styles.chip, animatedStyle]}>
+          <Animated.Text style={[styles.chipText, theme.styles.text]}>
+            {children}
+          </Animated.Text>
           <Animated.Text
-            style={[styles.chipText, theme.styles.text, { color }]}
+            style={[styles.chipText, theme.styles.text, animatedTextStyle]}
           >
             {children}
           </Animated.Text>
@@ -431,10 +480,10 @@ export default function () {
       .catch(logError);
   }, []);
 
-  const opacity = useSharedValue(0);
-  const opacityStyle: StyleProp<ViewStyle> = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-  }));
+  const opacity = useAnimatedValue(0);
+  const opacityStyle = {
+    opacity,
+  };
 
   // fade in to start the round
   useEffect(() => {
@@ -609,7 +658,8 @@ export default function () {
                   index={i}
                   key={grapheme.rawIndex}
                   puzzleColors={puzzleColors}
-                  gameState={gameState}
+                  selected={gameState.graphemeSelected == i}
+                  correctList={gameState.correctList}
                   setGameState={setGameState}
                   getGameState={getGameState}
                   opacity={opacity}
