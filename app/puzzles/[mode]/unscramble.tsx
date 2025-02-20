@@ -435,12 +435,20 @@ const ChipSlot = React.memo(function ({
             if (originalPos == undefined) {
               left.setValue(x);
               top.setValue(y);
+
+              // call in case the above part didn't apply from some weird timing issue
+              pushAnimation(() => {
+                left.setValue(x);
+                top.setValue(y);
+              });
             } else {
               setMovingCount((c) => c + 2);
               const decrement = () => setMovingCount((c) => c - 1);
 
-              springTo(left, x, decrement);
-              springTo(top, y, decrement);
+              pushAnimation(() => {
+                springTo(left, x, decrement);
+                springTo(top, y, decrement);
+              });
             }
 
             // not using setGameState, since we're modifying directly
