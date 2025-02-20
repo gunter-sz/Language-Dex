@@ -12,7 +12,8 @@
     "metro",
     "lightningcss-linux-x64-musl",
     "lightningcss-linux-x64-gnu",
-    "@react-native/debugger-frontend"
+    "@react-native/debugger-frontend",
+    "recording-module"
   ],
   "append": [
     {
@@ -55,6 +56,9 @@
     "expo-asset": {
       "licenses": [{ "expression": "MIT", "file": "licenses/expo.txt" }]
     },
+    "expo-audio": {
+      "licenses": [{ "expression": "MIT", "file": "licenses/expo.txt" }]
+    },
     "expo-blur": {
       "licenses": [{ "expression": "MIT", "file": "licenses/expo.txt" }]
     },
@@ -62,6 +66,9 @@
       "licenses": [{ "expression": "MIT", "file": "licenses/expo.txt" }]
     },
     "expo-constants": {
+      "licenses": [{ "expression": "MIT", "file": "licenses/expo.txt" }]
+    },
+    "expo-document-picker": {
       "licenses": [{ "expression": "MIT", "file": "licenses/expo.txt" }]
     },
     "expo-file-system": {
@@ -94,6 +101,9 @@
     "expo-splash-screen": {
       "licenses": [{ "expression": "MIT", "file": "licenses/expo.txt" }]
     },
+    "expo-sharing": {
+      "licenses": [{ "expression": "MIT", "file": "licenses/expo.txt" }]
+    },
     "expo-sqlite": {
       "licenses": [{ "expression": "MIT", "file": "licenses/expo.txt" }]
     },
@@ -101,6 +111,9 @@
       "licenses": [{ "expression": "MIT", "file": "licenses/expo.txt" }]
     },
     "expo-system-ui": {
+      "licenses": [{ "expression": "MIT", "file": "licenses/expo.txt" }]
+    },
+    "expo-web-browser": {
       "licenses": [{ "expression": "MIT", "file": "licenses/expo.txt" }]
     }
   }
