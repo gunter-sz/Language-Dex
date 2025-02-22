@@ -64,6 +64,8 @@ i18n
           Crossword: "Crossword",
           Crossword_Requirements:
             "Requires at least ten unique words longer than four characters and below max confidence.",
+          Pronunciation_Requirements:
+            "Requires at least five words below max confidence with recorded pronunciation.",
 
           Locked: "Locked",
 
@@ -117,7 +119,6 @@ i18n
           Cancel: "Cancel",
           Confirm: "Confirm",
           Close: "Close",
-          Discard: "Discard",
           None: "None",
           Save_Changes: "Save Changes",
           Delete: "Delete",
@@ -125,6 +126,11 @@ i18n
           An_error_occurred: "An error occurred!",
           Success_exclamation: "Success!",
 
+          Overwrite: "Overwrite",
+          Overwrite_Pronunciation_Desc:
+            "This will replace the existing pronunciation audio with the recorded audio.",
+
+          Discard: "Discard",
           Discard_Changes: "Discard Changes",
           Discard_Changes_Desc: "You have pending changes, discard?",
 

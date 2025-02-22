@@ -15,6 +15,7 @@ type Props = {
   style?: StyleProp<ViewStyle>;
   android_ripple?: PressableAndroidRippleConfig;
   disabled?: boolean;
+  ignoreInput?: boolean;
 } & React.PropsWithChildren;
 
 export default function CircleButton({
@@ -23,6 +24,7 @@ export default function CircleButton({
   containerStyle,
   android_ripple,
   disabled,
+  ignoreInput,
   children,
 }: Props) {
   const theme = useTheme();
@@ -35,7 +37,7 @@ export default function CircleButton({
           disabled && theme.styles.circleButtonDisabled,
           style,
         ]}
-        onPress={onPress}
+        onPress={ignoreInput ? undefined : onPress}
         disabled={disabled}
         android_ripple={android_ripple ?? theme.ripples.primaryButton}
       >
@@ -49,5 +51,6 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: "50%",
     overflow: "hidden",
+    alignSelf: "center",
   },
 });

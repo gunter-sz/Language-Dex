@@ -202,8 +202,8 @@ function PronunciationEditorDialog({
               setRecording(false);
 
               if (uri != null) {
-                setRecordings([...recordings, "file://" + uri]);
-                recordingsRef.current.push("file://" + uri);
+                setRecordings([...recordings, uri]);
+                recordingsRef.current.push(uri);
                 setSelectedIndex(recordings.length + 2);
               }
             }}

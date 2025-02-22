@@ -10,11 +10,13 @@ import { useTheme } from "../contexts/theme";
 import { logError } from "@/lib/log";
 
 export default function RecordAudioButton({
+  ignoreInput,
   onStart,
   onEnd,
 }: {
+  ignoreInput?: boolean;
   onStart?: () => void;
-  onEnd?: (uri: string | null) => void;
+  onEnd?: (uri?: string) => void;
 }) {
   const theme = useTheme();
   const recordingRef = useRef<AudioRecorder | null>(null);
@@ -101,7 +103,7 @@ export default function RecordAudioButton({
       recordingRef.current = null;
       setRecording(false);
 
-      onEnd?.(uri);
+      onEnd?.(uri != null ? "file://" + uri : undefined);
 
       return true;
     }
@@ -123,15 +125,18 @@ export default function RecordAudioButton({
         style={styles.recordButtonPressable}
         android_ripple={theme.ripples.primaryButton}
         delayLongPress={100}
+        disabled={ignoreInput}
         onLongPress={() => {
-          if (!recordingRef.current) {
+          if (!ignoreInput && !recordingRef.current) {
             startRecording();
           }
         }}
         onPressOut={() => {
-          // this will stop a recording started by long press
-          // or start a new recording if there was no long press
-          startRecording();
+          if (!ignoreInput) {
+            // this will stop a recording started by long press
+            // or start a new recording if there was no long press
+            startRecording();
+          }
         }}
       >
         {recording ? (

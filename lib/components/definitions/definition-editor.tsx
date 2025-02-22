@@ -29,9 +29,9 @@ import ConfirmationDialog, {
   DiscardDialog,
 } from "@/lib/components/confirmation-dialog";
 import {
-  createNewFileObjectId,
   deleteDefinition,
   getFileObjectPath,
+  prepareNewPronunciation,
   updateStatistics,
   upsertDefinition,
 } from "@/lib/data";
@@ -42,9 +42,7 @@ import SubMenuTopNav, {
 import useBackHandler from "@/lib/hooks/use-back-handler";
 import { usePendingChangesDetection } from "@/lib/hooks/use-pending-changes-detection";
 import PronunciationEditor from "./pronunciation-editor";
-import * as FileSystem from "expo-file-system";
 import { useAudioPlayer } from "expo-audio";
-import { copyExtension } from "@/lib/path";
 
 type Props = {
   lowerCaseWord?: string;
@@ -150,46 +148,19 @@ export default function DefinitionEditor(props: Props) {
         props.definitionId != undefined;
 
       // handle pronunciation files
-      const fileTasks: (() => Promise<void>)[] = [];
-
-      let pronunciationAudio = definitionData?.pronunciationAudio ?? null;
-      const prevPronunciationUri = getFileObjectPath(pronunciationAudio);
-
-      if (prevPronunciationUri != pronunciationUri) {
-        if (pronunciationUri == undefined) {
-          pronunciationAudio = null;
-        } else {
-          const newExtension = copyExtension(pronunciationUri);
-          pronunciationAudio ??= createNewFileObjectId() + newExtension;
-
-          if (copyExtension(pronunciationAudio) != newExtension) {
-            pronunciationAudio = createNewFileObjectId() + newExtension;
-          }
-
-          fileTasks.push(() =>
-            FileSystem.copyAsync({
-              from: pronunciationUri,
-              to: getFileObjectPath(pronunciationAudio)!,
-            }).catch(logError)
-          );
-        }
-      }
-
-      if (
-        prevPronunciationUri != undefined &&
-        prevPronunciationUri != getFileObjectPath(pronunciationAudio)
-      ) {
-        // delete the pronunciation file before saving to avoid dangling files
-        await FileSystem.deleteAsync(prevPronunciationUri).catch(logError);
-      }
+      const preparedPronunciation = await prepareNewPronunciation(
+        definitionData
+      );
 
       // create or update the word
       const definitionId = await upsertDefinition(
         userData.activeDictionary,
         lowerCaseSpelling,
         {
-          id: props.definitionId,
-          pronunciationAudio,
+          // coercion to force interpretation as a full "insert"
+          // making all required fields required
+          id: props.definitionId!,
+          pronunciationAudio: preparedPronunciation.pronunciationAudio,
           partOfSpeech,
           definition,
           example,
@@ -198,13 +169,14 @@ export default function DefinitionEditor(props: Props) {
         }
       );
 
-      // create files after a successful save
-      await Promise.all(fileTasks.map((task) => task()));
+      // finalize pronunciation
+      preparedPronunciation.finalize();
 
       // update statistics
       const newDefinition = props.definitionId == undefined;
-      const hadPronunciation = prevPronunciationUri != undefined;
-      const hasNewPronunciation = pronunciationAudio != undefined;
+      const hadPronunciation = definitionData?.pronunciationAudio != undefined;
+      const hasNewPronunciation =
+        preparedPronunciation.pronunciationAudio != undefined;
       let pronunciationIncrease = 0;
 
       if (hadPronunciation && !hasNewPronunciation) {

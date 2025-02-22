@@ -1,8 +1,9 @@
-import React from "react";
-import { StyleSheet, View, Text } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
 import { colors as guessTheWordColors } from "@/app/puzzles/guess-the-word";
 import { useTheme } from "@/lib/contexts/theme";
 import usePuzzleColors from "@/lib/hooks/use-puzzle-colors";
+import { MicrophoneIcon } from "../icons";
 
 export const DefinitionMatchIcon = React.memo(function () {
   const theme = useTheme();
@@ -189,6 +190,46 @@ export const CrosswordIcon = React.memo(function () {
 });
 
 const crosswordStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  row: {
+    flex: 1,
+    flexDirection: "row",
+  },
+  cell: {
+    aspectRatio: 1,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyCell: {
+    aspectRatio: 1,
+  },
+});
+
+export const PronunciationIcon = React.memo(function () {
+  const theme = useTheme();
+  const styles = pronunciationStyles;
+  const [iconSize, setIconSize] = useState<number | undefined>();
+
+  return (
+    <View
+      style={styles.container}
+      onLayout={(e) => {
+        e.target.measure((_x, _y, _w, h, _pageX, _pageY) => {
+          setIconSize(h);
+        });
+      }}
+    >
+      {iconSize != undefined && (
+        <MicrophoneIcon size={iconSize} color={theme.colors.iconButton} />
+      )}
+    </View>
+  );
+});
+
+const pronunciationStyles = StyleSheet.create({
   container: {
     flex: 1,
   },

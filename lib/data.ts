@@ -6,6 +6,7 @@ import Unistring from "@akahuku/unistring";
 import db from "./db";
 import * as Sharing from "expo-sharing";
 import packageMeta from "../package.json";
+import { copyExtension } from "./path";
 
 type FileName = string;
 
@@ -122,10 +123,11 @@ export type WordDefinitionData = {
   updatedAt: number;
 };
 
-type WordDefinitionUpsertData = Omit<
-  WordDefinitionData,
-  "id" | "createdAt" | "updatedAt" | "orderKey"
-> & { id?: number };
+type WordDefinitionUpsertData =
+  | (Partial<
+      Omit<WordDefinitionData, "id" | "createdAt" | "updatedAt" | "orderKey">
+    > & { id: number })
+  | Omit<WordDefinitionData, "createdAt" | "updatedAt" | "orderKey">;
 
 // local database operations
 
@@ -187,6 +189,12 @@ CREATE TABLE IF NOT EXISTS word_definition_data (
   updatedAt          INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS word_definition_data_index ON word_definition_data(dictionaryId, sharedId);
+
+CREATE INDEX IF NOT EXISTS word_pronunciation_confidence_index ON word_definition_data(
+  dictionaryId,
+  confidence ASC,
+  createdAt DESC
+) WHERE pronunciationAudio IS NOT NULL;
 
 CREATE INDEX IF NOT EXISTS word_definition_data_confidence_index ON word_definition_data(
   dictionaryId,
@@ -290,7 +298,11 @@ const maxConfidence = 2;
 
 export async function listGameWords(
   dictionaryId: number,
-  options?: { minLength?: number; limit?: number }
+  options?: {
+    minLength?: number;
+    limit?: number;
+    requirePronunciation?: boolean;
+  }
 ) {
   const params: SQLite.SQLiteBindParams = {
     $dictionaryId: dictionaryId,
@@ -308,6 +320,10 @@ export async function listGameWords(
   if (options?.minLength != undefined) {
     query.push("AND word.graphemeCount >= $minLength");
     params.$minLength = options.minLength;
+  }
+
+  if (options?.requirePronunciation) {
+    query.push("AND word_def.pronunciationAudio IS NOT NULL");
   }
 
   query.push("ORDER BY word_def.confidence ASC, word_def.createdAt DESC");
@@ -600,7 +616,7 @@ export async function upsertDefinition(
   }
 
   const sharedId = await getOrCreateWordId(dictionaryId, word, {
-    confidence: definition.confidence,
+    confidence: definition.confidence ?? 0,
     time,
   });
   params.$sharedId = sharedId;
@@ -713,6 +729,48 @@ export async function deleteDefinition(id: number) {
   await shiftOrderKeys(result.sharedId, result.orderKey);
 
   await updateSharedData(result.sharedId);
+}
+
+export async function prepareNewPronunciation(
+  definitionData?: WordDefinitionData,
+  uri?: string
+) {
+  let pronunciationAudio = definitionData?.pronunciationAudio ?? null;
+  const prevPronunciationUri = getFileObjectPath(pronunciationAudio);
+  let finalize = () => {};
+
+  if (prevPronunciationUri != uri) {
+    if (uri == undefined) {
+      pronunciationAudio = null;
+    } else {
+      const newExtension = copyExtension(uri);
+      pronunciationAudio ??= createNewFileObjectId() + newExtension;
+
+      if (copyExtension(pronunciationAudio) != newExtension) {
+        pronunciationAudio = createNewFileObjectId() + newExtension;
+      }
+
+      finalize = () =>
+        FileSystem.copyAsync({
+          from: uri,
+          to: getFileObjectPath(pronunciationAudio)!,
+        }).catch(logError);
+    }
+  }
+
+  if (
+    prevPronunciationUri != undefined &&
+    prevPronunciationUri != getFileObjectPath(pronunciationAudio)
+  ) {
+    // delete the pronunciation file before saving to avoid dangling files
+    try {
+      await FileSystem.deleteAsync(prevPronunciationUri);
+    } catch (err) {
+      logError(err);
+    }
+  }
+
+  return { pronunciationAudio, finalize };
 }
 
 function deleteAssociatedFiles(result: { pronunciationAudio?: string }) {

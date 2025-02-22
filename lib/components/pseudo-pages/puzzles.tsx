@@ -32,6 +32,7 @@ import {
   DefinitionMatchIcon,
   GuessTheWordIcon,
   UnscrambleIcon,
+  PronunciationIcon,
 } from "../puzzles/puzzle-icons";
 
 type GameListingProps = {
@@ -96,32 +97,34 @@ function GameListing({
     );
   }
   return (
-    <View style={style}>
-      {modes ? (
-        <ListPopup
-          style={styles.pressable}
-          android_ripple={theme.ripples.transparentButton}
-          list={modes}
-          getItemText={(mode) => t("mode_" + mode)}
-          keyExtractor={(value) => value}
-          centerItems
-          onSelect={onSelect}
-        >
-          {x}
-        </ListPopup>
-      ) : (
-        <Pressable
-          style={styles.pressable}
-          android_ripple={theme.ripples.transparentButton}
-          onPress={() => {
-            if (href != undefined) {
-              router.navigate(href);
-            }
-          }}
-        >
-          {x}
-        </Pressable>
-      )}
+    <View style={styles.listingContainer}>
+      <View style={style}>
+        {modes ? (
+          <ListPopup
+            style={styles.pressable}
+            android_ripple={theme.ripples.transparentButton}
+            list={modes}
+            getItemText={(mode) => t("mode_" + mode)}
+            keyExtractor={(value) => value}
+            centerItems
+            onSelect={onSelect}
+          >
+            {x}
+          </ListPopup>
+        ) : (
+          <Pressable
+            style={styles.pressable}
+            android_ripple={theme.ripples.transparentButton}
+            onPress={() => {
+              if (href != undefined) {
+                router.navigate(href);
+              }
+            }}
+          >
+            {x}
+          </Pressable>
+        )}
+      </View>
     </View>
   );
 }
@@ -166,6 +169,9 @@ export default function () {
   const [unscrambleStatus, setUnscrambleStatus] = useState({ locked: true });
   const [guessStatus, setGuessStatus] = useState({ locked: true });
   const [crosswordStatus, setCrosswordStatus] = useState({ locked: true });
+  const [pronunciationStatus, setPronunciationStatus] = useState({
+    locked: true,
+  });
   const [lockedDialogOpen, setLockedDialogOpen] = useState(false);
   const [lockDescription, setLockDescription] = useState("");
 
@@ -194,6 +200,11 @@ export default function () {
       limit: 10,
       minLength: 4,
       belowMaxConfidence: true,
+    });
+
+    testLock(setPronunciationStatus, listGameWords, userData.activeDictionary, {
+      limit: 5,
+      requirePronunciation: true,
     });
   }, [userData.activeDictionary, dictionaryVersion]);
 
@@ -258,6 +269,18 @@ export default function () {
             href="/puzzles/crossword"
           />
         </View>
+
+        <View style={styles.row}>
+          <GameListing
+            label="Pronunciation"
+            icon={PronunciationIcon}
+            style={listingStyles}
+            theme={theme}
+            lockStatus={pronunciationStatus}
+            setLockDescription={lockCallback}
+            href="/puzzles/pronunciation"
+          />
+        </View>
       </ScrollView>
 
       <Dialog open={lockedDialogOpen} onClose={closeLockDialog}>
@@ -282,12 +305,15 @@ const styles = StyleSheet.create({
   },
   list: {
     flexWrap: "wrap",
-    gap: 8,
-    padding: 8,
+    padding: 4,
   },
   row: {
     flexDirection: "row",
-    gap: 8,
+    justifyContent: "center",
+  },
+  listingContainer: {
+    width: "50%",
+    padding: 4,
   },
   listing: {
     flexDirection: "column",
@@ -295,7 +321,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexShrink: 1,
     alignItems: "stretch",
-    flexBasis: "50%",
   },
   iconContainer: {
     flex: 1,

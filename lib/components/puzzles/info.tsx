@@ -2,7 +2,13 @@ import React from "react";
 import { Span } from "../text";
 import { StyleSheet, View } from "react-native";
 import { useTheme } from "@/lib/contexts/theme";
-import { HintIcon, IncorrectIcon, TimerIcon } from "../icons";
+import {
+  HintIcon,
+  IncorrectIcon,
+  SaveIcon,
+  ThumbUpIcon,
+  TimerIcon,
+} from "../icons";
 
 export function GameTitle({ children }: React.PropsWithChildren) {
   const theme = useTheme();
@@ -75,6 +81,28 @@ export function IncorrectScore({ score }: { score: number }) {
   );
 }
 
+export function Saved({ value }: { value: number }) {
+  const theme = useTheme();
+
+  return (
+    <View style={styles.savedBlock}>
+      <SaveIcon color={theme.colors.disabledText} size={28} />
+      <Span style={[styles.score, styles.scoreFont]}>{value}</Span>
+    </View>
+  );
+}
+
+export function ThumbsUps({ value }: { value: number }) {
+  const theme = useTheme();
+
+  return (
+    <View style={styles.thumbsUpBlock}>
+      <Span style={[styles.score, styles.scoreFont]}>{value}</Span>
+      <ThumbUpIcon color={theme.colors.disabledText} size={28} />
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   title: {
     fontSize: 24,
@@ -112,5 +140,15 @@ const styles = StyleSheet.create({
   incorrectBlock: {
     flexDirection: "row",
     gap: 2,
+  },
+  thumbsUpBlock: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+  },
+  savedBlock: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
   },
 });

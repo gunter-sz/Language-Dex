@@ -175,6 +175,18 @@ export function EducationIcon(props: IconProps) {
   return <MaterialDesignIcons name="school" {...props} />;
 }
 
+export function ThumbUpIcon(props: IconProps) {
+  return <MaterialDesignIcons name="thumb-up-outline" {...props} />;
+}
+
+export function ThumbDownIcon(props: IconProps) {
+  return <MaterialDesignIcons name="thumb-down-outline" {...props} />;
+}
+
+export function RetryIcon(props: IconProps) {
+  return <MaterialDesignIcons name="restore" {...props} />;
+}
+
 function createTextIcon(text: string) {
   return (props: IconProps) => (
     <Text
