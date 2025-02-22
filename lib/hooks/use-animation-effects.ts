@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 
-export default function useOnceEffects() {
+export default function useAnimationffects() {
   // animations that need to run after updating style outputRanges
   const [pendingEffect, setPendingEffect] = useState<(() => void)[]>([]);
 
@@ -15,7 +15,7 @@ export default function useOnceEffects() {
     });
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     for (const animate of pendingEffect) {
       animate();
     }

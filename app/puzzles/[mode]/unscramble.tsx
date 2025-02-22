@@ -78,7 +78,7 @@ import {
   toGraphemes,
   toGraphemeStrings,
 } from "@/lib/puzzles/words";
-import useOnceEffects from "@/lib/hooks/use-once-effects";
+import useAnimationffects from "@/lib/hooks/use-animation-effects";
 
 export type UnscrambleGameMode = "endless" | "timed" | "rush";
 export const unscrambleModeList: UnscrambleGameMode[] = [
@@ -300,7 +300,7 @@ const ChipSlot = React.memo(function ({
   };
 
   // animations that need to run after updating style outputRanges
-  const pushAnimation = useOnceEffects();
+  const pushAnimation = useAnimationffects();
 
   // highlight on correctness check
   useEffect(() => {
