@@ -78,24 +78,27 @@ function GameListing({
 
   if (lockStatus.locked) {
     return (
-      <View style={style}>
-        <Pressable
-          style={styles.pressable}
-          android_ripple={theme.ripples.transparentButton}
-          onPress={() => setLockDescription(t(label + "_Requirements"))}
-        >
-          {x}
+      <View style={styles.listingContainer}>
+        <View style={style}>
+          <Pressable
+            style={styles.pressable}
+            android_ripple={theme.ripples.transparentButton}
+            onPress={() => setLockDescription(t(label + "_Requirements"))}
+          >
+            {x}
 
-          <View style={styles.lock}>
-            <Span style={theme.styles.poppingText}>
-              {lockStatus.obtained ?? "?"}/{lockStatus.required ?? "?"}
-            </Span>
-            <LockIcon size={24} color={theme.colors.iconButton} />
-          </View>
-        </Pressable>
+            <View style={styles.lock}>
+              <Span style={theme.styles.poppingText}>
+                {lockStatus.obtained ?? "?"}/{lockStatus.required ?? "?"}
+              </Span>
+              <LockIcon size={24} color={theme.colors.iconButton} />
+            </View>
+          </Pressable>
+        </View>
       </View>
     );
   }
+
   return (
     <View style={styles.listingContainer}>
       <View style={style}>
