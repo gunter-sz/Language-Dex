@@ -242,12 +242,12 @@ export default function () {
         <SubMenuBackButton />
       </SubMenuTopNav>
 
-      <PuzzleAd onSizeChange={onAdResize} />
-
       <ScoreRow>
         <Saved value={gameState.saveCount} />
         <ThumbsUps value={gameState.score} />
       </ScoreRow>
+
+      <PuzzleAd onSizeChange={onAdResize} />
 
       {resolvedAdSize && !gameState.loading && (
         <>
