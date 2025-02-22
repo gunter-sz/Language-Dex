@@ -2,24 +2,16 @@ import React, { useEffect, useRef, useState } from "react";
 import { Pressable, StyleSheet, View, ScrollView } from "react-native";
 import { useTranslation } from "react-i18next";
 import Dialog, { DialogTitle } from "../dialog";
-import { AudioModule, AudioPlayer, RecordingPresets } from "expo-audio";
-import RecordingModule, {
-  AudioRecorder,
-  RecordingOptions,
-} from "recording-module";
+import { AudioModule, AudioPlayer } from "expo-audio";
 import { useTheme } from "@/lib/contexts/theme";
 import { logError } from "@/lib/log";
 import { Theme } from "@/lib/themes";
-import {
-  MicrophoneIcon,
-  PlayAudioIcon,
-  RecordIcon,
-  StopRecordingIcon,
-} from "../icons";
+import { MicrophoneIcon, PlayAudioIcon } from "../icons";
 import { Span } from "../text";
 import IconButton from "../icon-button";
 import RadioButton from "../radio-button";
 import * as FileSystem from "expo-file-system";
+import RecordAudioButton from "../record-audio-button";
 
 type PronunciationEditorProps = {
   saved: boolean;
@@ -73,16 +65,6 @@ function Option({
   );
 }
 
-function PermissionRequester({
-  requestPermission,
-}: {
-  requestPermission: () => Promise<any>;
-}): undefined {
-  useEffect(() => {
-    requestPermission().catch(logError);
-  }, []);
-}
-
 function PronunciationEditorDialog({
   open,
   onClose,
@@ -96,9 +78,7 @@ function PronunciationEditorDialog({
   const [t] = useTranslation();
   const theme = useTheme();
 
-  const [permissionGranted, setPermissionGranted] = useState(false);
   const playerRef = useRef<AudioPlayer | null>(null);
-  const recordingRef = useRef<AudioRecorder | null>(null);
   const [recordings, setRecordings] = useState<string[]>([]);
   const [recording, setRecording] = useState(false);
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
@@ -116,16 +96,8 @@ function PronunciationEditorDialog({
     onClose();
   };
 
-  const requestPermission = () =>
-    AudioModule.requestRecordingPermissionsAsync().then((status) => {
-      setPermissionGranted(status.granted);
-
-      return status.granted;
-    });
-
   useEffect(() => {
     return () => {
-      recordingRef.current?.release();
       playerRef.current?.release();
 
       recordings.forEach((uri) => {
@@ -178,85 +150,8 @@ function PronunciationEditorDialog({
     setPlayingIndex(i);
   };
 
-  const startRecording = () => {
-    if (endRecording()) {
-      return;
-    }
-
-    // start new recording
-    const record = async () => {
-      if (!permissionGranted && !(await requestPermission())) {
-        return;
-      }
-
-      const preset = RecordingPresets.HIGH_QUALITY;
-      const options = {
-        ...preset,
-        android: {
-          // this doesn't seem to do anything?
-          ...preset.android,
-          audioSource: "voice_communication",
-        },
-        // duplicated here since audio module seems to read this as a flat structure
-        ...preset.android,
-        audioSource: "voice_communication",
-        numberOfChannels: 1,
-      };
-
-      const recorder = new RecordingModule.AudioRecorder(
-        options as Partial<RecordingOptions>
-      );
-
-      recorder
-        .prepareToRecordAsync()
-        .then(() => {
-          recorder.record();
-
-          // recorder.recordForDuration() is undefined?
-          // custom limiter:
-          setTimeout(() => {
-            if (recorder.isRecording) {
-              endRecording();
-            }
-          }, 5000);
-        })
-        .catch(logError);
-
-      recordingRef.current = recorder;
-
-      setRecording(true);
-    };
-
-    record().catch(logError);
-  };
-
-  const endRecording = () => {
-    if (recordingRef.current) {
-      // stop recording and append to list
-      const { uri } = recordingRef.current;
-
-      if (uri != null) {
-        setRecordings([...recordings, "file://" + uri]);
-        setSelectedIndex(recordings.length + 2);
-      }
-
-      if (recordingRef.current.isRecording) {
-        recordingRef.current.stop().catch(logError);
-      }
-
-      recordingRef.current = null;
-      setRecording(false);
-
-      return true;
-    }
-
-    return false;
-  };
-
   return (
     <Dialog open={open} onClose={recording ? undefined : handleClose}>
-      {open && <PermissionRequester requestPermission={requestPermission} />}
-
       <DialogTitle>{t("Pronunciation")}</DialogTitle>
 
       <ScrollView>
@@ -299,34 +194,17 @@ function PronunciationEditorDialog({
         <View style={styles.dialogAction} />
 
         <View style={styles.dialogAction}>
-          <View
-            style={[styles.recordButtonContainer, theme.styles.circleButton]}
-          >
-            <Pressable
-              style={styles.recordButtonPressable}
-              android_ripple={theme.ripples.primaryButton}
-              delayLongPress={100}
-              onLongPress={() => {
-                if (!recordingRef.current) {
-                  startRecording();
-                }
-              }}
-              onPressOut={() => {
-                // this will stop a recording started by long press
-                // or start a new recording if there was no long press
-                startRecording();
-              }}
-            >
-              {recording ? (
-                <StopRecordingIcon
-                  size={40}
-                  color={theme.colors.primary.contrast}
-                />
-              ) : (
-                <RecordIcon size={40} color={theme.colors.primary.contrast} />
-              )}
-            </Pressable>
-          </View>
+          <RecordAudioButton
+            onStart={() => setRecording(true)}
+            onEnd={(uri) => {
+              setRecording(false);
+
+              if (uri != null) {
+                setRecordings([...recordings, "file://" + uri]);
+                setSelectedIndex(recordings.length + 2);
+              }
+            }}
+          />
         </View>
 
         <View style={styles.dialogAction}>
