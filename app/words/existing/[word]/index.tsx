@@ -148,9 +148,21 @@ export default function Word() {
   const [pronunciationUri, setPronunciationUri] = useState<
     string | undefined
   >();
+  const [startAudio, setStartAudio] = useState(false);
   const audioPlayer = useAudioPlayer(pronunciationUri);
 
-  useEffect(() => audioPlayer.play(), [pronunciationUri]);
+  useEffect(() => {
+    if (startAudio) {
+      audioPlayer
+        .seekTo(0)
+        .then(() => {
+          audioPlayer.play();
+        })
+        .catch(logError);
+
+      setStartAudio(false);
+    }
+  }, [startAudio]);
 
   return (
     <>
@@ -202,7 +214,10 @@ export default function Word() {
           <Definition
             dictionary={dictionary}
             word={word}
-            setPronunciationUri={setPronunciationUri}
+            setPronunciationUri={(uri) => {
+              setPronunciationUri(uri);
+              setStartAudio(true);
+            }}
             item={item}
           />
         )}

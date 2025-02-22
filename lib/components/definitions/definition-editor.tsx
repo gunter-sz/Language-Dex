@@ -315,7 +315,14 @@ export default function DefinitionEditor(props: Props) {
             <IconButton
               icon={PlayAudioIcon}
               disabled={pronunciationUri == undefined}
-              onPress={() => audioPlayer.play()}
+              onPress={() => {
+                audioPlayer
+                  .seekTo(0)
+                  .then(() => {
+                    audioPlayer.play();
+                  })
+                  .catch(logError);
+              }}
             />
           </View>
         </View>
