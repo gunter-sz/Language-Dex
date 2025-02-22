@@ -733,7 +733,7 @@ export async function deleteDefinition(id: number) {
 
 export async function prepareNewPronunciation(
   definitionData?: WordDefinitionData,
-  uri?: string
+  uri?: string | null
 ) {
   let pronunciationAudio = definitionData?.pronunciationAudio ?? null;
   const prevPronunciationUri = getFileObjectPath(pronunciationAudio);

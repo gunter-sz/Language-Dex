@@ -149,7 +149,8 @@ export default function DefinitionEditor(props: Props) {
 
       // handle pronunciation files
       const preparedPronunciation = await prepareNewPronunciation(
-        definitionData
+        definitionData,
+        pronunciationUri
       );
 
       // create or update the word
