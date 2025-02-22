@@ -23,6 +23,8 @@ const statsLists: [string, keyof DictionaryStats][][] = [
   [
     ["Total_Definitions", "definitions"],
     ["Total_Pronounced", "totalPronounced"],
+  ],
+  [
     ["Excerpts_Read", "totalScans"],
     ["Words_Read", "wordsScanned"],
   ],
