@@ -79,6 +79,7 @@ function PronunciationEditorDialog({
   const theme = useTheme();
 
   const playerRef = useRef<AudioPlayer | null>(null);
+  const recordingsRef = useRef<string[]>([]);
   const [recordings, setRecordings] = useState<string[]>([]);
   const [recording, setRecording] = useState(false);
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
@@ -100,7 +101,7 @@ function PronunciationEditorDialog({
     return () => {
       playerRef.current?.release();
 
-      recordings.forEach((uri) => {
+      recordingsRef.current.forEach((uri) => {
         FileSystem.deleteAsync(uri).catch(logError);
       });
     };
@@ -111,9 +112,10 @@ function PronunciationEditorDialog({
       return;
     }
 
-    recordings.forEach((uri) => {
+    recordingsRef.current.forEach((uri) => {
       FileSystem.deleteAsync(uri).catch(logError);
     });
+    recordingsRef.current = [];
     setRecordings([]);
   }, [saved]);
 
@@ -201,6 +203,7 @@ function PronunciationEditorDialog({
 
               if (uri != null) {
                 setRecordings([...recordings, "file://" + uri]);
+                recordingsRef.current.push("file://" + uri);
                 setSelectedIndex(recordings.length + 2);
               }
             }}
