@@ -254,7 +254,7 @@ export default function DefinitionEditor(props: Props) {
               saving ||
               !definitionLoaded ||
               definition.trim().length == 0 ||
-              spelling.length == 0 ||
+              spelling.trim().length == 0 ||
               !hasPendingChanges
             }
             onPress={save}
