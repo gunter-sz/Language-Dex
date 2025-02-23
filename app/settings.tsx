@@ -365,7 +365,8 @@ export default function () {
 
                   const word = chars.join("");
 
-                  await upsertDefinition(dictionaryId, word, {
+                  await upsertDefinition(dictionaryId, {
+                    spelling: word,
                     confidence: 0,
                     definition: word,
                     example: "",

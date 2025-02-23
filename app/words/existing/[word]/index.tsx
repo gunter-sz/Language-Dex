@@ -119,7 +119,9 @@ export default function Word() {
 
   const definitionMap = useWordDefinitions(userData.activeDictionary, [word]);
   const definitionData = definitionMap?.[word];
-  const savedDefinitions = definitionData?.definitionsResult?.definitions;
+  const definitionsResult = definitionData?.definitionsResult;
+  const spelling = definitionsResult?.spelling ?? word;
+  const savedDefinitions = definitionsResult?.definitions;
   const [definitions, setDefinitions] = useState(savedDefinitions ?? []);
 
   const dictionary = userData.dictionaries.find(
@@ -185,7 +187,7 @@ export default function Word() {
         </SubMenuActions>
       </SubMenuTopNav>
 
-      <Span style={[styles.block, styles.word]}>{word}</Span>
+      <Span style={[styles.block, styles.word]}>{spelling}</Span>
       <View style={theme.styles.separator} />
 
       <ReorderableList
@@ -201,7 +203,7 @@ export default function Word() {
 
           for (let i = low; i <= high; i++) {
             const definition = newList[i];
-            promises.push(updateDefinitionOrderKey(definition.id, i));
+            promises.push(updateDefinitionOrderKey(definition, i));
           }
 
           Promise.all(promises)

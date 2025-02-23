@@ -1,0 +1,51 @@
+import { UserData } from "./data";
+import db from "./db";
+
+const migrateUpList = [
+  async (_: UserData) => {
+    await db.execAsync(
+      "ALTER TABLE word_definition_data ADD COLUMN spelling TEXT NOT NULL DEFAULT ''"
+    );
+
+    const definitionIterator = db.getEachAsync<{ [key: string]: number }>(
+      "SELECT id, sharedId FROM word_definition_data"
+    );
+    const selectSpelling = await db.prepareAsync(
+      "SELECT spelling FROM word_shared_data WHERE id = $id"
+    );
+    const updateSpelling = await db.prepareAsync(
+      "UPDATE word_definition_data SET spelling = $spelling WHERE id = $id"
+    );
+
+    for await (const { id, sharedId } of definitionIterator) {
+      const execResult = await selectSpelling.executeAsync<{
+        spelling: string;
+      }>({
+        $id: sharedId,
+      });
+      const result = await execResult.getFirstAsync();
+
+      if (result) {
+        await updateSpelling.executeAsync({
+          $id: id,
+          $spelling: result.spelling,
+        });
+      }
+    }
+  },
+];
+
+export const dataRevisions = migrateUpList.length;
+
+export async function migrateUp(data: UserData) {
+  if (data.version >= dataRevisions) {
+    return false;
+  }
+
+  for (let i = data.version; i < dataRevisions; i++) {
+    await migrateUpList[i](data);
+  }
+
+  data.version = dataRevisions;
+  return true;
+}

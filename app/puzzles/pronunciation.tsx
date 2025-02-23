@@ -385,7 +385,6 @@ export default function () {
             const gameState = { ...getGameState(), savedRecording: true };
             setGameState(gameState);
 
-            const lowerCaseSpelling = gameState.activeWords[0];
             const preparedPronunciation = await prepareNewPronunciation(
               definitionData,
               gameState.recording
@@ -396,14 +395,11 @@ export default function () {
               definitionData?.pronunciationAudio
             ) {
               // update the word
-              await upsertDefinition(
-                userData.activeDictionary,
-                lowerCaseSpelling,
-                {
-                  id: definitionData!.id,
-                  pronunciationAudio: preparedPronunciation.pronunciationAudio,
-                }
-              );
+              await upsertDefinition(userData.activeDictionary, {
+                id: definitionData!.id,
+                spelling: definitionData!.spelling,
+                pronunciationAudio: preparedPronunciation.pronunciationAudio,
+              });
             }
 
             // finalize pronunciation

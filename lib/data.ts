@@ -7,6 +7,7 @@ import db from "./db";
 import * as Sharing from "expo-sharing";
 import packageMeta from "../package.json";
 import { copyExtension } from "./path";
+import { dataRevisions, migrateUp } from "./migrations";
 
 type FileName = string;
 
@@ -112,7 +113,9 @@ export function updateStatistics(
 
 export type WordDefinitionData = {
   id: number;
+  sharedId: number;
   orderKey: number;
+  spelling: string;
   confidence: number;
   partOfSpeech?: number | null;
   pronunciationAudio?: FileName | null;
@@ -125,9 +128,17 @@ export type WordDefinitionData = {
 
 type WordDefinitionUpsertData =
   | (Partial<
-      Omit<WordDefinitionData, "id" | "createdAt" | "updatedAt" | "orderKey">
-    > & { id: number })
-  | Omit<WordDefinitionData, "createdAt" | "updatedAt" | "orderKey">;
+      Omit<
+        WordDefinitionData,
+        "id" | "sharedId" | "spelling" | "createdAt" | "updatedAt" | "orderKey"
+      >
+    > & { id: number; spelling: string })
+  | (Omit<
+      WordDefinitionData,
+      "id" | "sharedId" | "createdAt" | "updatedAt" | "orderKey"
+    > & {
+      id?: undefined;
+    });
 
 // local database operations
 
@@ -178,6 +189,7 @@ CREATE TABLE IF NOT EXISTS word_definition_data (
   dictionaryId       INTEGER NOT NULL,
   sharedId           INTEGER NOT NULL REFERENCES word_shared_data(id),
   orderKey           INTEGER NOT NULL,
+  spelling           TEXT NOT NULL,
   confidence         INTEGER NOT NULL,
   partOfSpeech       INTEGER,
   pronunciationAudio TEXT,
@@ -311,7 +323,7 @@ export async function listGameWords(
 
   // build query
   const query = [
-    "SELECT spelling, orderKey FROM word_definition_data word_def",
+    "SELECT word_def.spelling, orderKey FROM word_definition_data word_def",
     "INNER JOIN word_shared_data word ON word_def.sharedId = word.id",
     "WHERE word_def.dictionaryId = $dictionaryId",
     "AND word_def.confidence < $maxConfidence",
@@ -351,7 +363,7 @@ export async function listWords(
   }
 ) {
   // build query
-  const query = ["SELECT spelling FROM word_shared_data word"];
+  const query = ["SELECT word.spelling FROM word_shared_data word"];
   const bindParams: SQLite.SQLiteBindParams = {};
 
   if (options.partOfSpeech !== undefined) {
@@ -449,20 +461,7 @@ export async function getWordDefinitions(
     return;
   }
 
-  type Row = {
-    id: number;
-    orderKey: number;
-    confidence: number;
-    partOfSpeech?: number;
-    pronunciationAudio?: string;
-    definition: string;
-    example: string;
-    notes: string;
-    createdAt: number;
-    updatedAt: number;
-  };
-
-  const results = db.getEachAsync<Row>(
+  const results = db.getEachAsync<WordDefinitionData>(
     "SELECT * FROM word_definition_data WHERE sharedId = $id",
     {
       $id: wordResult.id,
@@ -470,18 +469,7 @@ export async function getWordDefinitions(
   );
 
   for await (const row of results) {
-    definitions.push({
-      id: row.id,
-      orderKey: row.orderKey,
-      confidence: row.confidence,
-      partOfSpeech: row.partOfSpeech,
-      pronunciationAudio: row.pronunciationAudio,
-      definition: row.definition,
-      example: row.example,
-      notes: row.notes,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-    });
+    definitions.push(row);
   }
 
   definitions.sort((a, b) => a.orderKey - b.orderKey);
@@ -545,17 +533,10 @@ async function getOrCreateWordId(
 }
 
 async function updateSharedData(sharedId: number) {
-  const result = await db.getFirstAsync<{
-    "MIN(confidence)": number;
-    "MAX(createdAt)": number;
-  }>(
-    "SELECT MIN(confidence), MAX(createdAt) FROM word_definition_data WHERE sharedId = $sharedId",
-    { $sharedId: sharedId }
-  );
-
   const sharedDataResult = await db.getFirstAsync<{
+    spelling: string;
     createdAt: number;
-  }>("SELECT createdAt FROM word_shared_data WHERE id = $id", {
+  }>("SELECT spelling, createdAt FROM word_shared_data WHERE id = $id", {
     $id: sharedId,
   });
 
@@ -563,12 +544,28 @@ async function updateSharedData(sharedId: number) {
     return;
   }
 
+  const statsResult = await db.getFirstAsync<{
+    "MIN(confidence)": number;
+    "MAX(createdAt)": number;
+  }>(
+    "SELECT MIN(confidence), MAX(createdAt) FROM word_definition_data WHERE sharedId = $sharedId",
+    { $sharedId: sharedId }
+  );
+
+  const spellingResult = await db.getFirstAsync<{
+    spelling: string;
+  }>(
+    "SELECT spelling FROM word_definition_data WHERE sharedId = $sharedId AND orderKey = 0",
+    { $sharedId: sharedId }
+  );
+
   await db.runAsync(
-    "UPDATE word_shared_data SET minConfidence = $minConfidence, latestAt = $latestAt WHERE id = $id",
+    "UPDATE word_shared_data SET spelling = $spelling, minConfidence = $minConfidence, latestAt = $latestAt WHERE id = $id",
     {
       $id: sharedId,
-      $minConfidence: result?.["MIN(confidence)"] ?? 0,
-      $latestAt: result?.["MAX(createdAt)"] ?? sharedDataResult.createdAt,
+      $spelling: spellingResult?.spelling ?? sharedDataResult.spelling,
+      $minConfidence: statsResult?.["MIN(confidence)"] ?? 0,
+      $latestAt: statsResult?.["MAX(createdAt)"] ?? sharedDataResult.createdAt,
     }
   );
 }
@@ -584,12 +581,12 @@ async function resolveNewOrderKey(sharedId: number) {
 
 export async function upsertDefinition(
   dictionaryId: number,
-  word: string,
   definition: WordDefinitionUpsertData
 ) {
   const time = Date.now();
 
   const copyList: (keyof WordDefinitionUpsertData)[] = [
+    "spelling",
     "confidence",
     "partOfSpeech",
     "pronunciationAudio",
@@ -615,7 +612,7 @@ export async function upsertDefinition(
     setList.push(key);
   }
 
-  const sharedId = await getOrCreateWordId(dictionaryId, word, {
+  const sharedId = await getOrCreateWordId(dictionaryId, definition.spelling, {
     confidence: definition.confidence ?? 0,
     time,
   });
@@ -626,7 +623,7 @@ export async function upsertDefinition(
     const oldDataResult = await db.getFirstAsync<{
       sharedId: number;
       orderKey: number;
-    }>("SELECT sharedId,orderKey FROM word_definition_data WHERE id = $id", {
+    }>("SELECT sharedId, orderKey FROM word_definition_data WHERE id = $id", {
       $id: definition.id,
     });
 
@@ -679,14 +676,27 @@ export async function upsertDefinition(
   }
 }
 
-export async function updateDefinitionOrderKey(id: number, orderKey: number) {
+export async function updateDefinitionOrderKey(
+  definitionData: WordDefinitionData,
+  orderKey: number
+) {
   await db.runAsync(
     "UPDATE word_definition_data SET orderKey = $orderKey WHERE id = $id",
     {
-      $id: id,
+      $id: definitionData.id,
       $orderKey: orderKey,
     }
   );
+
+  if (orderKey == 0) {
+    await db.runAsync(
+      "UPDATE word_shared_data SET spelling = $spelling WHERE id = $id",
+      {
+        $id: definitionData.sharedId,
+        $spelling: definitionData.spelling,
+      }
+    );
+  }
 }
 
 async function shiftOrderKeys(sharedId: number, greaterThanOrderKey: number) {
@@ -826,7 +836,7 @@ export async function loadUserData(
     data = (await loadFileObject("user")) as UserData;
   } catch {
     data = {
-      version: 0,
+      version: dataRevisions,
       disabledFeatures: {},
       points: 0,
       stats: {},
@@ -844,6 +854,10 @@ export async function loadUserData(
     };
 
     await FileSystem.makeDirectoryAsync(FILE_OBJECT_DIR);
+    await saveUserData(data);
+  }
+
+  if (await migrateUp(data)) {
     await saveUserData(data);
   }
 
@@ -976,6 +990,7 @@ CREATE TABLE word_definition_data (
   dictionaryId       INTEGER NOT NULL,
   sharedId           INTEGER NOT NULL REFERENCES word_shared_data(id),
   orderKey           INTEGER NOT NULL,
+  spelling           TEXT NOT NULL,
   confidence         INTEGER NOT NULL,
   partOfSpeech       INTEGER,
   pronunciationAudio TEXT,
@@ -1083,6 +1098,7 @@ CREATE TABLE files (
       "dictionaryId",
       "sharedId",
       "orderKey",
+      "spelling",
       "confidence",
       "partOfSpeech",
       // "pronunciationAudio",
@@ -1265,6 +1281,7 @@ export async function importData(
 
     const definitionCopyKeys = [
       "orderKey",
+      "spelling",
       "confidence",
       "partOfSpeech",
       // "pronunciationAudio", // todo, make sure to generate a new id

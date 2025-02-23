@@ -93,7 +93,9 @@ export default function DefinitionEditor(props: Props) {
   const [deleteRequested, setDeleteRequested] = useState(false);
   const [discardDialogOpen, setDiscardDialogOpen] = useState(false);
 
-  const [spelling, setSpelling] = useState(props.lowerCaseWord ?? "");
+  const [spelling, setSpelling] = useState(
+    definitionData?.spelling ?? props.lowerCaseWord ?? ""
+  );
   const [pronunciationUri, setPronunciationUri] = useState(
     getFileObjectPath(definitionData?.pronunciationAudio) ?? null
   );
@@ -109,6 +111,7 @@ export default function DefinitionEditor(props: Props) {
 
   useEffect(() => {
     if (definitionData) {
+      setSpelling(definitionData.spelling);
       setPronunciationUri(
         getFileObjectPath(definitionData.pronunciationAudio) ?? null
       );
@@ -122,8 +125,8 @@ export default function DefinitionEditor(props: Props) {
 
   // detecting pending changes
   const [hasPendingChanges, setHasPendingChanges] = usePendingChangesDetection([
-    confidence,
     spelling,
+    confidence,
     partOfSpeech,
     definition,
     example,
@@ -154,21 +157,18 @@ export default function DefinitionEditor(props: Props) {
       );
 
       // create or update the word
-      const definitionId = await upsertDefinition(
-        userData.activeDictionary,
-        lowerCaseSpelling,
-        {
-          // coercion to force interpretation as a full "insert"
-          // making all required fields required
-          id: props.definitionId!,
-          pronunciationAudio: preparedPronunciation.pronunciationAudio,
-          partOfSpeech,
-          definition,
-          example,
-          notes,
-          confidence,
-        }
-      );
+      const definitionId = await upsertDefinition(userData.activeDictionary, {
+        // coercion to force interpretation as a full "insert"
+        // making all required fields required
+        id: props.definitionId!,
+        spelling: spelling.trim(),
+        pronunciationAudio: preparedPronunciation.pronunciationAudio,
+        partOfSpeech,
+        definition,
+        example,
+        notes,
+        confidence,
+      });
 
       // finalize pronunciation
       preparedPronunciation.finalize();
