@@ -6,15 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  StyleSheet,
-  View,
-  ViewStyle,
-  ScrollView,
-  Animated,
-  useAnimatedValue,
-  TextStyle,
-} from "react-native";
+import { StyleSheet, View, ScrollView } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/lib/contexts/theme";
 import { useUserDataContext } from "@/lib/contexts/user-data";
@@ -55,7 +47,12 @@ import {
   PuzzleResultsIcon,
   ShuffleIcon,
 } from "@/lib/components/icons";
-import { runOnJS } from "react-native-reanimated";
+import Animated, {
+  useSharedValue,
+  runOnJS,
+  withSpring,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 import {
   Gesture,
   GestureDetector,
@@ -230,14 +227,6 @@ const springConfig = {
   damping: 22,
 };
 
-function springTo(value: Animated.Value, to: number, callback: () => void) {
-  Animated.spring(value, {
-    toValue: to,
-    useNativeDriver: true,
-    ...springConfig,
-  }).start(callback);
-}
-
 const ChipSlot = React.memo(function ({
   word,
   index,
@@ -249,54 +238,39 @@ const ChipSlot = React.memo(function ({
   children,
 }: ChipSlotProps) {
   const theme = useTheme();
-  const [originalPos, setOriginalPos] = useState<
+  const originalPos = useSharedValue<
     | {
         x: number;
         y: number;
       }
     | undefined
   >(undefined);
-  const [interacting, setInteracting] = useState(false);
-  const [movingCount, setMovingCount] = useState(0);
-  const interactingRef = useRef(false);
-  const left = useAnimatedValue(0);
-  const top = useAnimatedValue(0);
-  const colorValue = useAnimatedValue(0);
-  const [colorRange, setColorRange] = useState([
-    theme.colors.text,
-    theme.colors.text,
-  ]);
-  const [backgroundColorRange, setBackgroundColorRange] = useState([
-    theme.colors.definitionBackground,
-    theme.colors.definitionBackground,
-  ]);
-  const [borderColorRange, setBorderColorRange] = useState([
-    theme.colors.borders,
-    theme.colors.borders,
-  ]);
+  const interacting = useSharedValue(false);
+  const position = useSharedValue({ x: 0, y: 0 });
+  const color = useSharedValue(theme.colors.text);
+  const backgroundColor = useSharedValue(theme.colors.definitionBackground);
+  const borderColor = useSharedValue(theme.colors.borders);
 
-  const animatedStyle: Animated.WithAnimatedObject<ViewStyle> = {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    transform: [{ translateX: left }, { translateY: top }],
-    zIndex: movingCount > 0 || interacting ? 1 : 0,
-    borderColor: selected
-      ? theme.colors.primary.default
-      : colorValue.interpolate({
-          inputRange: [0, 1],
-          outputRange: borderColorRange,
-        }),
-    backgroundColor: colorValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: backgroundColorRange,
-    }),
-  };
+  const animatedStyle = useAnimatedStyle(() => {
+    const { x: left, y: top } = position.value;
+    let moving = false;
 
-  const animatedTextStyle: Animated.WithAnimatedObject<TextStyle> = {
-    position: "absolute",
-    opacity: colorValue,
-    color: colorRange[1],
+    if (originalPos.value) {
+      moving = left != originalPos.value.x || top != originalPos.value.y;
+    }
+
+    return {
+      position: "absolute",
+      left,
+      top,
+      zIndex: moving || interacting.value ? 1 : 0,
+      borderColor: selected ? theme.colors.primary.default : borderColor.value,
+      backgroundColor: backgroundColor.value,
+    };
+  }, [selected]);
+
+  const animatedTextStyle = {
+    color,
   };
 
   // animations that need to run after updating style outputRanges
@@ -325,19 +299,19 @@ const ChipSlot = React.memo(function ({
     }
 
     pushAnimation(() => {
-      flash(colorValue, 1, 0);
+      flash(color, targetColor, theme.colors.text);
+      flash(
+        backgroundColor,
+        targetBackgroundColor,
+        theme.colors.definitionBackground
+      );
+      flash(borderColor, targetBorderColor, theme.colors.borders);
     });
-    setColorRange([theme.colors.text, targetColor]);
-    setBackgroundColorRange([
-      theme.colors.definitionBackground,
-      targetBackgroundColor,
-    ]);
-    setBorderColorRange([theme.colors.borders, targetBorderColor]);
   }, [correctList]);
 
   // reset original position
   useLayoutEffect(() => {
-    setOriginalPos(undefined);
+    originalPos.value = undefined;
   }, [word]);
 
   const gesture = useMemo(() => {
@@ -348,21 +322,24 @@ const ChipSlot = React.memo(function ({
         return;
       }
 
-      interactingRef.current = true;
-      setInteracting(true);
+      interacting.value = true;
       setGameState({ ...gameState, graphemeInteraction: true });
     };
 
     const start = () => {
-      if (interactingRef.current) {
+      if (interacting.value) {
         setGameState({ ...getGameState(), graphemeSelected: undefined });
       }
     };
 
     const update = (x: number, y: number) => {
-      if (interactingRef.current && originalPos) {
-        left.setValue(x + originalPos.x);
-        top.setValue(y + originalPos.y);
+      "worklet";
+
+      if (interacting.value && originalPos.value) {
+        position.value = {
+          x: x + originalPos.value.x,
+          y: y + originalPos.value.y,
+        };
       }
     };
 
@@ -370,7 +347,7 @@ const ChipSlot = React.memo(function ({
       e: GestureStateChangeEvent<PanGestureHandlerEventPayload>,
       dragged: boolean
     ) => {
-      if (!interactingRef.current) {
+      if (!interacting.value) {
         return;
       }
 
@@ -394,25 +371,20 @@ const ChipSlot = React.memo(function ({
         gameState.graphemeSelected = index;
       }
 
-      if (!swapped && originalPos) {
-        setMovingCount((c) => c + 2);
-        const decrement = () => setMovingCount((c) => c - 1);
-
-        springTo(left, originalPos.x, decrement);
-        springTo(top, originalPos.y, decrement);
+      if (!swapped && originalPos.value) {
+        position.value = withSpring(originalPos.value, springConfig);
       }
 
-      interactingRef.current = false;
-      setInteracting(false);
+      interacting.value = false;
       setGameState(gameState);
     };
 
     return Gesture.Pan()
       .onBegin(() => runOnJS(begin)())
       .onStart(() => runOnJS(start)())
-      .onUpdate((e) => runOnJS(update)(e.translationX, e.translationY))
+      .onUpdate((e) => update(e.translationX, e.translationY))
       .onFinalize((e, success) => runOnJS(finalize)(e, success));
-  }, [originalPos]);
+  }, [index]);
 
   return (
     <>
@@ -421,18 +393,15 @@ const ChipSlot = React.memo(function ({
         onLayout={(e) => {
           const { x, y } = e.nativeEvent.layout;
 
-          setOriginalPos({ x, y });
+          const pos = { x, y };
 
-          if (originalPos == undefined) {
-            left.setValue(x);
-            top.setValue(y);
+          if (originalPos.value == undefined) {
+            position.value = pos;
           } else {
-            setMovingCount((c) => c + 2);
-            const decrement = () => setMovingCount((c) => c - 1);
-
-            springTo(left, x, decrement);
-            springTo(top, y, decrement);
+            position.value = withSpring(pos, springConfig);
           }
+
+          originalPos.value = pos;
 
           e.target.measure((_x, _y, w, h, pageX, pageY) => {
             // not using setGameState, since we're modifying directly
@@ -448,9 +417,6 @@ const ChipSlot = React.memo(function ({
 
       <GestureDetector gesture={gesture}>
         <Animated.View style={[styles.chip, animatedStyle]}>
-          <Animated.Text style={[styles.chipText, theme.styles.text]}>
-            {children}
-          </Animated.Text>
           <Animated.Text
             style={[styles.chipText, theme.styles.text, animatedTextStyle]}
           >
@@ -503,7 +469,7 @@ export default function () {
       .catch(logError);
   }, []);
 
-  const opacity = useAnimatedValue(0);
+  const opacity = useSharedValue(0);
   const opacityStyle = {
     opacity,
   };
