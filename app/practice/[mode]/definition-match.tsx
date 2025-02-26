@@ -21,10 +21,10 @@ import {
   cloneAndShuffle,
   pickIndexWithLenBiased,
   swapNToEndWith,
-} from "@/lib/puzzles/random";
-import { getDefinition } from "@/lib/puzzles/definitions";
-import { fadeTo, flash } from "@/lib/puzzles/animations";
-import { Timer, useTimerSeconds } from "@/lib/puzzles/timer";
+} from "@/lib/practice/random";
+import { getDefinition } from "@/lib/practice/definitions";
+import { fadeTo, flash } from "@/lib/practice/animations";
+import { Timer, useTimerSeconds } from "@/lib/practice/timer";
 import useGettableState from "@/lib/hooks/use-gettable-state";
 import { Theme } from "@/lib/themes";
 import { useTheme } from "@/lib/contexts/theme";
@@ -37,14 +37,16 @@ import {
   Score,
   ScoreRow,
   GameClock,
-} from "@/lib/components/puzzles/info";
+} from "@/lib/components/practice/info";
 import { useTranslation } from "react-i18next";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import usePuzzleColors, { PuzzleColors } from "@/lib/hooks/use-puzzle-colors";
+import usePracticeColors, {
+  PracticeColors,
+} from "@/lib/hooks/use-practice-colors";
 import {
   ResultsClock,
   ResultsDialog,
@@ -52,11 +54,11 @@ import {
   ResultsRow,
   ResultsScore,
   ResultsSpacer,
-} from "@/lib/components/puzzles/results";
+} from "@/lib/components/practice/results";
 import RouteRoot from "@/lib/components/route-root";
 import { SubMenuIconButton } from "@/lib/components/icon-button";
-import { PuzzleResultsIcon } from "@/lib/components/icons";
-import { PuzzleAd } from "@/lib/components/ads";
+import { PracticeResultsIcon } from "@/lib/components/icons";
+import { PracticeAd } from "@/lib/components/ads";
 
 export type DefinitionMatchGameMode = "endless" | "timed" | "rush";
 export const definitionMatchModeList: DefinitionMatchGameMode[] = [
@@ -170,7 +172,7 @@ function updateGameStats(userData: UserData, gameState: GameState) {
 type CardProps = {
   style: StyleProp<ViewStyle>;
   theme: Theme;
-  puzzleColors: PuzzleColors;
+  practiceColors: PracticeColors;
   selected: boolean;
   correct: boolean;
   incorrect: boolean;
@@ -180,7 +182,7 @@ type CardProps = {
 function Card({
   style,
   theme,
-  puzzleColors,
+  practiceColors,
   selected,
   correct,
   incorrect,
@@ -221,22 +223,22 @@ function Card({
   useEffect(() => {
     if (correct) {
       // fade to correct colors
-      fadeTo(color, puzzleColors.correct.color);
-      fadeTo(backgroundColor, puzzleColors.correct.backgroundColor);
-      fadeTo(borderColor, puzzleColors.correct.borderColor);
+      fadeTo(color, practiceColors.correct.color);
+      fadeTo(backgroundColor, practiceColors.correct.backgroundColor);
+      fadeTo(borderColor, practiceColors.correct.borderColor);
 
       scale.value = withTiming(SMALL_SCALE, { duration: 300 });
     } else if (incorrect) {
       // flash incorrect colors
-      flash(color, puzzleColors.mistake.color, theme.colors.text);
+      flash(color, practiceColors.mistake.color, theme.colors.text);
       flash(
         backgroundColor,
-        puzzleColors.mistake.backgroundColor,
+        practiceColors.mistake.backgroundColor,
         theme.colors.definitionBackground
       );
       flash(
         borderColor,
-        puzzleColors.mistake.borderColor,
+        practiceColors.mistake.borderColor,
         theme.colors.borders
       );
     } else if (prevCorrect.current) {
@@ -266,7 +268,7 @@ function Card({
 export default function () {
   const params = useLocalSearchParams<{ mode: string }>();
   const theme = useTheme();
-  const puzzleColors = usePuzzleColors();
+  const practiceColors = usePracticeColors();
   const [t] = useTranslation();
   const [userData, setUserData] = useUserDataContext();
   const dictionary = userData.dictionaries.find(
@@ -453,7 +455,7 @@ export default function () {
         <SubMenuActions>
           {gameState.over && (
             <SubMenuIconButton
-              icon={PuzzleResultsIcon}
+              icon={PracticeResultsIcon}
               onPress={() =>
                 setGameState({ ...gameState, displayingResults: true })
               }
@@ -471,7 +473,7 @@ export default function () {
         </ScoreRow>
       )}
 
-      <PuzzleAd />
+      <PracticeAd />
 
       <Animated.View
         style={[styles.rows, opacityStyle]}
@@ -494,7 +496,7 @@ export default function () {
             <Card
               style={cardSizeStyle}
               theme={theme}
-              puzzleColors={puzzleColors}
+              practiceColors={practiceColors}
               correct={gameState.correctSet.has(left)}
               incorrect={
                 gameState.leftSelection == i && gameState.selectionIncorrect
@@ -519,7 +521,7 @@ export default function () {
             <Card
               style={cardSizeStyle}
               theme={theme}
-              puzzleColors={puzzleColors}
+              practiceColors={practiceColors}
               correct={gameState.correctSet.has(right)}
               incorrect={
                 gameState.rightSelection == i && gameState.selectionIncorrect

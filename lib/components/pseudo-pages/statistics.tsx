@@ -15,7 +15,7 @@ import { DictionaryStats, listWords } from "@/lib/data";
 import { Theme } from "@/lib/themes";
 import { logError } from "@/lib/log";
 import { useDictionaryVersioning } from "@/lib/hooks/use-word-definitions";
-import { GameTitle } from "../puzzles/info";
+import { GameTitle } from "../practice/info";
 import IconButton from "../icon-button";
 import { ShareIcon } from "../icons";
 

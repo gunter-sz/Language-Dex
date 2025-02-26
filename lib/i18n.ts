@@ -52,6 +52,7 @@ i18n
           Copy: "Copy",
 
           // games
+          Practice: "Practice",
           Definition_Match: "Definition Match",
           Definition_Match_Requirements:
             "Requires at least three word definitions below max confidence.",

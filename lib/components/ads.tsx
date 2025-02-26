@@ -81,7 +81,7 @@ async function startGoogleMobileAdsSDK() {
   // Request an ad...
 }
 
-export const PuzzleAd = React.memo(
+export const PracticeAd = React.memo(
   ({ onSizeChange }: { onSizeChange?: () => void }) => {
     const [userData] = useUserDataContext();
     const theme = useTheme();
@@ -109,7 +109,7 @@ export const PuzzleAd = React.memo(
               "words",
               "word",
               "game",
-              "puzzle",
+              "practice",
             ],
           }}
           onSizeChange={onSizeChange}

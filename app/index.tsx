@@ -8,7 +8,7 @@ import {
   DictionaryIcon,
   StatisticsIcon,
   ScanIcon,
-  PuzzleIcon,
+  PracticeIcon,
 } from "@/lib/components/icons";
 import { useTranslation } from "react-i18next";
 import Animated, {
@@ -19,7 +19,7 @@ import Animated, {
 
 import Dictionary from "@/lib/components/pseudo-pages/dictionary";
 import Read from "@/lib/components/pseudo-pages/read";
-import Puzzles from "@/lib/components/pseudo-pages/puzzles";
+import Practice from "@/lib/components/pseudo-pages/practice";
 import Statistics from "@/lib/components/pseudo-pages/statistics";
 import { useUserDataContext } from "@/lib/contexts/user-data";
 import RouteRoot from "@/lib/components/route-root";
@@ -29,7 +29,7 @@ type PercentString = `${number}%`;
 export const pages = [
   { label: "Dictionary", iconComponent: DictionaryIcon, component: Dictionary },
   { label: "Read", iconComponent: ScanIcon, component: Read },
-  { label: "Puzzles", iconComponent: PuzzleIcon, component: Puzzles },
+  { label: "Practice", iconComponent: PracticeIcon, component: Practice },
   { label: "Statistics", iconComponent: StatisticsIcon, component: Statistics },
 ];
 

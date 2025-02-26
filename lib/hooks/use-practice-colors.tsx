@@ -1,17 +1,17 @@
 import { useColorScheme } from "@/lib/contexts/color-scheme";
 
-type PuzzleResultColors = {
+type PracticeResultColors = {
   color: string;
   borderColor: string;
   backgroundColor: string;
 };
 
-export type PuzzleColors = {
-  mistake: PuzzleResultColors;
-  correct: PuzzleResultColors;
+export type PracticeColors = {
+  mistake: PracticeResultColors;
+  correct: PracticeResultColors;
 };
 
-const puzzleColors: { [scheme: string]: PuzzleColors } = {
+const practiceColors: { [scheme: string]: PracticeColors } = {
   light: {
     mistake: {
       color: "#b14",
@@ -38,6 +38,6 @@ const puzzleColors: { [scheme: string]: PuzzleColors } = {
   },
 };
 
-export default function usePuzzleColors() {
-  return puzzleColors[useColorScheme()];
+export default function usePracticeColors() {
+  return practiceColors[useColorScheme()];
 }

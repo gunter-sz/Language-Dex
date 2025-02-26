@@ -18,22 +18,22 @@ import { logError } from "@/lib/log";
 import ListPopup from "../list-popup";
 import { LockIcon } from "../icons";
 
-import { definitionMatchModeList } from "@/app/puzzles/[mode]/definition-match";
-import { unscrambleModeList } from "@/app/puzzles/[mode]/unscramble";
+import { definitionMatchModeList } from "@/app/practice/[mode]/definition-match";
+import { unscrambleModeList } from "@/app/practice/[mode]/unscramble";
 import { useUserDataContext } from "@/lib/contexts/user-data";
 import Dialog, { DialogDescription, DialogTitle } from "../dialog";
 import {
   ConfirmationDialogAction,
   ConfirmationDialogActions,
 } from "../confirmation-dialog";
-import { GameTitle } from "../puzzles/info";
+import { GameTitle } from "../practice/info";
 import {
   CrosswordIcon,
   DefinitionMatchIcon,
   GuessTheWordIcon,
   UnscrambleIcon,
   PronunciationIcon,
-} from "../puzzles/puzzle-icons";
+} from "../practice/practice-icons";
 
 type GameListingProps = {
   label: string;
@@ -222,7 +222,7 @@ export default function () {
 
   return (
     <View style={styles.content}>
-      <GameTitle>{t("Puzzles")}</GameTitle>
+      <GameTitle>{t("Practice")}</GameTitle>
 
       <ScrollView contentContainerStyle={styles.list}>
         <View style={styles.row}>
@@ -235,7 +235,7 @@ export default function () {
             lockStatus={matchStatus}
             setLockDescription={lockCallback}
             onSelect={(mode) =>
-              router.navigate(`/puzzles/${mode}/definition-match`)
+              router.navigate(`/practice/${mode}/definition-match`)
             }
           />
 
@@ -247,7 +247,7 @@ export default function () {
             lockStatus={unscrambleStatus}
             setLockDescription={lockCallback}
             modes={unscrambleModeList}
-            onSelect={(mode) => router.navigate(`/puzzles/${mode}/unscramble`)}
+            onSelect={(mode) => router.navigate(`/practice/${mode}/unscramble`)}
           />
         </View>
 
@@ -259,7 +259,7 @@ export default function () {
             theme={theme}
             lockStatus={guessStatus}
             setLockDescription={lockCallback}
-            href="/puzzles/guess-the-word"
+            href="/practice/guess-the-word"
           />
 
           <GameListing
@@ -269,7 +269,7 @@ export default function () {
             theme={theme}
             lockStatus={crosswordStatus}
             setLockDescription={lockCallback}
-            href="/puzzles/crossword"
+            href="/practice/crossword"
           />
         </View>
 
@@ -281,7 +281,7 @@ export default function () {
             theme={theme}
             lockStatus={pronunciationStatus}
             setLockDescription={lockCallback}
-            href="/puzzles/pronunciation"
+            href="/practice/pronunciation"
           />
         </View>
       </ScrollView>

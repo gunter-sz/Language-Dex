@@ -15,8 +15,8 @@ export function ScanIcon(props: IconProps) {
   return <MaterialDesignIcons name="text-search" {...props} />;
 }
 
-export function PuzzleIcon(props: IconProps) {
-  return <MaterialDesignIcons name="puzzle" {...props} />;
+export function PracticeIcon(props: IconProps) {
+  return <MaterialDesignIcons name="weight-lifter" {...props} />;
 }
 
 export function StatisticsIcon(props: IconProps) {
@@ -143,7 +143,7 @@ export function ShareIcon(props: IconProps) {
   return <MaterialDesignIcons name="share-variant" {...props} />;
 }
 
-export function PuzzleResultsIcon(props: IconProps) {
+export function PracticeResultsIcon(props: IconProps) {
   return <MaterialDesignIcons name="medal-outline" {...props} />;
 }
 

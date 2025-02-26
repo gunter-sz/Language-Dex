@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { colors as guessTheWordColors } from "@/app/puzzles/guess-the-word";
+import { colors as guessTheWordColors } from "@/app/practice/guess-the-word";
 import { useTheme } from "@/lib/contexts/theme";
-import usePuzzleColors from "@/lib/hooks/use-puzzle-colors";
+import usePracticeColors from "@/lib/hooks/use-practice-colors";
 import { MicrophoneIcon } from "../icons";
 
 export const DefinitionMatchIcon = React.memo(function () {
   const theme = useTheme();
   const styles = definitionMatchStyles;
-  const colors = usePuzzleColors();
+  const colors = usePracticeColors();
   const cardStyleMap = [
     [styles.card, theme.styles.borders, theme.styles.definitionBackground],
     [styles.card, colors.correct],
@@ -53,7 +53,7 @@ const definitionMatchStyles = StyleSheet.create({
 export const UnscrambleIcon = React.memo(function () {
   const theme = useTheme();
   const styles = unscrambleStyles;
-  const colors = usePuzzleColors();
+  const colors = usePracticeColors();
   const chipStyleMap = [
     [styles.chip, colors.mistake],
     [styles.chip, colors.correct],

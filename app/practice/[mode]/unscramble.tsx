@@ -24,9 +24,9 @@ import {
   swapToEnd,
   shuffle,
   swap,
-} from "@/lib/puzzles/random";
-import { fadeTo, flash } from "@/lib/puzzles/animations";
-import { Timer, useTimerSeconds } from "@/lib/puzzles/timer";
+} from "@/lib/practice/random";
+import { fadeTo, flash } from "@/lib/practice/animations";
+import { Timer, useTimerSeconds } from "@/lib/practice/timer";
 import useGettableState from "@/lib/hooks/use-gettable-state";
 import { Grapheme } from "@akahuku/unistring";
 import SubMenuTopNav, {
@@ -38,13 +38,13 @@ import {
   GameTitle,
   Score,
   ScoreRow,
-} from "@/lib/components/puzzles/info";
+} from "@/lib/components/practice/info";
 import useWordDefinitions from "@/lib/hooks/use-word-definitions";
 import { Span } from "@/lib/components/text";
 import CircleButton from "@/lib/components/circle-button";
 import {
   ArrowRightIcon,
-  PuzzleResultsIcon,
+  PracticeResultsIcon,
   ShuffleIcon,
 } from "@/lib/components/icons";
 import Animated, {
@@ -59,7 +59,9 @@ import {
   GestureStateChangeEvent,
   PanGestureHandlerEventPayload,
 } from "react-native-gesture-handler";
-import usePuzzleColors, { PuzzleColors } from "@/lib/hooks/use-puzzle-colors";
+import usePracticeColors, {
+  PracticeColors,
+} from "@/lib/hooks/use-practice-colors";
 import {
   ResultsClock,
   ResultsDialog,
@@ -67,15 +69,15 @@ import {
   ResultsRow,
   ResultsScore,
   ResultsSpacer,
-} from "@/lib/components/puzzles/results";
+} from "@/lib/components/practice/results";
 import RouteRoot from "@/lib/components/route-root";
 import { SubMenuIconButton } from "@/lib/components/icon-button";
-import { PuzzleAd } from "@/lib/components/ads";
+import { PracticeAd } from "@/lib/components/ads";
 import {
   joinGraphemes,
   toGraphemes,
   toGraphemeStrings,
-} from "@/lib/puzzles/words";
+} from "@/lib/practice/words";
 import useAnimationEffects from "@/lib/hooks/use-animation-effects";
 
 export type UnscrambleGameMode = "endless" | "timed" | "rush";
@@ -215,7 +217,7 @@ function overlappingGraphemeIndex(gameState: GameState, x: number, y: number) {
 type ChipSlotProps = {
   word: GameWord;
   index: number;
-  puzzleColors: PuzzleColors;
+  practiceColors: PracticeColors;
   selected: boolean;
   correctList?: boolean[];
   setGameState: (gameState: GameState) => void;
@@ -230,7 +232,7 @@ const springConfig = {
 const ChipSlot = React.memo(function ({
   word,
   index,
-  puzzleColors,
+  practiceColors,
   selected,
   correctList,
   setGameState,
@@ -288,14 +290,14 @@ const ChipSlot = React.memo(function ({
 
     if (correctList[index]) {
       // correct colors
-      targetColor = puzzleColors.correct.color;
-      targetBackgroundColor = puzzleColors.correct.backgroundColor;
-      targetBorderColor = puzzleColors.correct.borderColor;
+      targetColor = practiceColors.correct.color;
+      targetBackgroundColor = practiceColors.correct.backgroundColor;
+      targetBorderColor = practiceColors.correct.borderColor;
     } else {
       // incorrect colors
-      targetColor = puzzleColors.mistake.color;
-      targetBackgroundColor = puzzleColors.mistake.backgroundColor;
-      targetBorderColor = puzzleColors.mistake.borderColor;
+      targetColor = practiceColors.mistake.color;
+      targetBackgroundColor = practiceColors.mistake.backgroundColor;
+      targetBorderColor = practiceColors.mistake.borderColor;
     }
 
     pushAnimation(() => {
@@ -431,7 +433,7 @@ const ChipSlot = React.memo(function ({
 export default function () {
   const params = useLocalSearchParams<{ mode: string }>();
   const theme = useTheme();
-  const puzzleColors = usePuzzleColors();
+  const practiceColors = usePracticeColors();
   const [t] = useTranslation();
   const [userData, setUserData] = useUserDataContext();
   const dictionary = userData.dictionaries.find(
@@ -599,7 +601,7 @@ export default function () {
         <SubMenuActions>
           {gameState.over && (
             <SubMenuIconButton
-              icon={PuzzleResultsIcon}
+              icon={PracticeResultsIcon}
               onPress={() =>
                 setGameState({ ...gameState, displayingResults: true })
               }
@@ -617,7 +619,7 @@ export default function () {
         </ScoreRow>
       )}
 
-      <PuzzleAd onSizeChange={onAdResize} />
+      <PracticeAd onSizeChange={onAdResize} />
 
       {resolvedAdSize && !gameState.loading && (
         <>
@@ -647,7 +649,7 @@ export default function () {
                   word={gameState.activeWord!}
                   index={i}
                   key={grapheme.rawIndex}
-                  puzzleColors={puzzleColors}
+                  practiceColors={practiceColors}
                   selected={gameState.graphemeSelected == i}
                   correctList={gameState.correctList}
                   setGameState={setGameState}

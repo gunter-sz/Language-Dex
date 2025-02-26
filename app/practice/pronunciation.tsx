@@ -7,7 +7,7 @@ import {
   Animated,
   useAnimatedValue,
 } from "react-native";
-import { PuzzleAd } from "@/lib/components/ads";
+import { PracticeAd } from "@/lib/components/ads";
 import RouteRoot from "@/lib/components/route-root";
 import SubMenuTopNav, {
   SubMenuBackButton,
@@ -24,7 +24,7 @@ import {
   prepareNewPronunciation,
   upsertDefinition,
 } from "@/lib/data";
-import { pickIndexWithLenBiased, swapToEnd } from "@/lib/puzzles/random";
+import { pickIndexWithLenBiased, swapToEnd } from "@/lib/practice/random";
 import { useUserDataContext } from "@/lib/contexts/user-data";
 import { Span } from "@/lib/components/text";
 import { useTheme } from "@/lib/contexts/theme";
@@ -38,8 +38,8 @@ import {
   ThumbDownIcon,
   ThumbUpIcon,
 } from "@/lib/components/icons";
-import { fadeTo } from "@/lib/puzzles/animations";
-import { Saved, ScoreRow, ThumbsUps } from "@/lib/components/puzzles/info";
+import { fadeTo } from "@/lib/practice/animations";
+import { Saved, ScoreRow, ThumbsUps } from "@/lib/components/practice/info";
 import ConfirmationDialog from "@/lib/components/confirmation-dialog";
 import { useTranslation } from "react-i18next";
 import useAnimationEffects from "@/lib/hooks/use-animation-effects";
@@ -247,7 +247,7 @@ export default function () {
         <ThumbsUps value={gameState.score} />
       </ScoreRow>
 
-      <PuzzleAd onSizeChange={onAdResize} />
+      <PracticeAd onSizeChange={onAdResize} />
 
       {resolvedAdSize && !gameState.loading && (
         <>

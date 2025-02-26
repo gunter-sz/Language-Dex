@@ -2,14 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { isValidWord, listWords, updateStatistics } from "@/lib/data";
 import { Grapheme } from "@akahuku/unistring";
-import { pickIndexBiased } from "@/lib/puzzles/random";
-import { Timer } from "@/lib/puzzles/timer";
+import { pickIndexBiased } from "@/lib/practice/random";
+import { Timer } from "@/lib/practice/timer";
 import useGettableState from "@/lib/hooks/use-gettable-state";
 import SubMenuTopNav, {
   SubMenuActions,
   SubMenuBackButton,
 } from "@/lib/components/sub-menu-top-nav";
-import { GameTitle } from "@/lib/components/puzzles/info";
+import { GameTitle } from "@/lib/components/practice/info";
 import { useTranslation } from "react-i18next";
 import {
   ResultsClock,
@@ -17,7 +17,7 @@ import {
   ResultsLabel,
   ResultsRow,
   ResultsScore,
-} from "@/lib/components/puzzles/results";
+} from "@/lib/components/practice/results";
 import { useUserDataContext } from "@/lib/contexts/user-data";
 import { logError } from "@/lib/log";
 import Animated, {
@@ -34,17 +34,17 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   IncorrectIcon,
-  PuzzleResultsIcon,
+  PracticeResultsIcon,
 } from "@/lib/components/icons";
 import RouteRoot from "@/lib/components/route-root";
 import {
   DockedTextInput,
   DockedTextInputContainer,
   DockedTextInputSubmitButton,
-} from "@/lib/components/puzzles/docked-text-input";
+} from "@/lib/components/practice/docked-text-input";
 import { SubMenuIconButton } from "@/lib/components/icon-button";
-import { PuzzleAd } from "@/lib/components/ads";
-import { toGraphemes } from "@/lib/puzzles/words";
+import { PracticeAd } from "@/lib/components/ads";
+import { toGraphemes } from "@/lib/practice/words";
 
 type Guess = { graphemes: Grapheme[]; pending: boolean; valid: boolean };
 
@@ -359,7 +359,7 @@ export default function () {
         <SubMenuActions>
           {gameState.over && (
             <SubMenuIconButton
-              icon={PuzzleResultsIcon}
+              icon={PracticeResultsIcon}
               onPress={() =>
                 setGameState({ ...gameState, displayingResults: true })
               }
@@ -369,7 +369,7 @@ export default function () {
       </SubMenuTopNav>
 
       <GameTitle>{t("Guess_the_Word")}</GameTitle>
-      <PuzzleAd />
+      <PracticeAd />
 
       <ScrollView
         ref={scrollViewRef}

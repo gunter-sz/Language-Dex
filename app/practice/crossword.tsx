@@ -7,7 +7,7 @@ import {
   Pressable,
   Keyboard,
 } from "react-native";
-import { Timer } from "@/lib/puzzles/timer";
+import { Timer } from "@/lib/practice/timer";
 import useGettableState from "@/lib/hooks/use-gettable-state";
 import { getWordDefinitions, listWords, updateStatistics } from "@/lib/data";
 import { logError } from "@/lib/log";
@@ -19,7 +19,7 @@ import {
   DockedTextInputContainer,
   DockedTextInputHintButton,
   DockedTextInputSubmitButton,
-} from "@/lib/components/puzzles/docked-text-input";
+} from "@/lib/components/practice/docked-text-input";
 import {
   ResultsClock,
   ResultsDialog,
@@ -27,31 +27,31 @@ import {
   ResultsIncorrectScore,
   ResultsLabel,
   ResultsRow,
-} from "@/lib/components/puzzles/results";
+} from "@/lib/components/practice/results";
 import { useTheme } from "@/lib/contexts/theme";
 import SubMenuTopNav, {
   SubMenuActions,
   SubMenuBackButton,
 } from "@/lib/components/sub-menu-top-nav";
 import { SubMenuIconButton } from "@/lib/components/icon-button";
-import { ConfirmReadyIcon, PuzzleResultsIcon } from "@/lib/components/icons";
+import { ConfirmReadyIcon, PracticeResultsIcon } from "@/lib/components/icons";
 import {
   GameTitle,
   HintScore,
   IncorrectScore,
   ScoreRow,
-} from "@/lib/components/puzzles/info";
+} from "@/lib/components/practice/info";
 import {
   Crossword,
   generateCrossword,
-} from "@/lib/puzzles/crossword-generation";
-import { isRTL, toGraphemeStrings } from "@/lib/puzzles/words";
+} from "@/lib/practice/crossword-generation";
+import { isRTL, toGraphemeStrings } from "@/lib/practice/words";
 import CircleButton from "@/lib/components/circle-button";
 import useKeyboardVisible from "@/lib/hooks/use-keyboard-visible";
-import { pickIndexWithLenUnbiased } from "@/lib/puzzles/random";
+import { pickIndexWithLenUnbiased } from "@/lib/practice/random";
 import Dialog from "@/lib/components/dialog";
 import { Span } from "@/lib/components/text";
-import { PuzzleAd } from "@/lib/components/ads";
+import { PracticeAd } from "@/lib/components/ads";
 
 type GameState = {
   over: boolean;
@@ -231,7 +231,7 @@ export default function () {
         <SubMenuActions>
           {gameState.over && (
             <SubMenuIconButton
-              icon={PuzzleResultsIcon}
+              icon={PracticeResultsIcon}
               onPress={() =>
                 setGameState({ ...gameState, displayingResults: true })
               }
@@ -246,7 +246,7 @@ export default function () {
       </ScoreRow>
 
       {/* <GameTitle>{t("Crossword")}</GameTitle> */}
-      <PuzzleAd onSizeChange={onAdResize} />
+      <PracticeAd onSizeChange={onAdResize} />
 
       {resolvedAdSize && allWords && (
         <>

@@ -15,7 +15,7 @@ export type DictionaryStats = {
   // scans
   wordsScanned?: number;
   totalScans?: number;
-  // puzzles
+  // practice
   definitionsMatched?: number;
   definitionMatchBest?: { [mode: string]: number };
   unscrambled?: number;
