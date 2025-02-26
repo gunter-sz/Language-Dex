@@ -19,7 +19,9 @@
       },
       "package": "dev.arthurcose.languagedex",
       "softwareKeyboardLayoutMode": "adjustResize",
-      "blockedPermissions": ["com.google.android.gms.permission.AD_ID"]
+      "blockedPermissions": [
+        "com.google.android.gms.permission.AD_ID"
+      ]
     },
     "androidStatusBar": {
       "translucent": true
@@ -53,7 +55,9 @@
       ],
       "react-native-iap",
       "expo-localization",
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-audio",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
