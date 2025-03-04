@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Pressable, Text, View, StyleSheet } from "react-native";
 import Dialog from "../dialog";
+import usePracticeColors from "@/lib/hooks/use-practice-colors";
 
 type ResultsDialogProps = {
   open: boolean;
@@ -80,6 +81,7 @@ export function ResultsHintScore({ score }: { score: number }) {
 
 export function ResultsIncorrectScore({ score }: { score: number }) {
   const theme = useTheme();
+  const colors = usePracticeColors();
 
   return (
     <Text
@@ -87,7 +89,7 @@ export function ResultsIncorrectScore({ score }: { score: number }) {
         styles.result,
         score == 0
           ? theme.styles.disabledText
-          : theme.styles.incorrectScoreText,
+          : { color: colors.mistake.color },
       ]}
     >
       {score}

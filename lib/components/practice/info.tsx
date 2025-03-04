@@ -3,12 +3,14 @@ import { Span } from "../text";
 import { StyleSheet, View } from "react-native";
 import { useTheme } from "@/lib/contexts/theme";
 import {
+  CorrectIcon,
   HintIcon,
   IncorrectIcon,
   SaveIcon,
   ThumbUpIcon,
   TimerIcon,
 } from "../icons";
+import usePracticeColors from "@/lib/hooks/use-practice-colors";
 
 export function GameTitle({ children }: React.PropsWithChildren) {
   const theme = useTheme();
@@ -63,6 +65,7 @@ export function HintScore({ score }: { score: number }) {
 
 export function IncorrectScore({ score }: { score: number }) {
   const theme = useTheme();
+  const colors = usePracticeColors();
 
   return (
     <View style={styles.incorrectBlock}>
@@ -72,11 +75,33 @@ export function IncorrectScore({ score }: { score: number }) {
           styles.scoreFont,
           score == 0
             ? theme.styles.disabledText
-            : theme.styles.incorrectScoreText,
+            : { color: colors.mistake.color },
         ]}
       >
         {score}
       </Span>
+    </View>
+  );
+}
+
+export function CorrectScore({ score }: { score: number }) {
+  const theme = useTheme();
+  const colors = usePracticeColors();
+
+  return (
+    <View style={styles.incorrectBlock}>
+      <Span
+        style={[
+          styles.scoreFont,
+          score == 0
+            ? theme.styles.disabledText
+            : { color: colors.correct.color },
+        ]}
+      >
+        {score}
+      </Span>
+
+      <CorrectIcon size={29} color={theme.colors.text} />
     </View>
   );
 }

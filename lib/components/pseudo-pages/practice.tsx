@@ -33,6 +33,7 @@ import {
   GuessTheWordIcon,
   UnscrambleIcon,
   PronunciationIcon,
+  ShortAnswerIcon,
 } from "../practice/practice-icons";
 
 type GameListingProps = {
@@ -172,6 +173,7 @@ export default function () {
   const [unscrambleStatus, setUnscrambleStatus] = useState({ locked: true });
   const [guessStatus, setGuessStatus] = useState({ locked: true });
   const [crosswordStatus, setCrosswordStatus] = useState({ locked: true });
+  const [shortAnswerStatus, setShortAnswerStatus] = useState({ locked: true });
   const [pronunciationStatus, setPronunciationStatus] = useState({
     locked: true,
   });
@@ -203,6 +205,10 @@ export default function () {
       limit: 10,
       minLength: 4,
       belowMaxConfidence: true,
+    });
+
+    testLock(setShortAnswerStatus, listGameWords, userData.activeDictionary, {
+      limit: 5,
     });
 
     testLock(setPronunciationStatus, listGameWords, userData.activeDictionary, {
@@ -274,6 +280,16 @@ export default function () {
         </View>
 
         <View style={styles.row}>
+          <GameListing
+            label="Short_Answer"
+            icon={ShortAnswerIcon}
+            style={listingStyles}
+            theme={theme}
+            lockStatus={shortAnswerStatus}
+            setLockDescription={lockCallback}
+            href="/practice/short-answer"
+          />
+
           <GameListing
             label="Pronunciation"
             icon={PronunciationIcon}

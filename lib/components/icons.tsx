@@ -139,6 +139,10 @@ export function IncorrectIcon(props: IconProps) {
   return <MaterialDesignIcons name="close" {...props} />;
 }
 
+export function CorrectIcon(props: IconProps) {
+  return <MaterialDesignIcons name="check" {...props} />;
+}
+
 export function ShareIcon(props: IconProps) {
   return <MaterialDesignIcons name="share-variant" {...props} />;
 }

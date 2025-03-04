@@ -65,6 +65,9 @@ i18n
           Crossword: "Crossword",
           Crossword_Requirements:
             "Requires at least ten unique words longer than four characters and below max confidence.",
+          Short_Answer: "Short Answer",
+          Short_Answer_Requirements:
+            "Requires at least five word definitions below max confidence.",
           Pronunciation_Requirements:
             "Requires at least five words below max confidence with recorded pronunciation.",
 
@@ -76,6 +79,8 @@ i18n
 
           Enter_Guess: "Enter Guess",
           Missing_Definition_brack: "[ Missing Definition ]",
+
+          short_answer_mystery: "????",
 
           Results: "Results",
           Top_Score: "Top Score",

@@ -13,7 +13,6 @@ export type Theme = {
     disabledText: TextStyle;
     poppingText: TextStyle;
     hintScoreText: TextStyle;
-    incorrectScoreText: TextStyle;
     dialog: ViewStyle;
     bottomSheet: ViewStyle;
     dictionaryAddWordButton: ViewStyle;
@@ -72,7 +71,6 @@ type Palette = {
   borders: string;
   definitionBorder: string;
   hintScore: string;
-  incorrectScore: string;
   primary: {
     default: string;
     light: string;
@@ -108,9 +106,6 @@ function createSimpleTheme(colors: Palette): Theme {
       },
       hintScoreText: {
         color: colors.hintScore,
-      },
-      incorrectScoreText: {
-        color: colors.incorrectScore,
       },
       dialog: {
         backgroundColor: colors.popup,
@@ -283,7 +278,6 @@ export const themeConstructors: {
         borders: "#303035",
         definitionBorder: "#09090b",
         hintScore: "#e8a200",
-        incorrectScore: "#b14",
         ripples: {
           popup: "rgba(255,255,255,0.05)",
           primaryButton: "rgba(255,255,255,0.3)",
@@ -312,7 +306,6 @@ export const themeConstructors: {
       borders: "lightgrey",
       definitionBorder: "#eeeef2",
       hintScore: "#ffb200",
-      incorrectScore: "#b14",
       ripples: {
         popup: "rgba(0,0,0,0.05)",
         primaryButton: "rgba(255,255,255,0.3)",
