@@ -1,8 +1,8 @@
 {
   "expo": {
+    "version": "0.12.0",
     "name": "Language Dex",
     "slug": "language-dex",
-    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -13,15 +13,14 @@
       "bundleIdentifier": "dev.arthurcose.languagedex"
     },
     "android": {
+      "versionCode": 27,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#aa33ff"
       },
       "package": "dev.arthurcose.languagedex",
       "softwareKeyboardLayoutMode": "adjustResize",
-      "blockedPermissions": [
-        "com.google.android.gms.permission.AD_ID"
-      ]
+      "blockedPermissions": ["com.google.android.gms.permission.AD_ID"]
     },
     "androidStatusBar": {
       "translucent": true
