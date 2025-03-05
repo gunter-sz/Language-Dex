@@ -40,8 +40,6 @@ import useKeyboardVisible from "@/lib/hooks/use-keyboard-visible";
 
 type GameState = {
   loading: boolean;
-  over: boolean;
-  displayingResults: boolean;
   bagWords: GameWord[];
   bagLen: number;
   activeWord?: GameWord;
@@ -54,8 +52,6 @@ type GameState = {
 function initGameState(words: GameWord[]) {
   const gameState: GameState = {
     loading: true,
-    over: false,
-    displayingResults: false,
     bagWords: words,
     bagLen: words.length,
     activeWords: [],
@@ -216,17 +212,6 @@ export default function () {
     <RouteRoot>
       <SubMenuTopNav>
         <SubMenuBackButton />
-
-        <SubMenuActions>
-          {gameState.over && (
-            <SubMenuIconButton
-              icon={PracticeResultsIcon}
-              onPress={() =>
-                setGameState({ ...gameState, displayingResults: true })
-              }
-            />
-          )}
-        </SubMenuActions>
       </SubMenuTopNav>
 
       <GameTitle>{t("Short_Answer")}</GameTitle>
