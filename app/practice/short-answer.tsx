@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { StyleSheet, View, ScrollView, TextStyle } from "react-native";
+import { StyleSheet, View, TextStyle } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/lib/contexts/theme";
 import { useUserDataContext } from "@/lib/contexts/user-data";
@@ -9,26 +9,22 @@ import { pickIndexWithLenBiased, swapToEnd } from "@/lib/practice/random";
 import { fadeTo } from "@/lib/practice/animations";
 import useGettableState from "@/lib/hooks/use-gettable-state";
 import SubMenuTopNav, {
-  SubMenuActions,
   SubMenuBackButton,
 } from "@/lib/components/sub-menu-top-nav";
 import {
   CorrectScore,
   GameTitle,
   IncorrectScore,
-  Score,
   ScoreRow,
 } from "@/lib/components/practice/info";
 import useWordDefinitions from "@/lib/hooks/use-word-definitions";
 import { Span } from "@/lib/components/text";
-import { PracticeResultsIcon } from "@/lib/components/icons";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
 } from "react-native-reanimated";
 import usePracticeColors from "@/lib/hooks/use-practice-colors";
 import RouteRoot from "@/lib/components/route-root";
-import { SubMenuIconButton } from "@/lib/components/icon-button";
 import { PracticeAd } from "@/lib/components/ads";
 import useAnimationEffects from "@/lib/hooks/use-animation-effects";
 import {
@@ -37,6 +33,7 @@ import {
   DockedTextInputSubmitButton,
 } from "@/lib/components/practice/docked-text-input";
 import useKeyboardVisible from "@/lib/hooks/use-keyboard-visible";
+import { DefinitionBubble } from "@/lib/components/practice/definition-bubbles";
 
 type GameState = {
   loading: boolean;
@@ -227,22 +224,13 @@ export default function () {
         <>
           <Animated.View style={[styles.definitionAndWordBlock, opacityStyle]}>
             <View style={styles.definitionBlock}>
-              <ScrollView
-                style={[
-                  styles.definitionBubble,
-                  theme.styles.definitionBorders,
-                  theme.styles.definitionBackground,
-                ]}
-                contentContainerStyle={styles.definitionContent}
-              >
-                <Span style={styles.definition}>
-                  {
-                    definitionMap[gameState.activeWords[0]]?.definitionsResult
-                      ?.definitions[gameState.activeWord?.orderKey ?? 0]
-                      ?.definition
-                  }
-                </Span>
-              </ScrollView>
+              <DefinitionBubble>
+                {
+                  definitionMap[gameState.activeWords[0]]?.definitionsResult
+                    ?.definitions[gameState.activeWord?.orderKey ?? 0]
+                    ?.definition
+                }
+              </DefinitionBubble>
             </View>
 
             <View style={styles.wordBlock}>
@@ -291,21 +279,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     marginHorizontal: 16,
-  },
-  definitionBubble: {
-    marginVertical: 8,
-    marginHorizontal: "auto",
-    borderWidth: 1,
-    borderRadius: 8,
-    flexGrow: 0,
-  },
-  definitionContent: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  definition: {
-    paddingHorizontal: 24,
-    paddingVertical: 8,
   },
   wordBlock: {
     position: "relative",

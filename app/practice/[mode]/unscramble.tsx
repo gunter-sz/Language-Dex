@@ -3,10 +3,9 @@ import React, {
   useEffect,
   useLayoutEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
-import { StyleSheet, View, ScrollView } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/lib/contexts/theme";
 import { useUserDataContext } from "@/lib/contexts/user-data";
@@ -40,7 +39,6 @@ import {
   ScoreRow,
 } from "@/lib/components/practice/info";
 import useWordDefinitions from "@/lib/hooks/use-word-definitions";
-import { Span } from "@/lib/components/text";
 import CircleButton from "@/lib/components/circle-button";
 import {
   ArrowRightIcon,
@@ -79,6 +77,7 @@ import {
   toGraphemeStrings,
 } from "@/lib/practice/words";
 import useAnimationEffects from "@/lib/hooks/use-animation-effects";
+import { DefinitionBubble } from "@/lib/components/practice/definition-bubbles";
 
 export type UnscrambleGameMode = "endless" | "timed" | "rush";
 export const unscrambleModeList: UnscrambleGameMode[] = [
@@ -624,22 +623,12 @@ export default function () {
       {resolvedAdSize && !gameState.loading && (
         <>
           <Animated.View style={[styles.definitionBlock, opacityStyle]}>
-            <ScrollView
-              style={[
-                styles.definitionBubble,
-                theme.styles.definitionBorders,
-                theme.styles.definitionBackground,
-              ]}
-              contentContainerStyle={styles.definitionContent}
-            >
-              <Span style={styles.definition}>
-                {
-                  definitionMap[gameState.activeWords[0]]?.definitionsResult
-                    ?.definitions[gameState.activeWord?.orderKey ?? 0]
-                    ?.definition
-                }
-              </Span>
-            </ScrollView>
+            <DefinitionBubble>
+              {
+                definitionMap[gameState.activeWords[0]]?.definitionsResult
+                  ?.definitions[gameState.activeWord?.orderKey ?? 0]?.definition
+              }
+            </DefinitionBubble>
           </Animated.View>
 
           <Animated.View style={[styles.chipsBlock, opacityStyle]}>
@@ -743,21 +732,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "flex-end",
     marginHorizontal: 16,
-  },
-  definitionBubble: {
-    marginVertical: 8,
-    marginHorizontal: "auto",
-    borderWidth: 1,
-    borderRadius: 8,
-    flexGrow: 0,
-  },
-  definitionContent: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  definition: {
-    paddingHorizontal: 24,
-    paddingVertical: 8,
   },
   chipsBlock: {
     flex: 1,

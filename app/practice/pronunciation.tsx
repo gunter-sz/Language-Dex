@@ -1,12 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  View,
-  Text,
-  Animated,
-  useAnimatedValue,
-} from "react-native";
+import { StyleSheet, View, Animated, useAnimatedValue } from "react-native";
 import { PracticeAd } from "@/lib/components/ads";
 import RouteRoot from "@/lib/components/route-root";
 import SubMenuTopNav, {
@@ -26,7 +19,6 @@ import {
 } from "@/lib/data";
 import { pickIndexWithLenBiased, swapToEnd } from "@/lib/practice/random";
 import { useUserDataContext } from "@/lib/contexts/user-data";
-import { Span } from "@/lib/components/text";
 import { useTheme } from "@/lib/contexts/theme";
 import { useAudioPlayer } from "expo-audio";
 import CircleButton from "@/lib/components/circle-button";
@@ -43,6 +35,10 @@ import { Saved, ScoreRow, ThumbsUps } from "@/lib/components/practice/info";
 import ConfirmationDialog from "@/lib/components/confirmation-dialog";
 import { useTranslation } from "react-i18next";
 import useAnimationEffects from "@/lib/hooks/use-animation-effects";
+import {
+  DefinitionBubble,
+  WordBubble,
+} from "@/lib/components/practice/definition-bubbles";
 
 type GameState = {
   loading: boolean;
@@ -254,30 +250,8 @@ export default function () {
           <Animated.View
             style={[styles.definitionBlock, { opacity: definitionOpacity }]}
           >
-            <View
-              style={[
-                styles.definitionBubble,
-                theme.styles.definitionBorders,
-                theme.styles.definitionBackground,
-              ]}
-            >
-              <Text style={[theme.styles.text, styles.word, styles.definition]}>
-                {gameState.activeWord?.spelling}
-              </Text>
-            </View>
-
-            <ScrollView
-              style={[
-                styles.definitionBubble,
-                theme.styles.definitionBorders,
-                theme.styles.definitionBackground,
-              ]}
-              contentContainerStyle={styles.definitionContent}
-            >
-              <Span style={styles.definition}>
-                {definitionData?.definition}
-              </Span>
-            </ScrollView>
+            <WordBubble>{gameState.activeWord?.spelling}</WordBubble>
+            <DefinitionBubble>{definitionData?.definition}</DefinitionBubble>
           </Animated.View>
 
           {!gameState.selfReporting ? (
@@ -426,25 +400,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     marginHorizontal: 16,
-  },
-  word: {
-    fontWeight: "bold",
-    fontSize: 18,
-  },
-  definitionBubble: {
-    marginVertical: 8,
-    marginHorizontal: "auto",
-    borderWidth: 1,
-    borderRadius: 8,
-    flexGrow: 0,
-  },
-  definitionContent: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  definition: {
-    paddingHorizontal: 24,
-    paddingVertical: 8,
   },
   bottom: {
     flex: 1,
