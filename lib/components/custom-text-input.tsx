@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { Keyboard, TextInput, TextInputProps } from "react-native";
+import {
+  Keyboard,
+  TextInput,
+  TextInputProps,
+  Text,
+  StyleSheet,
+} from "react-native";
 import { useTheme } from "@/lib/contexts/theme";
 
 export default function CustomTextInput(props: TextInputProps) {
@@ -68,3 +74,25 @@ function useBlurWhenKeyboardHides() {
 
   return textInputRef;
 }
+
+export function TextInputCharacterCount({
+  text,
+  maxLen,
+}: {
+  text: string;
+  maxLen: number;
+}) {
+  const theme = useTheme();
+
+  return (
+    <Text style={[characterCountStyles.style, theme.styles.disabledText]}>
+      {text.length}/{maxLen}
+    </Text>
+  );
+}
+
+const characterCountStyles = StyleSheet.create({
+  style: {
+    marginLeft: "auto",
+  },
+});
