@@ -1010,8 +1010,8 @@ CREATE TABLE files (
     await exportDb.runAsync(
       "INSERT INTO meta (key, data) VALUES ($key, $data)",
       {
-        $key: "",
-        $data: packageMeta.version,
+        $key: "version",
+        $data: userData.version,
       }
     );
 
