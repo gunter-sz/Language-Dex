@@ -25,6 +25,7 @@ export default function RecordAudioButton({
   useEffect(() => {
     return () => {
       recordingRef.current?.release();
+      recordingRef.current = null;
     };
   }, []);
 
@@ -75,7 +76,7 @@ export default function RecordAudioButton({
           // recorder.recordForDuration() is undefined?
           // custom limiter:
           setTimeout(() => {
-            if (recorder.isRecording) {
+            if (recordingRef.current && recorder.isRecording) {
               endRecording();
             }
           }, 5000);
