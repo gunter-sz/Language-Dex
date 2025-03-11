@@ -1,8 +1,10 @@
 export function stripProtocol(path: string): string;
-export function stripProtocol(path: undefined): undefined;
-export function stripProtocol(path: string | undefined): string | undefined;
+export function stripProtocol(path: null | undefined): undefined;
+export function stripProtocol(
+  path: string | null | undefined
+): string | undefined;
 
-export function stripProtocol(path: string | undefined) {
+export function stripProtocol(path: string | undefined | null) {
   if (path == undefined) {
     return;
   }
