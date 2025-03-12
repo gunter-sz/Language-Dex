@@ -19,6 +19,10 @@ import { GameTitle } from "../practice/info";
 import IconButton from "../icon-button";
 import { ShareIcon } from "../icons";
 
+import Cat1 from "@/assets/svgs/Statistics-1.svg";
+import Cat2 from "@/assets/svgs/Statistics-2.svg";
+import CatInteraction from "@/lib/components/cat-interaction";
+
 const statsLists: [string, keyof DictionaryStats][][] = [
   [
     ["Total_Definitions", "definitions"],
@@ -162,6 +166,28 @@ export default function Statistics() {
             dictionaryId={null}
             stats={userData.stats}
           />
+
+          <View style={styles.cats}>
+            <Cat1 width={80} height={80} />
+            <CatInteraction>
+              <Cat2 width={80} height={80} />
+            </CatInteraction>
+          </View>
+
+          <View
+            style={[
+              theme.styles.definitionBackground,
+              theme.styles.definitionBorders,
+              styles.patCounter,
+            ]}
+          >
+            <Span>
+              <Span>{t("label", { label: t("Total_Pats") })} </Span>
+              <Span style={theme.styles.poppingText}>
+                {userData.stats.totalPats ?? 0}
+              </Span>
+            </Span>
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -196,7 +222,19 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     minHeight: "100%",
-    paddingHorizontal: 8,
-    paddingTop: 8,
+    padding: 8,
+  },
+  cats: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "flex-end",
+    marginTop: "auto",
+  },
+  patCounter: {
+    borderRadius: 8,
+    borderWidth: 1,
+    alignSelf: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 4,
   },
 });

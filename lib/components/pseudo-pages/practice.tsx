@@ -17,7 +17,6 @@ import { listGameWords, listWords } from "@/lib/data";
 import { logError } from "@/lib/log";
 import ListPopup from "../list-popup";
 import { LockIcon } from "../icons";
-
 import { definitionMatchModeList } from "@/app/practice/[mode]/definition-match";
 import { unscrambleModeList } from "@/app/practice/[mode]/unscramble";
 import { useUserDataContext } from "@/lib/contexts/user-data";
@@ -36,6 +35,10 @@ import {
   ShortAnswerIcon,
   UseInASentenceIcon,
 } from "../practice/practice-icons";
+
+import Cat1 from "@/assets/svgs/Practice-1.svg";
+import Cat2 from "@/assets/svgs/Practice-2.svg";
+import CatInteraction from "@/lib/components/cat-interaction";
 
 type GameListingProps = {
   label: string;
@@ -241,7 +244,19 @@ export default function () {
 
   return (
     <View style={styles.content}>
-      <GameTitle>{t("Practice")}</GameTitle>
+      <View style={styles.title}>
+        <View style={styles.titleDecoration}>
+          <CatInteraction style={styles.cat}>
+            <Cat1 width={130} height={32} />
+          </CatInteraction>
+        </View>
+
+        <GameTitle>{t("Practice")}</GameTitle>
+
+        <View style={styles.titleDecoration}>
+          <Cat2 style={styles.yarn} width={56} height={32} />
+        </View>
+      </View>
 
       <ScrollView>
         <View style={styles.list} onStartShouldSetResponder={() => true}>
@@ -346,14 +361,35 @@ export default function () {
 }
 
 const styles = StyleSheet.create({
+  title: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "center",
+    gap: 16,
+  },
+  titleDecoration: {
+    position: "relative",
+    top: 14,
+    width: 0,
+  },
+  cat: {
+    position: "absolute",
+    right: 0,
+    bottom: 0,
+  },
+  yarn: {
+    left: 20,
+  },
   content: {
-    gap: 8,
+    gap: 16,
     paddingTop: 8,
     flex: 1,
   },
   list: {
     flexWrap: "wrap",
     padding: 4,
+    paddingTop: 0,
+    marginTop: -4,
   },
   row: {
     flexDirection: "row",
@@ -377,7 +413,9 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
   },
-  label: { paddingBottom: 8 },
+  label: {
+    paddingBottom: 8,
+  },
   lock: {
     position: "absolute",
     right: 2,

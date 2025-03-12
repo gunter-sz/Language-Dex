@@ -1,14 +1,17 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/lib/contexts/theme";
-import { CloseIcon, ConfirmReadyIcon, EditIcon, HistoryIcon } from "../icons";
+import { CloseIcon, ConfirmReadyIcon, EditIcon } from "../icons";
 import CustomTextInput, {
   TextInputCharacterCount,
 } from "@/lib/components/custom-text-input";
 import ScanOutput from "@/lib/components/scan-output";
 import CircleButton from "@/lib/components/circle-button";
 import useKeyboardVisible from "@/lib/hooks/use-keyboard-visible";
+
+import Cat from "@/assets/svgs/Read.svg";
+import CatInteraction from "@/lib/components/cat-interaction";
 
 const MAX_LEN = 2000;
 
@@ -17,7 +20,6 @@ export default function Read() {
   const theme = useTheme();
   const [text, setText] = useState("");
   const [confirmed, setConfirmed] = useState(false);
-  const [displayingHistory, setDisplayingHistory] = useState(false);
   const keyboardVisible = useKeyboardVisible();
 
   return (
@@ -42,39 +44,41 @@ export default function Read() {
 
       {!keyboardVisible && (
         <View style={styles.circleButtonBlock}>
-          {/* <CircleButton
-            style={[styles.circleButton, styles.hidden]} 
-            containerStyle={styles.circleButtonContainer}
-          >
-            <HistoryIcon size={40} color="white" />
-          </CircleButton> */}
-          <View style={styles.circleButtonBlank} />
+          <View style={styles.centeredButtonContainer}>
+            <CatInteraction>
+              <Cat width={64} height={64} />
+            </CatInteraction>
+          </View>
 
-          {text != "" && (
+          <View style={styles.centeredButtonContainer}>
+            {text != "" && (
+              <CircleButton
+                style={styles.circleButton}
+                containerStyle={styles.circleButtonContainer}
+                onPress={() => {
+                  setText("");
+                  setConfirmed(false);
+                }}
+              >
+                <CloseIcon size={40} color="white" />
+              </CircleButton>
+            )}
+          </View>
+
+          <View style={styles.confirmButtonContainer}>
             <CircleButton
               style={styles.circleButton}
               containerStyle={styles.circleButtonContainer}
-              onPress={() => {
-                setText("");
-                setConfirmed(false);
-              }}
+              onPress={() => setConfirmed(!confirmed)}
+              disabled={text.length == 0}
             >
-              <CloseIcon size={40} color="white" />
+              {confirmed ? (
+                <EditIcon size={40} color="white" />
+              ) : (
+                <ConfirmReadyIcon size={40} color="white" />
+              )}
             </CircleButton>
-          )}
-
-          <CircleButton
-            style={styles.circleButton}
-            containerStyle={styles.circleButtonContainer}
-            onPress={() => setConfirmed(!confirmed)}
-            disabled={text.length == 0}
-          >
-            {confirmed ? (
-              <EditIcon size={40} color="white" />
-            ) : (
-              <ConfirmReadyIcon size={40} color="white" />
-            )}
-          </CircleButton>
+          </View>
         </View>
       )}
     </>
@@ -110,5 +114,13 @@ const styles = StyleSheet.create({
   circleButtonBlank: {
     marginHorizontal: 16,
     padding: 20,
+  },
+  centeredButtonContainer: {
+    flex: 1,
+    alignItems: "center",
+  },
+  confirmButtonContainer: {
+    flex: 1,
+    alignItems: "flex-end",
   },
 });

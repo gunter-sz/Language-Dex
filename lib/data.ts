@@ -5,7 +5,6 @@ import { logError } from "./log";
 import Unistring from "@akahuku/unistring";
 import db from "./db";
 import * as Sharing from "expo-sharing";
-import packageMeta from "../package.json";
 import { copyExtension } from "./path";
 import { dataRevisions, migrateUp } from "./migrations";
 
@@ -27,6 +26,11 @@ export type DictionaryStats = {
   documentedMaxConfidence?: number;
   totalPronounced?: number;
 };
+
+export type OverallStats = {
+  // misc
+  totalPats?: number;
+} & DictionaryStats;
 
 export const negatableStats: (keyof DictionaryStats)[] = [
   "definitions",
@@ -68,7 +72,7 @@ export type UserData = {
     relation?: boolean;
   };
   points: number;
-  stats: DictionaryStats;
+  stats: OverallStats;
   activeDictionary: number;
   dictionaries: DictionaryData[];
   nextDictionaryId: number;
