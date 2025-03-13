@@ -27,8 +27,8 @@ import RouteRoot from "@/lib/components/route-root";
 type PercentString = `${number}%`;
 
 export const pages = [
-  { label: "Dictionary", iconComponent: DictionaryIcon, component: Dictionary },
   { label: "Read", iconComponent: ScanIcon, component: Read },
+  { label: "Dictionary", iconComponent: DictionaryIcon, component: Dictionary },
   { label: "Practice", iconComponent: PracticeIcon, component: Practice },
   { label: "Statistics", iconComponent: StatisticsIcon, component: Statistics },
 ];
@@ -41,7 +41,7 @@ export default function () {
     const index = pages.findIndex((p) => p.label == userData.home);
 
     if (index == -1) {
-      return 0;
+      return 1;
     }
 
     return index;
