@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Keyboard, View } from "react-native";
 
 export default function () {
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [keyboardHeight, setKeyboardHeight] = useState(
+    Keyboard.metrics()?.height ?? 0
+  );
 
   useEffect(() => {
     const showListener = Keyboard.addListener("keyboardDidShow", (e) => {

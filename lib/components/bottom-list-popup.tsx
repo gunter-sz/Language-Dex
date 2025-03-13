@@ -7,7 +7,7 @@ import {
   View,
   ViewStyle,
   StyleSheet,
-  Keyboard,
+  ScrollView,
 } from "react-native";
 import {
   BottomSheetScrollView,
@@ -20,6 +20,8 @@ import Animated from "react-native-reanimated";
 import { DropdownIcon } from "@/lib/components/icons";
 import { Span } from "@/lib/components/text";
 import { useTheme } from "@/lib/contexts/theme";
+import useKeyboardVisible from "../hooks/use-keyboard-visible";
+import Dialog from "./dialog";
 
 type Props<T> = {
   style?: StyleProp<ViewStyle>;
@@ -65,12 +67,20 @@ export default function BottomListPopup<T>({
 }: Props<T>) {
   const [open, setOpen] = useState(false);
   const theme = useTheme();
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const [useDialog, setUseDialog] = useState(false);
+  const bottomSheetModalRef = useRef<BottomSheetModal | null>(null);
+  const keyboardOpen = useKeyboardVisible();
 
   useEffect(() => {
     if (!open) {
       return;
     }
+
+    // use a microtask to present the bottom sheet
+    // as we need to wait until the ref is set
+    queueMicrotask(() => {
+      bottomSheetModalRef.current?.present();
+    });
 
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
@@ -83,15 +93,33 @@ export default function BottomListPopup<T>({
     );
 
     return () => backHandler.remove();
-  }, [bottomSheetModalRef, open]);
+  }, [open]);
+
+  const itemElements = items.map((value) => {
+    const label = mapItem(value);
+
+    return (
+      <Pressable
+        key={keyExtractor ? keyExtractor(value) : (value as string)}
+        onPress={() => {
+          bottomSheetModalRef.current?.close();
+          setOpen(false);
+          onChange(value);
+        }}
+        style={styles.row}
+        android_ripple={theme.ripples.popup}
+      >
+        <Span>{label}</Span>
+      </Pressable>
+    );
+  });
 
   return (
     <>
       <Pressable
         style={[styles.button, style]}
         onPress={() => {
-          Keyboard.dismiss();
-          bottomSheetModalRef.current?.present();
+          setUseDialog(keyboardOpen);
           setOpen(true);
         }}
       >
@@ -101,33 +129,23 @@ export default function BottomListPopup<T>({
         </View>
       </Pressable>
 
-      <BottomSheetModal
-        backgroundComponent={CustomBackground}
-        handleComponent={CustomHandle}
-        backdropComponent={CustomBackdrop}
-        onDismiss={() => setOpen(false)}
-        ref={bottomSheetModalRef}
-      >
-        <BottomSheetScrollView>
-          {items.map((value) => {
-            const label = mapItem(value);
-
-            return (
-              <Pressable
-                key={keyExtractor ? keyExtractor(value) : (value as string)}
-                onPress={() => {
-                  bottomSheetModalRef.current?.close();
-                  onChange(value);
-                }}
-                style={styles.row}
-                android_ripple={theme.ripples.popup}
-              >
-                <Span>{label}</Span>
-              </Pressable>
-            );
-          })}
-        </BottomSheetScrollView>
-      </BottomSheetModal>
+      {useDialog ? (
+        <Dialog open={open} onClose={() => setOpen(false)}>
+          <ScrollView keyboardShouldPersistTaps="always">
+            {itemElements}
+          </ScrollView>
+        </Dialog>
+      ) : (
+        <BottomSheetModal
+          backgroundComponent={CustomBackground}
+          handleComponent={CustomHandle}
+          backdropComponent={CustomBackdrop}
+          onDismiss={() => setOpen(false)}
+          ref={bottomSheetModalRef}
+        >
+          <BottomSheetScrollView>{itemElements}</BottomSheetScrollView>
+        </BottomSheetModal>
+      )}
     </>
   );
 }
