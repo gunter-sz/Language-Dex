@@ -1,13 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View, TextStyle } from "react-native";
 import { useTranslation } from "react-i18next";
-import { useTheme } from "@/lib/contexts/theme";
 import { useUserDataContext } from "@/lib/contexts/user-data";
 import { GameWord, listGameWords } from "@/lib/data";
 import { logError } from "@/lib/log";
 import { pickIndexWithLenBiased, swapToEnd } from "@/lib/practice/random";
 import { fadeTo } from "@/lib/practice/animations";
-import useGettableState from "@/lib/hooks/use-gettable-state";
 import SubMenuTopNav, {
   SubMenuBackButton,
 } from "@/lib/components/sub-menu-top-nav";
@@ -84,21 +82,14 @@ function setUpNextRound(gameState: GameState) {
 }
 
 export default function () {
-  const theme = useTheme();
   const practiceColors = usePracticeColors();
   const [t] = useTranslation();
-  const [userData, setUserData] = useUserDataContext();
-  const dictionary = userData.dictionaries.find(
-    (d) => d.id == userData.activeDictionary
-  )!;
+  const [userData] = useUserDataContext();
 
   const [resolvedAdSize, setResolvedAdSize] = useState(false);
   const onAdResize = useCallback(() => setResolvedAdSize(true), []);
 
-  const [allWords, setAllWords] = useState<GameWord[] | null>(null);
-  const [gameState, setGameState, getGameState] = useGettableState(() =>
-    initGameState([])
-  );
+  const [gameState, setGameState] = useState(() => initGameState([]));
 
   const definitionMap = useWordDefinitions(
     userData.activeDictionary,
@@ -114,8 +105,6 @@ export default function () {
   useEffect(() => {
     listGameWords(userData.activeDictionary, { minLength: 2 })
       .then((words) => {
-        setAllWords(words);
-
         const updatedGameState = { ...gameState };
         updatedGameState.loading = false;
         updatedGameState.bagWords = words;
@@ -160,7 +149,8 @@ export default function () {
   const submit = () => {
     setSubmitted(true);
 
-    const correct = pendingGuess.toLowerCase() == gameState.activeWords[0];
+    const correct =
+      pendingGuess.trim().toLowerCase() == gameState.activeWords[0];
 
     if (correct) {
       setSubmissionColor({ color: practiceColors.correct.color });
