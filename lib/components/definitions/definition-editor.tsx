@@ -270,8 +270,11 @@ export default function DefinitionEditor(props: Props) {
         </SubMenuActions>
       </SubMenuTopNav>
 
-      <ScrollView>
-        <View style={styles.scrollViewContent}>
+      <ScrollView contentContainerStyle={styles.scrollViewContentContainer}>
+        <View
+          style={styles.scrollViewContent}
+          onStartShouldSetResponder={() => true}
+        >
           <View style={styles.row}>
             <CustomTextInput
               style={[styles.input, styles.word]}
@@ -486,8 +489,11 @@ export default function DefinitionEditor(props: Props) {
 }
 
 const styles = StyleSheet.create({
+  scrollViewContentContainer: {
+    flexGrow: 1,
+  },
   scrollViewContent: {
-    minHeight: "100%",
+    flexGrow: 1,
   },
   word: {
     fontSize: 24,
