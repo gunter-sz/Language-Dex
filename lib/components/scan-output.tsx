@@ -1,12 +1,13 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { StyleSheet, Text, View, FlatList } from "react-native";
 import { useTheme } from "@/lib/contexts/theme";
 import extractWords from "@/lib/extract-words";
 import { useUserDataContext } from "../contexts/user-data";
 import ScannedWord from "./scanned-word";
-import { updateStatistics } from "../data";
+import { listWords, updateStatistics } from "../data";
 import { isRTL } from "../practice/words";
 import { SegmentationResult } from "@akahuku/unistring";
+import { logError } from "../log";
 
 type Props = {
   text: string;
@@ -27,12 +28,13 @@ function reverseFrom<T>(list: T[], start: number) {
 export default function ScanOutput({ text }: Props) {
   const theme = useTheme();
   const [userData, setUserData] = useUserDataContext();
-  const segments = useMemo(() => {
-    return extractWords(text.toLowerCase());
-  }, [text]);
+  const [segments, setSegments] = useState<SegmentationResult[]>([]);
 
-  // update statistics
   useEffect(() => {
+    const segments = extractWords(text.toLowerCase());
+    setSegments(segments);
+
+    // update statistics
     setUserData((userData) => {
       userData = updateStatistics(userData, (stats) => {
         stats.totalScans = (stats.totalScans ?? 0) + 1;
@@ -41,7 +43,91 @@ export default function ScanOutput({ text }: Props) {
 
       return userData;
     });
-  }, [segments]);
+
+    // second pass to detect compound words such as "ice cream"
+    let cancelled = false;
+
+    const promise = (async () => {
+      const newSegments = [];
+      let different = false;
+
+      outer: for (let i = 0; i < segments.length; i++) {
+        const segment = segments[i];
+
+        if (i == segments.length - 1) {
+          newSegments.push(segment);
+          break;
+        }
+
+        if (cancelled) {
+          break;
+        }
+
+        const nextSegment = segments[i + 1];
+
+        // find all words starting with the smallest compound word
+        // sort by longest as we'll prefer matching the longest compound word
+        const initialSubString = text.slice(
+          segment.rawIndex,
+          nextSegment.rawIndex + nextSegment.text.length
+        );
+        const wordList = await listWords(userData.activeDictionary, {
+          orderBy: "longest",
+          startsWith: initialSubString,
+        });
+
+        for (const word of wordList) {
+          // see if the input text matches the word
+          const matchEndIndex = segment.rawIndex + word.length;
+          const matchSubstring = text.slice(
+            segment.rawIndex,
+            segment.rawIndex + word.length
+          );
+
+          if (matchSubstring.toLowerCase() != word.toLowerCase()) {
+            continue;
+          }
+
+          // resolve how many segments should be replaced by a single segment
+          // along with the new length of this segment
+          let consumedSegments = 2;
+          let length = segment.length + nextSegment.length;
+
+          for (let j = i + consumedSegments; j < segments.length; j++) {
+            const nextSegment = segments[j];
+
+            if (nextSegment.rawIndex >= matchEndIndex) {
+              break;
+            }
+
+            length += nextSegment.length;
+            consumedSegments++;
+          }
+
+          // mark newSegments as different for later
+          different = true;
+          // skip consumed segments, excluding the initial one already considered by the loop
+          i += consumedSegments - 1;
+          // push the new segment
+          newSegments.push({ ...segment, text: matchSubstring, length });
+          continue outer;
+        }
+
+        // fell through
+        newSegments.push(segment);
+      }
+
+      if (!cancelled && different) {
+        setSegments(newSegments);
+      }
+    })();
+
+    promise.catch(logError);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [text]);
 
   const textElement = useMemo(() => {
     // render segments into blocks

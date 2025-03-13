@@ -1,4 +1,4 @@
-import Unistring, { SegmentationResult } from "@akahuku/unistring";
+import Unistring from "@akahuku/unistring";
 
 const UNKNOWN_OR_KANJI = 0;
 const HIRAGANA = Unistring.WBP["Hiragana"];

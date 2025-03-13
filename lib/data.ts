@@ -363,6 +363,7 @@ export async function listWords(
     partOfSpeech?: number | null;
     minLength?: number;
     belowMaxConfidence?: boolean;
+    startsWith?: string;
     limit?: number;
   }
 ) {
@@ -398,6 +399,12 @@ export async function listWords(
   if (options.belowMaxConfidence != undefined) {
     whereClause.push("word.minConfidence < $maxConfidence");
     bindParams.$maxConfidence = maxConfidence;
+  }
+
+  if (options.startsWith != undefined) {
+    whereClause.push("word.insensitiveSpelling LIKE $startsWith");
+    bindParams.$startsWith =
+      options.startsWith.toLowerCase().replace(/\\%_/g, "\\") + "%";
   }
 
   if (whereClause.length > 0) {
