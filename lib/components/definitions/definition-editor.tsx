@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { StyleSheet, View, Text, Pressable, ScrollView } from "react-native";
 import { useTheme } from "@/lib/contexts/theme";
 import { router } from "expo-router";
 import CustomTextInput, {
   CustomMultilineTextInput,
 } from "@/lib/components/custom-text-input";
 import { useTranslation } from "react-i18next";
-import { StyleSheet, View, ScrollView, Text, Pressable } from "react-native";
 import {
   ArrowLeftIcon,
   ConfidenceIcon,
@@ -271,159 +271,154 @@ export default function DefinitionEditor(props: Props) {
       </SubMenuTopNav>
 
       <ScrollView contentContainerStyle={styles.scrollViewContentContainer}>
-        <View
-          style={styles.scrollViewContent}
-          onStartShouldSetResponder={() => true}
-        >
-          <View style={styles.row}>
-            <CustomTextInput
-              style={[styles.input, styles.word]}
-              placeholder={t("word")}
-              value={spelling}
-              onChangeText={setSpelling}
-            />
+        <View style={styles.row}>
+          <CustomTextInput
+            style={[styles.input, styles.word]}
+            placeholder={t("word")}
+            value={spelling}
+            onChangeText={setSpelling}
+          />
 
-            <View style={styles.pronunciationGroup}>
-              <PronunciationEditor
-                saved={!saving}
-                pronunciationUri={
-                  getFileObjectPath(definitionData?.pronunciationAudio) ?? null
+          <View style={styles.pronunciationGroup}>
+            <PronunciationEditor
+              saved={!saving}
+              pronunciationUri={
+                getFileObjectPath(definitionData?.pronunciationAudio) ?? null
+              }
+              setPronunciationUri={(uri) => {
+                if (uri != pronunciationUri) {
+                  setPronunciationUri(uri);
                 }
-                setPronunciationUri={(uri) => {
-                  if (uri != pronunciationUri) {
-                    setPronunciationUri(uri);
-                  }
-                }}
-              />
-
-              <IconButton
-                icon={PlayAudioIcon}
-                disabled={pronunciationUri == undefined}
-                onPress={() => {
-                  audioPlayer
-                    .seekTo(0)
-                    .then(() => {
-                      audioPlayer.play();
-                    })
-                    .catch(logError);
-                }}
-              />
-            </View>
-          </View>
-
-          <View style={theme.styles.separator} />
-
-          <View style={styles.row}>
-            <EducationIcon
-              style={styles.iconLabel}
-              color={theme.colors.iconButton}
-              size={32}
+              }}
             />
 
-            <Text style={[styles.textInput, theme.styles.disabledText]}>
-              {t("Confidence_paren")}
-            </Text>
-
-            <View style={styles.confidenceGroup}>
-              <ConfidenceButton
-                confidence={confidence}
-                representedConfidence={-1}
-                setConfidence={setConfidence}
-              />
-              <ConfidenceButton
-                confidence={confidence}
-                representedConfidence={0}
-                setConfidence={setConfidence}
-              />
-              <ConfidenceButton
-                confidence={confidence}
-                representedConfidence={1}
-                setConfidence={setConfidence}
-              />
-              <ConfidenceButton
-                confidence={confidence}
-                representedConfidence={2}
-                setConfidence={setConfidence}
-              />
-            </View>
-          </View>
-
-          <View style={theme.styles.separator} />
-
-          <View style={styles.row}>
-            <PartOfSpeechIcon
-              style={styles.iconLabel}
-              color={theme.colors.iconButton}
-              size={32}
-            />
-            <PartOfSpeechDropdown
-              style={styles.input}
-              labelStyle={styles.textInput}
-              value={partOfSpeech}
-              onChange={setPartOfSpeech}
+            <IconButton
+              icon={PlayAudioIcon}
+              disabled={pronunciationUri == undefined}
+              onPress={() => {
+                audioPlayer
+                  .seekTo(0)
+                  .then(() => {
+                    audioPlayer.play();
+                  })
+                  .catch(logError);
+              }}
             />
           </View>
-
-          <View style={theme.styles.separator} />
-
-          <View style={styles.row}>
-            <DefinitionIcon
-              style={styles.iconLabel}
-              color={theme.colors.iconButton}
-              size={32}
-            />
-            <CustomMultilineTextInput
-              style={[styles.input, styles.textInput]}
-              verticalPadding={styles.textInput.paddingVertical}
-              minHeight={128}
-              placeholder={t("Definition")}
-              value={definition}
-              onChangeText={setDefinition}
-            />
-          </View>
-
-          <View style={theme.styles.separator} />
-
-          <View style={styles.row}>
-            <ExampleIcon
-              style={styles.iconLabel}
-              color={theme.colors.iconButton}
-              size={32}
-            />
-            <CustomMultilineTextInput
-              style={[styles.input, styles.textInput]}
-              verticalPadding={styles.textInput.paddingVertical}
-              minHeight={128}
-              placeholder={t("Example")}
-              value={example}
-              onChangeText={setExample}
-            />
-          </View>
-
-          <View style={theme.styles.separator} />
-
-          <View style={styles.row}>
-            <NotesIcon
-              style={styles.iconLabel}
-              color={theme.colors.iconButton}
-              size={32}
-            />
-            <CustomMultilineTextInput
-              style={[styles.input, styles.textInput]}
-              verticalPadding={styles.textInput.paddingVertical}
-              minHeight={128}
-              placeholder={t("Notes")}
-              value={notes}
-              onChangeText={setNotes}
-            />
-          </View>
-
-          <View style={theme.styles.separator} />
-
-          <CatInteraction style={styles.cat}>
-            <Cat width={128} height={128} />
-          </CatInteraction>
         </View>
+
+        <View style={theme.styles.separator} />
+
+        <View style={styles.row}>
+          <EducationIcon
+            style={styles.iconLabel}
+            color={theme.colors.iconButton}
+            size={32}
+          />
+
+          <Text style={[styles.textInput, theme.styles.disabledText]}>
+            {t("Confidence_paren")}
+          </Text>
+
+          <View style={styles.confidenceGroup}>
+            <ConfidenceButton
+              confidence={confidence}
+              representedConfidence={-1}
+              setConfidence={setConfidence}
+            />
+            <ConfidenceButton
+              confidence={confidence}
+              representedConfidence={0}
+              setConfidence={setConfidence}
+            />
+            <ConfidenceButton
+              confidence={confidence}
+              representedConfidence={1}
+              setConfidence={setConfidence}
+            />
+            <ConfidenceButton
+              confidence={confidence}
+              representedConfidence={2}
+              setConfidence={setConfidence}
+            />
+          </View>
+        </View>
+
+        <View style={theme.styles.separator} />
+
+        <View style={styles.row}>
+          <PartOfSpeechIcon
+            style={styles.iconLabel}
+            color={theme.colors.iconButton}
+            size={32}
+          />
+          <PartOfSpeechDropdown
+            style={styles.input}
+            labelStyle={styles.textInput}
+            value={partOfSpeech}
+            onChange={setPartOfSpeech}
+          />
+        </View>
+
+        <View style={theme.styles.separator} />
+
+        <View style={styles.row}>
+          <DefinitionIcon
+            style={styles.iconLabel}
+            color={theme.colors.iconButton}
+            size={32}
+          />
+          <CustomMultilineTextInput
+            style={[styles.input, styles.textInput]}
+            verticalPadding={styles.textInput.paddingVertical}
+            minHeight={128}
+            placeholder={t("Definition")}
+            value={definition}
+            onChangeText={setDefinition}
+          />
+        </View>
+
+        <View style={theme.styles.separator} />
+
+        <View style={styles.row}>
+          <ExampleIcon
+            style={styles.iconLabel}
+            color={theme.colors.iconButton}
+            size={32}
+          />
+          <CustomMultilineTextInput
+            style={[styles.input, styles.textInput]}
+            verticalPadding={styles.textInput.paddingVertical}
+            minHeight={128}
+            placeholder={t("Example")}
+            value={example}
+            onChangeText={setExample}
+          />
+        </View>
+
+        <View style={theme.styles.separator} />
+
+        <View style={styles.row}>
+          <NotesIcon
+            style={styles.iconLabel}
+            color={theme.colors.iconButton}
+            size={32}
+          />
+          <CustomMultilineTextInput
+            style={[styles.input, styles.textInput]}
+            verticalPadding={styles.textInput.paddingVertical}
+            minHeight={128}
+            placeholder={t("Notes")}
+            value={notes}
+            onChangeText={setNotes}
+          />
+        </View>
+
+        <View style={theme.styles.separator} />
+
+        <CatInteraction style={styles.cat}>
+          <Cat width={128} height={128} />
+        </CatInteraction>
       </ScrollView>
 
       <ConfirmationDialog
@@ -490,9 +485,6 @@ export default function DefinitionEditor(props: Props) {
 
 const styles = StyleSheet.create({
   scrollViewContentContainer: {
-    flexGrow: 1,
-  },
-  scrollViewContent: {
     flexGrow: 1,
   },
   word: {

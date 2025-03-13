@@ -1,5 +1,5 @@
 import React from "react";
-import { FlatList, Linking, ScrollView, StyleSheet, View } from "react-native";
+import { FlatList, Linking, StyleSheet, View, ScrollView } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { Span } from "@/lib/components/text";
 import SubMenuTopNav, {

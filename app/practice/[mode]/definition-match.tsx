@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useLocalSearchParams } from "expo-router";
 import {
-  Pressable,
-  ScrollView,
   StyleProp,
   StyleSheet,
   View,
   ViewStyle,
+  ScrollView,
 } from "react-native";
+import { useLocalSearchParams } from "expo-router";
 import {
   GameWord,
   listGameWords,

@@ -11,10 +11,10 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { ScrollView, Share, StyleSheet } from "react-native";
 import * as Clipboard from "expo-clipboard";
-import packageMeta from "../package.json";
+import appMeta from "../app.json";
 import RouteRoot from "@/lib/components/route-root";
 
-const logHeader = `version ${packageMeta.version}\n`;
+const logHeader = `version ${appMeta.expo.version}\n`;
 
 export default function () {
   const [t] = useTranslation();

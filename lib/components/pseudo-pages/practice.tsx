@@ -258,91 +258,87 @@ export default function () {
         </View>
       </View>
 
-      <ScrollView>
-        <View style={styles.list} onStartShouldSetResponder={() => true}>
-          <View style={styles.row}>
-            <GameListing
-              label="Definition_Match"
-              icon={DefinitionMatchIcon}
-              style={listingStyles}
-              theme={theme}
-              modes={definitionMatchModeList}
-              lockStatus={matchStatus}
-              setLockDescription={lockCallback}
-              onSelect={(mode) =>
-                router.navigate(`/practice/${mode}/definition-match`)
-              }
-            />
+      <ScrollView contentContainerStyle={styles.list}>
+        <View style={styles.row}>
+          <GameListing
+            label="Definition_Match"
+            icon={DefinitionMatchIcon}
+            style={listingStyles}
+            theme={theme}
+            modes={definitionMatchModeList}
+            lockStatus={matchStatus}
+            setLockDescription={lockCallback}
+            onSelect={(mode) =>
+              router.navigate(`/practice/${mode}/definition-match`)
+            }
+          />
 
-            <GameListing
-              label="Unscramble"
-              icon={UnscrambleIcon}
-              style={listingStyles}
-              theme={theme}
-              lockStatus={unscrambleStatus}
-              setLockDescription={lockCallback}
-              modes={unscrambleModeList}
-              onSelect={(mode) =>
-                router.navigate(`/practice/${mode}/unscramble`)
-              }
-            />
-          </View>
+          <GameListing
+            label="Unscramble"
+            icon={UnscrambleIcon}
+            style={listingStyles}
+            theme={theme}
+            lockStatus={unscrambleStatus}
+            setLockDescription={lockCallback}
+            modes={unscrambleModeList}
+            onSelect={(mode) => router.navigate(`/practice/${mode}/unscramble`)}
+          />
+        </View>
 
-          <View style={styles.row}>
-            <GameListing
-              label="Guess_the_Word"
-              icon={GuessTheWordIcon}
-              style={listingStyles}
-              theme={theme}
-              lockStatus={guessStatus}
-              setLockDescription={lockCallback}
-              href="/practice/guess-the-word"
-            />
+        <View style={styles.row}>
+          <GameListing
+            label="Guess_the_Word"
+            icon={GuessTheWordIcon}
+            style={listingStyles}
+            theme={theme}
+            lockStatus={guessStatus}
+            setLockDescription={lockCallback}
+            href="/practice/guess-the-word"
+          />
 
-            <GameListing
-              label="Crossword"
-              icon={CrosswordIcon}
-              style={listingStyles}
-              theme={theme}
-              lockStatus={crosswordStatus}
-              setLockDescription={lockCallback}
-              href="/practice/crossword"
-            />
-          </View>
+          <GameListing
+            label="Crossword"
+            icon={CrosswordIcon}
+            style={listingStyles}
+            theme={theme}
+            lockStatus={crosswordStatus}
+            setLockDescription={lockCallback}
+            href="/practice/crossword"
+          />
+        </View>
 
-          <View style={styles.row}>
-            <GameListing
-              label="Short_Answer"
-              icon={ShortAnswerIcon}
-              style={listingStyles}
-              theme={theme}
-              lockStatus={shortAnswerStatus}
-              setLockDescription={lockCallback}
-              href="/practice/short-answer"
-            />
+        <View style={styles.row}>
+          <GameListing
+            label="Short_Answer"
+            icon={ShortAnswerIcon}
+            style={listingStyles}
+            theme={theme}
+            lockStatus={shortAnswerStatus}
+            setLockDescription={lockCallback}
+            href="/practice/short-answer"
+          />
 
-            <GameListing
-              label="Use_in_a_Sentence"
-              icon={UseInASentenceIcon}
-              style={listingStyles}
-              theme={theme}
-              lockStatus={useInASentenceStatus}
-              setLockDescription={lockCallback}
-              href="/practice/use-in-a-sentence"
-            />
-          </View>
+          <GameListing
+            label="Use_in_a_Sentence"
+            icon={UseInASentenceIcon}
+            style={listingStyles}
+            theme={theme}
+            lockStatus={useInASentenceStatus}
+            setLockDescription={lockCallback}
+            href="/practice/use-in-a-sentence"
+          />
+        </View>
 
-          <View style={styles.row}>
-            <GameListing
-              label="Pronunciation"
-              icon={PronunciationIcon}
-              style={listingStyles}
-              theme={theme}
-              lockStatus={pronunciationStatus}
-              setLockDescription={lockCallback}
-              href="/practice/pronunciation"
-            />
-          </View>
+        <View style={styles.row}>
+          <GameListing
+            label="Pronunciation"
+            icon={PronunciationIcon}
+            style={listingStyles}
+            theme={theme}
+            lockStatus={pronunciationStatus}
+            setLockDescription={lockCallback}
+            href="/practice/pronunciation"
+          />
         </View>
       </ScrollView>
 
@@ -386,9 +382,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   list: {
-    flexWrap: "wrap",
     padding: 4,
-    paddingTop: 0,
+    paddingVertical: 0,
     marginTop: -4,
   },
   row: {

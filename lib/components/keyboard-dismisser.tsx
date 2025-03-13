@@ -1,12 +1,18 @@
-import { Keyboard, Pressable, StyleProp, ViewStyle } from "react-native";
+import { Keyboard, StyleProp, View, ViewStyle } from "react-native";
 
 export default function KeyboardDismisser({
   children,
 }: React.PropsWithChildren) {
   return (
-    <Pressable style={style} onPress={Keyboard.dismiss} accessible={false}>
+    <View
+      style={style}
+      onStartShouldSetResponder={() => {
+        Keyboard.dismiss();
+        return false;
+      }}
+    >
       {children}
-    </Pressable>
+    </View>
   );
 }
 

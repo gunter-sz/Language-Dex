@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
-  ScrollView,
   StyleProp,
   ViewStyle,
   Share,
+  ScrollView,
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/lib/contexts/theme";
@@ -144,50 +144,45 @@ export default function Statistics() {
     <View style={styles.content}>
       <GameTitle>{t("Statistics")}</GameTitle>
 
-      <ScrollView>
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <StatsBlock
+          style={blockStyles}
+          theme={theme}
+          label={dictionary.name}
+          version={version}
+          dictionaryId={userData.activeDictionary}
+          stats={dictionary.stats}
+        />
+
+        <StatsBlock
+          style={blockStyles}
+          theme={theme}
+          label={t("Overall")}
+          version={version}
+          dictionaryId={null}
+          stats={userData.stats}
+        />
+
+        <View style={styles.cats}>
+          <Cat1 width={80} height={80} />
+          <CatInteraction>
+            <Cat2 width={80} height={80} />
+          </CatInteraction>
+        </View>
+
         <View
-          style={styles.scrollViewContent}
-          onStartShouldSetResponder={() => true}
+          style={[
+            theme.styles.definitionBackground,
+            theme.styles.definitionBorders,
+            styles.patCounter,
+          ]}
         >
-          <StatsBlock
-            style={blockStyles}
-            theme={theme}
-            label={dictionary.name}
-            version={version}
-            dictionaryId={userData.activeDictionary}
-            stats={dictionary.stats}
-          />
-
-          <StatsBlock
-            style={blockStyles}
-            theme={theme}
-            label={t("Overall")}
-            version={version}
-            dictionaryId={null}
-            stats={userData.stats}
-          />
-
-          <View style={styles.cats}>
-            <Cat1 width={80} height={80} />
-            <CatInteraction>
-              <Cat2 width={80} height={80} />
-            </CatInteraction>
-          </View>
-
-          <View
-            style={[
-              theme.styles.definitionBackground,
-              theme.styles.definitionBorders,
-              styles.patCounter,
-            ]}
-          >
-            <Span>
-              <Span>{t("label", { label: t("Total_Pats") })} </Span>
-              <Span style={theme.styles.poppingText}>
-                {userData.stats.totalPats ?? 0}
-              </Span>
+          <Span>
+            <Span>{t("label", { label: t("Total_Pats") })} </Span>
+            <Span style={theme.styles.poppingText}>
+              {userData.stats.totalPats ?? 0}
             </Span>
-          </View>
+          </Span>
         </View>
       </ScrollView>
     </View>
@@ -221,7 +216,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   scrollViewContent: {
-    minHeight: "100%",
+    flexGrow: 1,
     padding: 8,
   },
   cats: {

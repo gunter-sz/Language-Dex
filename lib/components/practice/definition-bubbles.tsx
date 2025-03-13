@@ -1,5 +1,5 @@
 import { useTheme } from "@/lib/contexts/theme";
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { Span } from "../text";
 
 export function WordBubble({ children }: React.PropsWithChildren) {
