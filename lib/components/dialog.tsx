@@ -146,10 +146,9 @@ export default function Dialog({
               dialogStyle,
               allowOverflow && styles.overflowAllowed,
             ]}
+            onStartShouldSetResponder={onStartShouldSetResponder}
           >
-            <Pressable style={styles.innerPressable}>
-              {!closed && children}
-            </Pressable>
+            {!closed && children}
           </Animated.View>
 
           <KeyboardSpacer />
@@ -158,6 +157,8 @@ export default function Dialog({
     </Portal>
   );
 }
+
+const onStartShouldSetResponder = () => true;
 
 const styles = StyleSheet.create({
   backdrop: {
