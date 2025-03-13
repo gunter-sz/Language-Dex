@@ -148,14 +148,16 @@ export default function ScanOutput({ text }: Props) {
         style={styles.scrollView}
         data={textBlocks}
         renderItem={({ item }) => (
-          <Text
-            style={{
-              textAlign: rtl ? "right" : "left",
-              flexWrap: "wrap",
-            }}
-          >
-            {item}
-          </Text>
+          <View onStartShouldSetResponder={() => true}>
+            <Text
+              style={{
+                textAlign: rtl ? "right" : "left",
+                flexWrap: "wrap",
+              }}
+            >
+              {item}
+            </Text>
+          </View>
         )}
         ListFooterComponent={() => <View style={styles.footer} />}
       />
