@@ -139,17 +139,19 @@ export default function Dialog({
         <Pressable style={styles.backdropButton} onPress={onClose}>
           <View style={{ height: insets.top }} />
 
-          <Animated.View
-            style={[
-              styles.dialog,
-              theme.styles.dialog,
-              dialogStyle,
-              allowOverflow && styles.overflowAllowed,
-            ]}
-            onStartShouldSetResponder={onStartShouldSetResponder}
-          >
-            {!closed && children}
-          </Animated.View>
+          <View style={styles.dialogContainer}>
+            <View
+              style={[
+                styles.dialog,
+                theme.styles.dialog,
+                dialogStyle,
+                allowOverflow && styles.overflowAllowed,
+              ]}
+              onStartShouldSetResponder={onStartShouldSetResponder}
+            >
+              {!closed && children}
+            </View>
+          </View>
 
           <KeyboardSpacer />
         </Pressable>
@@ -177,6 +179,10 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "stretch",
+  },
+  dialogContainer: {
+    flex: 1,
+    justifyContent: "center",
   },
   dialog: {
     position: "relative",
