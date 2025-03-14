@@ -287,6 +287,8 @@ export default function EditableListPopup<T>({
             )}
             cellAnimations={{ scale: false }}
             keyExtractor={keyExtractor}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="none"
           />
         ) : (
           <VirtualizedList
@@ -335,6 +337,8 @@ export default function EditableListPopup<T>({
             )}
             getItemCount={() => list.length}
             keyExtractor={keyExtractor}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="none"
           />
         )}
 
