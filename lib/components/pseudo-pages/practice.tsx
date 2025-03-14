@@ -229,7 +229,6 @@ export default function () {
 
     testLock(setPronunciationStatus, listGameWords, userData.activeDictionary, {
       limit: 5,
-      requirePronunciation: true,
     });
   }, [userData.activeDictionary, dictionaryVersion]);
 

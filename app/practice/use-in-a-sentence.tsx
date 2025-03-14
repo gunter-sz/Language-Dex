@@ -18,7 +18,6 @@ import CustomTextInput, {
   TextInputCharacterCount,
 } from "@/lib/components/custom-text-input";
 import { GameWord, listGameWords, upsertDefinition } from "@/lib/data";
-import useGettableState from "@/lib/hooks/use-gettable-state";
 import useWordDefinitions, {
   invalidateWordDefinitions,
 } from "@/lib/hooks/use-word-definitions";
@@ -34,7 +33,6 @@ import {
   ArrowDownIcon,
   ArrowRightIcon,
   CloseIcon,
-  ConfirmReadyIcon,
   SaveIcon,
 } from "@/lib/components/icons";
 import useKeyboardVisible from "@/lib/hooks/use-keyboard-visible";
@@ -48,6 +46,7 @@ import {
   ConfirmationDialogAction,
   ConfirmationDialogActions,
 } from "@/lib/components/confirmation-dialog";
+import SkipButton from "@/lib/components/practice/skip-button";
 
 const MAX_LEN = 100;
 
@@ -110,9 +109,7 @@ export default function () {
 
   const [sentence, setSentence] = useState("");
 
-  const [gameState, setGameState, getGameState] = useGettableState(() =>
-    initGameState([])
-  );
+  const [gameState, setGameState] = useState(() => initGameState([]));
   const definitionMap = useWordDefinitions(
     userData.activeDictionary,
     gameState.activeWords
@@ -149,7 +146,7 @@ export default function () {
 
     fadeTo(opacity, 0, () => {
       setGameState((gameState) => {
-        gameState = { ...gameState, score: gameState.score + 1 };
+        gameState = { ...gameState };
         setUpNextRound(gameState);
         return gameState;
       });
@@ -208,31 +205,48 @@ export default function () {
       </View>
 
       {!keyboardVisible && (
-        <View style={styles.buttonsBlock}>
-          <CircleButton
-            style={[styles.circleButton]}
-            disabled={sentence.length == 0}
-            onPress={() => setSaveDialogOpen(true)}
-          >
-            <SaveIcon size={48} color={theme.colors.primary.contrast} />
-          </CircleButton>
+        <>
+          <View style={styles.buttonsBlock}>
+            <View style={styles.buttonsRow}>
+              <CircleButton
+                style={[styles.circleButton]}
+                disabled={sentence.length == 0}
+                onPress={() => setSaveDialogOpen(true)}
+              >
+                <SaveIcon size={48} color={theme.colors.primary.contrast} />
+              </CircleButton>
 
-          <CircleButton
-            style={[styles.circleButton]}
-            disabled={sentence.length == 0}
-            onPress={() => setSentence("")}
-          >
-            <CloseIcon size={48} color={theme.colors.primary.contrast} />
-          </CircleButton>
+              <CircleButton
+                style={[styles.circleButton]}
+                disabled={sentence.length == 0}
+                onPress={() => setSentence("")}
+              >
+                <CloseIcon size={48} color={theme.colors.primary.contrast} />
+              </CircleButton>
 
-          <CircleButton
-            style={[styles.circleButton]}
-            disabled={sentence.length == 0 || transitioning}
-            onPress={advance}
-          >
-            <ArrowRightIcon size={48} color={theme.colors.primary.contrast} />
-          </CircleButton>
-        </View>
+              <CircleButton
+                style={[styles.circleButton]}
+                disabled={sentence.length == 0 || transitioning}
+                onPress={() => {
+                  advance();
+                  setGameState((gameState) => ({
+                    ...gameState,
+                    score: gameState.score + 1,
+                  }));
+                }}
+              >
+                <ArrowRightIcon
+                  size={48}
+                  color={theme.colors.primary.contrast}
+                />
+              </CircleButton>
+            </View>
+
+            <View style={styles.buttonsRow}>
+              <SkipButton onPress={() => advance()} />
+            </View>
+          </View>
+        </>
       )}
 
       <Dialog
@@ -279,6 +293,7 @@ export default function () {
                 setGameState((gameState) => ({
                   ...gameState,
                   saveCount: gameState.saveCount + 1,
+                  score: gameState.score + 1,
                 }));
 
                 advance(() => {
@@ -328,6 +343,10 @@ const styles = StyleSheet.create({
   },
   buttonsBlock: {
     margin: 16,
+    gap: 16,
+    justifyContent: "space-evenly",
+  },
+  buttonsRow: {
     flexDirection: "row",
     justifyContent: "space-evenly",
   },
@@ -339,5 +358,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     gap: 8,
     alignItems: "center",
+  },
+  skip: {
+    alignSelf: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
 });

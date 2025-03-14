@@ -15,6 +15,7 @@ import {
   getFileObjectPath,
   listGameWords,
   prepareNewPronunciation,
+  updateStatistics,
   upsertDefinition,
 } from "@/lib/data";
 import { pickIndexWithLenBiased, swapToEnd } from "@/lib/practice/random";
@@ -40,6 +41,7 @@ import {
   WordBubble,
 } from "@/lib/components/practice/definition-bubbles";
 import { stripProtocol } from "@/lib/path";
+import SkipButton from "@/lib/components/practice/skip-button";
 
 type GameState = {
   loading: boolean;
@@ -94,7 +96,7 @@ function setUpNextRound(gameState: GameState) {
 
 export default function () {
   const theme = useTheme();
-  const [userData] = useUserDataContext();
+  const [userData, setUserData] = useUserDataContext();
   const [t] = useTranslation();
 
   const [resolvedAdSize, setResolvedAdSize] = useState(false);
@@ -109,9 +111,7 @@ export default function () {
   );
 
   useEffect(() => {
-    listGameWords(userData.activeDictionary, {
-      requirePronunciation: true,
-    })
+    listGameWords(userData.activeDictionary)
       .then((words) => {
         const updatedGameState = { ...gameState };
         updatedGameState.loading = false;
@@ -173,12 +173,18 @@ export default function () {
         fadeTo(definitionOpacity, 0);
       }
 
-      fadeTo(inputOpacity, 0, () => {
+      // little hack to simplify code
+      // we don't need to animate input opacity when skipping,
+      // but consistently animating it allows us to keep mid transition logic in one place
+      const skipping = transitionRound && !gameState.selfReporting;
+      const inputOpacityTarget = skipping ? 1 : 0;
+
+      fadeTo(inputOpacity, inputOpacityTarget, () => {
         // swap view by toggling selfReporting
         setGameState((gameState) => {
           gameState = {
             ...gameState,
-            selfReporting: !gameState.selfReporting,
+            selfReporting: !transitionRound && !gameState.selfReporting,
             currentReport: undefined,
             savedRecording: false,
           };
@@ -260,6 +266,8 @@ export default function () {
                 ignoreInput={transitioning}
                 onEnd={submitRecording}
               />
+
+              <SkipButton onPress={() => submitSelfReport(false)} />
             </Animated.View>
           ) : (
             <Animated.View style={[styles.bottom, { opacity: inputOpacity }]}>
@@ -351,8 +359,8 @@ export default function () {
       )}
 
       <ConfirmationDialog
-        title={t("Overwrite")}
-        description={t("Overwrite_Pronunciation_Desc")}
+        title={t("Save_Pronunciation")}
+        description={t("Save_Pronunciation_Desc")}
         open={saveDialogOpen}
         onConfirm={async () => {
           try {
@@ -374,6 +382,15 @@ export default function () {
                 spelling: definitionData!.spelling,
                 pronunciationAudio: preparedPronunciation.pronunciationAudio,
               });
+            }
+
+            if (definitionData?.pronunciationAudio == undefined) {
+              // update statistics if this is new audio
+              setUserData((userData) =>
+                updateStatistics(userData, (stats) => {
+                  stats.totalPronounced = (stats.totalPronounced ?? 0) + 1;
+                })
+              );
             }
 
             // finalize pronunciation

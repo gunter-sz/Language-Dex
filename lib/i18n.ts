@@ -55,7 +55,7 @@ i18n
           Practice: "Practice",
           Definition_Match: "Definition Match",
           Definition_Match_Requirements:
-            "Requires at least three word definitions below max confidence.",
+            "Requires at least three definitions below max confidence.",
           Unscramble: "Unscramble",
           Unscramble_Requirements:
             "Requires at least five words longer than one character and below max confidence.",
@@ -67,12 +67,12 @@ i18n
             "Requires at least ten unique words longer than four characters and below max confidence.",
           Short_Answer: "Short Answer",
           Short_Answer_Requirements:
-            "Requires at least five word definitions below max confidence.",
+            "Requires at least five definitions below max confidence.",
           Use_in_a_Sentence: "Use in a Sentence",
           Use_in_a_Sentence_Requirements:
-            "Requires at least five word definitions below max confidence.",
+            "Requires at least five definitions below max confidence.",
           Pronunciation_Requirements:
-            "Requires at least five words below max confidence with recorded pronunciation.",
+            "Requires at least five definitions below max confidence.",
 
           Locked: "Locked",
 
@@ -83,6 +83,7 @@ i18n
           Enter_Guess: "Enter Guess",
           Enter_Word: "Enter Word",
           Missing_Definition_brack: "[ Missing Definition ]",
+          skip_question: "Skip",
 
           short_answer_mystery: "????",
           use_in_a_sentence_placeholder: "Write a sentence",
@@ -138,9 +139,9 @@ i18n
           An_error_occurred: "An error occurred!",
           Success_exclamation: "Success!",
 
-          Overwrite: "Overwrite",
-          Overwrite_Pronunciation_Desc:
-            "This will replace the existing pronunciation audio with the recorded audio.",
+          Save_Pronunciation: "Save Pronunciation",
+          Save_Pronunciation_Desc:
+            "Save this recording as the pronunciation for this definition?",
 
           Save_Sentence_as_Example: "Save as Example",
           Save_Sentence_as_Example_Desc:
