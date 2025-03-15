@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "@/lib/contexts/theme";
 import { Span } from "../text";
 import { useUserDataContext } from "@/lib/contexts/user-data";
-import { DictionaryStats, listWords } from "@/lib/data";
+import { DictionaryStats, listWords, UserData } from "@/lib/data";
 import { Theme } from "@/lib/themes";
 import { logError } from "@/lib/log";
 import { useDictionaryVersioning } from "@/lib/hooks/use-word-definitions";
@@ -93,8 +93,8 @@ function StatsBlock({
 
   return (
     <View style={style}>
-      <View style={styles.blockBody}>
-        <Span style={[styles.blockHeader, theme.styles.poppingText]}>
+      <View style={styles.statsBody}>
+        <Span style={[styles.statsHeader, theme.styles.poppingText]}>
           {t("label", { label })}
         </Span>
 
@@ -127,6 +127,36 @@ function StatsBlock({
   );
 }
 
+function PatsBlock({ theme, userData }: { theme: Theme; userData: UserData }) {
+  const [t] = useTranslation();
+
+  return (
+    <View style={styles.patsBlock}>
+      <View style={styles.cats}>
+        <Cat1 width={80} height={80} />
+        <CatInteraction>
+          <Cat2 width={80} height={80} />
+        </CatInteraction>
+      </View>
+
+      <View
+        style={[
+          theme.styles.definitionBackground,
+          theme.styles.definitionBorders,
+          styles.patCounter,
+        ]}
+      >
+        <Span>
+          <Span>{t("label", { label: t("Total_Pats") })} </Span>
+          <Span style={theme.styles.poppingText}>
+            {userData.stats.totalPats ?? 0}
+          </Span>
+        </Span>
+      </View>
+    </View>
+  );
+}
+
 export default function Statistics() {
   const [t] = useTranslation();
   const theme = useTheme();
@@ -140,7 +170,7 @@ export default function Statistics() {
   const blockStyles = [
     theme.styles.definitionBackground,
     theme.styles.definitionBorders,
-    styles.block,
+    styles.statsBlock,
   ];
 
   return (
@@ -166,27 +196,7 @@ export default function Statistics() {
           stats={userData.stats}
         />
 
-        <View style={styles.cats}>
-          <Cat1 width={80} height={80} />
-          <CatInteraction>
-            <Cat2 width={80} height={80} />
-          </CatInteraction>
-        </View>
-
-        <View
-          style={[
-            theme.styles.definitionBackground,
-            theme.styles.definitionBorders,
-            styles.patCounter,
-          ]}
-        >
-          <Span>
-            <Span>{t("label", { label: t("Total_Pats") })} </Span>
-            <Span style={theme.styles.poppingText}>
-              {userData.stats.totalPats ?? 0}
-            </Span>
-          </Span>
-        </View>
+        <PatsBlock theme={theme} userData={userData} />
       </ScrollView>
     </View>
   );
@@ -199,20 +209,20 @@ const styles = StyleSheet.create({
     paddingBottom: 0,
     gap: 8,
   },
-  block: {
+  statsBlock: {
     borderRadius: 8,
     borderWidth: 1,
     marginBottom: 16,
     flexDirection: "row",
     alignItems: "flex-start",
   },
-  blockBody: {
+  statsBody: {
     paddingTop: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     flex: 1,
   },
-  blockHeader: {
+  statsHeader: {
     marginBottom: 2,
   },
   lists: {
@@ -222,11 +232,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 8,
   },
+  patsBlock: {
+    marginTop: "auto",
+  },
   cats: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "flex-end",
-    marginTop: "auto",
   },
   patCounter: {
     borderRadius: 8,
