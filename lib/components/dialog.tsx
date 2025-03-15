@@ -103,13 +103,10 @@ export default function Dialog({
     });
   }, [open]);
 
-  const backdropStyle = useAnimatedStyle(
-    () => ({
-      opacity: progress.value,
-      display: closed ? "none" : "flex",
-    }),
-    [closed]
-  );
+  const backdropStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+    display: closing.value && progress.value == 0 ? "none" : "flex",
+  }));
 
   const dialogStyle = useAnimatedStyle(() => {
     function lerp(start: number, end: number, progress: number) {

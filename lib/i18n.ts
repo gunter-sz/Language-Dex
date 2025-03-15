@@ -101,8 +101,10 @@ i18n
           // statistics
           Overall: "Overall",
           Longest_Word: "Longest_Word",
-          Total_Definitions: "Total Definitions",
-          Total_Pronounced: "Total Pronunciations",
+          Total_Definitions: "Definitions",
+          Total_Examples: "Examples",
+          Total_Pronounced: "Pronunciations",
+          Total_Max_Confidence: "Maxed Confidence",
           Words_Read: "Words Read",
           Excerpts_Read: "Excerpts Read",
           Words_Matched: "Words Matched",

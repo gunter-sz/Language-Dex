@@ -26,7 +26,9 @@ import CatInteraction from "@/lib/components/cat-interaction";
 const statsLists: [string, keyof DictionaryStats][][] = [
   [
     ["Total_Definitions", "definitions"],
+    ["Total_Examples", "totalExamples"],
     ["Total_Pronounced", "totalPronounced"],
+    ["Total_Max_Confidence", "documentedMaxConfidence"],
   ],
   [
     ["Excerpts_Read", "totalScans"],

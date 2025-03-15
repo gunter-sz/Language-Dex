@@ -194,7 +194,6 @@ export default function () {
                 userData,
                 (userData) => {
                   setUserData(userData);
-                  bumpDictionaryVersion();
                 },
                 asset.uri,
                 progressCallback
@@ -206,6 +205,7 @@ export default function () {
                 })
                 .finally(() => {
                   setLongTaskCompleted(true);
+                  bumpDictionaryVersion();
                 });
             })
             .catch(logError);
@@ -323,7 +323,10 @@ export default function () {
             style={styles.row}
             android_ripple={theme.ripples.transparentButton}
             onPress={() => {
+              const totalWords = 5000;
+
               const updatedData = { ...userData };
+              updatedData.updatingStats = true;
               updatedData.dictionaries = [...updatedData.dictionaries];
 
               const dictionaryId = updatedData.nextDictionaryId++;
@@ -333,7 +336,9 @@ export default function () {
                 id: dictionaryId,
                 partsOfSpeech: [],
                 nextPartOfSpeechId: 0,
-                stats: {},
+                stats: {
+                  definitions: totalWords,
+                },
               });
 
               setUserData(updatedData);
@@ -344,7 +349,6 @@ export default function () {
               setLongTaskProgress(0);
               setLongTaskCompleted(false);
 
-              const totalWords = 5000;
               const updateProgress = throttle(
                 progressThrottleMs,
                 (i: number) => {
@@ -378,6 +382,11 @@ export default function () {
 
                 setLongTaskMessage("Success");
                 setLongTaskCompleted(true);
+
+                setUserData((userData) => ({
+                  ...userData,
+                  updatingStats: false,
+                }));
               };
 
               longTask().catch(logError);

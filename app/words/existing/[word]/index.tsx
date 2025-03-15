@@ -27,7 +27,9 @@ import ReorderableList, {
 import {
   deleteWord,
   DictionaryData,
+  DictionaryWordStatKey,
   getFileObjectPath,
+  maxConfidence,
   namePartOfSpeech,
   updateDefinitionOrderKey,
   updateStatistics,
@@ -243,6 +245,15 @@ export default function Word() {
           invalidateWordDefinitions(userData.activeDictionary, word);
 
           // update statistics
+          const wordStatList: [
+            DictionaryWordStatKey,
+            (definition: WordDefinitionData) => boolean
+          ][] = [
+            ["documentedMaxConfidence", (d) => d.confidence == maxConfidence],
+            ["totalExamples", (d) => d.example != ""],
+            ["totalPronounced", (d) => d.pronunciationAudio != undefined],
+          ];
+
           setUserData((userData) => {
             userData = updateStatistics(userData, (stats) => {
               if (stats.definitions != undefined) {
@@ -250,16 +261,13 @@ export default function Word() {
                 stats.definitions = Math.max(stats.definitions - count, 0);
               }
 
-              if (stats.totalPronounced != undefined) {
-                const count =
-                  savedDefinitions?.filter(
-                    (d) => d.pronunciationAudio != undefined
-                  ).length ?? 0;
+              for (const [statKey, filter] of wordStatList) {
+                if (typeof stats[statKey] != "number") {
+                  continue;
+                }
 
-                stats.totalPronounced = Math.max(
-                  stats.totalPronounced - count,
-                  0
-                );
+                const count = savedDefinitions?.filter(filter).length ?? 0;
+                stats[statKey] = Math.max(stats[statKey] - count, 0);
               }
             });
 

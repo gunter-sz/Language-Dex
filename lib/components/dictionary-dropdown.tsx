@@ -90,12 +90,16 @@ export default function DictionaryDropdown({
             return;
           }
 
+          setUserData((userData) => ({ ...userData, updatingStats: true }));
+
           const id = deleteItem.id;
           await deleteDictionary(id);
 
           // make sure we're updating the latest userData since this is happening asynchronously
           setUserData((userData) => {
             userData = { ...userData };
+            userData.updatingStats = false;
+
             const i = userData.dictionaries.findIndex((d) => d.id == id);
             const [dictionary] = userData.dictionaries.splice(i, 1);
 

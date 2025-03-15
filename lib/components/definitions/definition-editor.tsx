@@ -30,8 +30,11 @@ import ConfirmationDialog, {
 } from "@/lib/components/confirmation-dialog";
 import {
   deleteDefinition,
+  DictionaryWordStatKey,
   getFileObjectPath,
+  maxConfidence,
   prepareNewPronunciation,
+  resolveStatIncrease,
   updateStatistics,
   upsertDefinition,
 } from "@/lib/data";
@@ -182,27 +185,35 @@ export default function DefinitionEditor(props: Props) {
 
       // update statistics
       const newDefinition = props.definitionId == undefined;
-      const hadPronunciation = definitionData?.pronunciationAudio != undefined;
-      const hasNewPronunciation =
-        preparedPronunciation.pronunciationAudio != undefined;
-      let pronunciationIncrease = 0;
+      const statChanges: [DictionaryWordStatKey, number][] = [
+        ["definitions", newDefinition ? 1 : 0],
+        [
+          "documentedMaxConfidence",
+          resolveStatIncrease(
+            confidence == maxConfidence,
+            defaultConfidence == maxConfidence
+          ),
+        ],
+        [
+          "totalExamples",
+          resolveStatIncrease(example != "", defaultExample != ""),
+        ],
+        [
+          "totalPronounced",
+          resolveStatIncrease(
+            preparedPronunciation.pronunciationAudio != undefined,
+            defaultPronunciationUri != undefined
+          ),
+        ],
+      ];
 
-      if (hadPronunciation && !hasNewPronunciation) {
-        pronunciationIncrease = -1;
-      } else if (!hadPronunciation && hasNewPronunciation) {
-        pronunciationIncrease = 1;
-      }
+      console.log(statChanges);
 
       setUserData((userData) => {
         userData = updateStatistics(userData, (stats) => {
-          if (newDefinition) {
-            stats.definitions = (stats.definitions ?? 0) + 1;
+          for (const [statKey, increase] of statChanges) {
+            stats[statKey] = Math.max((stats[statKey] ?? 0) + increase, 0);
           }
-
-          stats.totalPronounced = Math.max(
-            (stats.totalPronounced ?? 0) + pronunciationIncrease,
-            0
-          );
         });
 
         return userData;
@@ -443,6 +454,13 @@ export default function DefinitionEditor(props: Props) {
               userData = updateStatistics(userData, (stats) => {
                 if (stats.definitions != undefined) {
                   stats.definitions = Math.max(stats.definitions - 1, 0);
+                }
+
+                if (
+                  definitionData?.example != undefined &&
+                  stats.totalExamples != undefined
+                ) {
+                  stats.totalExamples = Math.max(stats.totalExamples - 1, 0);
                 }
 
                 if (

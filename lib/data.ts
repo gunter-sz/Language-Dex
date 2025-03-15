@@ -10,6 +10,12 @@ import { dataRevisions, migrateUp } from "./migrations";
 
 type FileName = string;
 
+export type DictionaryWordStatKey =
+  | "definitions"
+  | "documentedMaxConfidence"
+  | "totalExamples"
+  | "totalPronounced";
+
 export type DictionaryStats = {
   // scans
   wordsScanned?: number;
@@ -25,6 +31,7 @@ export type DictionaryStats = {
   // words
   definitions?: number;
   documentedMaxConfidence?: number;
+  totalExamples?: number;
   totalPronounced?: number;
 };
 
@@ -36,6 +43,7 @@ export type OverallStats = {
 export const negatableStats: (keyof DictionaryStats)[] = [
   "definitions",
   "documentedMaxConfidence",
+  "totalExamples",
   "totalPronounced",
 ];
 
@@ -74,6 +82,7 @@ export type UserData = {
   };
   points: number;
   stats: OverallStats;
+  updatingStats?: boolean;
   activeDictionary: number;
   dictionaries: DictionaryData[];
   nextDictionaryId: number;
@@ -114,6 +123,19 @@ export function updateStatistics(
   callback(dictionary.stats);
 
   return data;
+}
+
+export function resolveStatIncrease(
+  hasNow: boolean,
+  hadBefore: boolean
+): number {
+  if (hasNow == hadBefore) {
+    // didn't change
+    return 0;
+  }
+
+  // either hasNow or hadBefore is true, and the other is false
+  return hasNow ? 1 : -1;
 }
 
 export type WordDefinitionData = {
@@ -311,7 +333,7 @@ export async function isValidWord(dictionaryId: number, word: string) {
   return result != null && result["COUNT(*)"] != 0;
 }
 
-const maxConfidence = 2;
+export const maxConfidence = 2;
 
 export async function listGameWords(
   dictionaryId: number,
@@ -873,11 +895,74 @@ export async function loadUserData(
     await saveUserData(data);
   }
 
+  if (data.updatingStats) {
+    // must come after migrations, as migrations can request a stat update
+    await recalculateWordStatistics(data);
+    await saveUserData(data);
+  }
+
   return data;
 }
 
 export function saveUserData(data: UserData) {
   return saveFileObject("user", data);
+}
+
+export async function recalculateWordStatistics(data: UserData) {
+  data.stats = {
+    ...data.stats,
+    definitions: 0,
+    documentedMaxConfidence: 0,
+    totalExamples: 0,
+    totalPronounced: 0,
+  };
+
+  for (let i = 0; i < data.dictionaries.length; i++) {
+    const dictionary = { ...data.dictionaries[i] };
+    data.dictionaries[i] = dictionary;
+
+    dictionary.stats = {
+      ...dictionary.stats,
+      definitions: 0,
+      documentedMaxConfidence: 0,
+      totalExamples: 0,
+      totalPronounced: 0,
+    };
+
+    const confidenceResult = await db.getFirstAsync<{ [key: string]: number }>(
+      "SELECT COUNT(*) FROM word_definition_data WHERE dictionaryId = $id AND confidence = $maxConfidence",
+      {
+        $maxConfidence: maxConfidence,
+        $id: dictionary.id,
+      }
+    );
+    const exampleResult = await db.getFirstAsync<{ [key: string]: number }>(
+      "SELECT COUNT(*) FROM word_definition_data WHERE dictionaryId = $id AND example != ''",
+      { $id: dictionary.id }
+    );
+    const result = await db.getFirstAsync<{ [key: string]: number }>(
+      "SELECT COUNT(*), COUNT(pronunciationAudio) FROM word_definition_data WHERE dictionaryId = $id",
+      { $id: dictionary.id }
+    );
+
+    if (!result) {
+      continue;
+    }
+
+    const changeList: [DictionaryWordStatKey, number][] = [
+      ["definitions", result["COUNT(*)"]],
+      ["documentedMaxConfidence", confidenceResult?.["COUNT(*)"] ?? 0],
+      ["totalExamples", exampleResult?.["COUNT(*)"] ?? 0],
+      ["totalPronounced", result["COUNT(pronunciationAudio)"]],
+    ];
+
+    for (const [key, n] of changeList) {
+      data.stats[key]! += n;
+      dictionary.stats[key]! += n;
+    }
+  }
+
+  data.updatingStats = false;
 }
 
 const FILE_OBJECT_DIR = FileSystem.documentDirectory + "file-objects/";
@@ -1166,19 +1251,18 @@ export async function importData(
 
   const importDb = await SQLite.openDatabaseAsync(IMPORT_DB_NAME);
 
-  userData = { ...userData };
-  userData.dictionaries = [...userData.dictionaries];
-  userData.stats = { ...userData.stats };
-  userData.stats.definitions = userData.stats.definitions ?? 0;
-
   try {
-    // load dictionaries with a map from import id to new id
-    const importIdMap: { [importId: number]: DictionaryData | undefined } = {};
+    // prep userData for saving new dictionaries
+    userData = { ...userData };
+    userData.dictionaries = [...userData.dictionaries];
 
     const dictionaryResults = importDb.getEachAsync<{
       id: number;
       data: string;
     }>("SELECT * FROM dictionaries");
+
+    // [id, index]
+    const importMappingList: [number, number][] = [];
 
     for await (const result of dictionaryResults) {
       const data = JSON.parse(result.data) as Pick<
@@ -1194,15 +1278,42 @@ export async function importData(
           (acc, p) => Math.max(acc, p.id + 1),
           0
         ),
+        stats: {},
+      };
+
+      importMappingList.push([result.id, userData.dictionaries.length]);
+      userData.dictionaries.push(dictionary);
+      userData.nextDictionaryId++;
+    }
+
+    // save dictionaries before importing new data to avoid orphaned data
+    saveUserData(userData);
+
+    // prep userData for saving stats
+    userData = { ...userData };
+    userData.stats = { ...userData.stats };
+    userData.stats.definitions ??= 0;
+    userData.stats.documentedMaxConfidence ??= 0;
+    userData.stats.totalExamples ??= 0;
+    userData.dictionaries = [...userData.dictionaries];
+
+    const importDictionaryMap: {
+      [importId: number]: DictionaryData | undefined;
+    } = {};
+
+    for (const [originalId, i] of importMappingList) {
+      const dictionary = {
+        ...userData.dictionaries[i],
         stats: {
           definitions: 0,
+          documentedMaxConfidence: 0,
+          totalExamples: 0,
           totalPronounced: 0,
         },
       };
 
-      userData.dictionaries.push(dictionary);
-      importIdMap[result.id] = dictionary;
-      userData.nextDictionaryId++;
+      userData.dictionaries[i] = dictionary;
+      importDictionaryMap[originalId] = dictionary;
     }
 
     async function bulkInsert(
@@ -1254,11 +1365,11 @@ export async function importData(
         let i = 0;
 
         for await (const result of wordResults) {
-          const dictionary = importIdMap[result.dictionaryId];
+          const dictionary = importDictionaryMap[result.dictionaryId];
 
           i++;
 
-          if (!dictionary) {
+          if (dictionary == undefined) {
             continue;
           }
 
@@ -1288,6 +1399,8 @@ export async function importData(
     const definitionResults = importDb.getEachAsync<{
       dictionaryId: number;
       sharedId: number;
+      example?: string | null;
+      confidence: number;
       // pronunciationAudio?: string | null;
     }>("SELECT * FROM word_definition_data");
 
@@ -1311,7 +1424,7 @@ export async function importData(
         let i = 0;
 
         for await (const result of definitionResults) {
-          const dictionary = importIdMap[result.dictionaryId];
+          const dictionary = importDictionaryMap[result.dictionaryId];
 
           i++;
 
@@ -1331,7 +1444,17 @@ export async function importData(
           await statement.executeAsync(bindParams);
 
           userData.stats.definitions! += 1;
-          dictionary.stats.definitions! += +1;
+          dictionary.stats.definitions! += 1;
+
+          if (result.example != "") {
+            userData.stats.totalExamples! += 1;
+            dictionary.stats.totalExamples! += 1;
+          }
+
+          if (result.confidence == maxConfidence) {
+            userData.stats.documentedMaxConfidence! += 1;
+            dictionary.stats.documentedMaxConfidence! += 1;
+          }
 
           progressCallback("definitions", i, totalDefinitions);
         }
@@ -1340,6 +1463,7 @@ export async function importData(
   } finally {
     await importDb.closeAsync();
     await deleteImportDb();
+    userData.updatingStats = false;
     saveUserData(userData);
   }
 }

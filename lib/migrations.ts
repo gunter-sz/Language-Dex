@@ -33,6 +33,10 @@ const migrateUpList = [
       }
     }
   },
+  async (userData: UserData) => {
+    // request a stats update by marking an incomplete stat update
+    userData.updatingStats = true;
+  },
 ];
 
 export const dataRevisions = migrateUpList.length;
