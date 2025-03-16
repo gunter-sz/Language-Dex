@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getWordDefinitions, WordDefinitionData } from "../data";
 import { logError } from "../log";
-
-type Subscription = (version: number) => void;
+import { Signal, useSignalValue } from "./use-signal";
 
 type WordDefinitionState = {
   loaded: boolean;
@@ -10,7 +9,7 @@ type WordDefinitionState = {
     spelling: string;
     definitions: WordDefinitionData[];
   };
-  subscriptions: Set<Subscription>;
+  versionSignal: Signal<number>;
 };
 
 export type DefinitionMap = {
@@ -19,7 +18,7 @@ export type DefinitionMap = {
 
 const cache: { [dictionary: number]: DefinitionMap | undefined } = {};
 
-let counter = 0;
+let definitionVersionCounter = 0;
 
 function fetchDefinition(
   dictionaryId: number,
@@ -31,11 +30,8 @@ function fetchDefinition(
     cachedWord.loaded = true;
     cachedWord.definitionsResult = result;
 
-    counter += 1;
-
-    for (const callback of cachedWord.subscriptions.values()) {
-      callback(counter);
-    }
+    definitionVersionCounter += 1;
+    cachedWord.versionSignal.set(definitionVersionCounter);
   });
 }
 
@@ -44,11 +40,7 @@ export default function useWordDefinitions(
   lowerCaseWords: string[]
 ): DefinitionMap {
   // only using this state to drive updates
-  const [_, setVersion] = useState(counter);
-  const subscription: Subscription = useMemo(
-    () => (count) => setVersion(count),
-    []
-  );
+  const [_, setVersion] = useState(definitionVersionCounter);
 
   if (!cache[dictionaryId]) {
     cache[dictionaryId] = {};
@@ -64,7 +56,7 @@ export default function useWordDefinitions(
         // add to cache
         cachedWord = {
           loaded: false,
-          subscriptions: new Set(),
+          versionSignal: new Signal(definitionVersionCounter),
         };
 
         // fetch definitions
@@ -74,7 +66,7 @@ export default function useWordDefinitions(
       }
 
       // subscribe
-      cachedWord.subscriptions.add(subscription);
+      cachedWord.versionSignal.subscribe(setVersion);
     }
 
     return () => {
@@ -83,7 +75,7 @@ export default function useWordDefinitions(
         const cachedWord = definitionMap[word];
 
         if (cachedWord) {
-          cachedWord.subscriptions.delete(subscription);
+          cachedWord.versionSignal.unsubscribe(setVersion);
         }
       }
 
@@ -97,7 +89,7 @@ export default function useWordDefinitions(
             continue;
           }
 
-          if (cachedWord.subscriptions.size == 0) {
+          if (cachedWord.versionSignal.subscriptionCount() == 0) {
             delete definitionMap[word];
           }
         }
@@ -135,15 +127,10 @@ export function useWordDefinition(
   ];
 }
 
-const invalidationListeners = new Set<(v: number) => void>();
-let versionCount = 0;
+const dictionaryVersionSignal = new Signal(0);
 
 export function bumpDictionaryVersion() {
-  versionCount++;
-
-  for (const setState of invalidationListeners.values()) {
-    setState(versionCount);
-  }
+  dictionaryVersionSignal.set(dictionaryVersionSignal.get() + 1);
 }
 
 export function invalidateWordDefinitions(
@@ -162,7 +149,10 @@ export function invalidateWordDefinitions(
     cachedWord.loaded = false;
     cachedWord.definitionsResult = undefined;
   } else {
-    cachedWord = { loaded: false, subscriptions: new Set() };
+    cachedWord = {
+      loaded: false,
+      versionSignal: new Signal(definitionVersionCounter),
+    };
     definitionMap[lowercaseWord] = cachedWord;
   }
 
@@ -172,15 +162,5 @@ export function invalidateWordDefinitions(
 }
 
 export function useDictionaryVersioning() {
-  const [version, setState] = useState(versionCount);
-
-  useEffect(() => {
-    invalidationListeners.add(setState);
-
-    return () => {
-      invalidationListeners.delete(setState);
-    };
-  }, []);
-
-  return version;
+  return useSignalValue(dictionaryVersionSignal);
 }

@@ -19,6 +19,10 @@ export class Signal<T> {
     this._subscriptions.delete(listener);
   }
 
+  subscriptionCount() {
+    return this._subscriptions.size;
+  }
+
   get() {
     return this._value;
   }
