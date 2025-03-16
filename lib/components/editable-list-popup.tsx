@@ -219,6 +219,7 @@ export default function EditableListPopup<T>({
   useEffect(() => {
     if (open) {
       setEditing(false);
+      setAddingItem(false);
     }
   }, [open]);
 
