@@ -2,7 +2,12 @@ import React, { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View, TextStyle } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useUserDataContext } from "@/lib/contexts/user-data";
-import { GameWord, listGameWords } from "@/lib/data";
+import {
+  GameWord,
+  listGameWords,
+  updateStatistics,
+  UserData,
+} from "@/lib/data";
 import { logError } from "@/lib/log";
 import { pickIndexWithLenBiased, swapToEnd } from "@/lib/practice/random";
 import { fadeTo } from "@/lib/practice/animations";
@@ -81,10 +86,16 @@ function setUpNextRound(gameState: GameState) {
   gameState.roundStarted = true;
 }
 
+function incrementCorrectShortAnswers(userData: UserData) {
+  return updateStatistics(userData, (stats) => {
+    stats.correctShortAnswers = (stats.correctShortAnswers ?? 0) + 1;
+  });
+}
+
 export default function () {
   const practiceColors = usePracticeColors();
   const [t] = useTranslation();
-  const [userData] = useUserDataContext();
+  const [userData, setUserData] = useUserDataContext();
 
   const [resolvedAdSize, setResolvedAdSize] = useState(false);
   const onAdResize = useCallback(() => setResolvedAdSize(true), []);
@@ -156,6 +167,10 @@ export default function () {
       setSubmissionColor({ color: practiceColors.correct.color });
     } else {
       setSubmissionColor({ color: practiceColors.mistake.color });
+    }
+
+    if (correct) {
+      setUserData(incrementCorrectShortAnswers);
     }
 
     // update score
