@@ -2,10 +2,17 @@ import extractWords from "./extract-words";
 import { describe, expect, test } from "@jest/globals";
 
 describe("extractWords", () => {
+  const extractWordStrings = (input: string) =>
+    extractWords(input).map((s) => s.text);
+
   const assertStrings = (input: string, output: string[]) => {
-    const words = extractWords(input).map((s) => s.text);
-    expect(words).toEqual(output);
+    expect(extractWordStrings(input)).toEqual(output);
   };
+
+  const assertStable = (input: string) => {
+    expect(extractWordStrings(input)).toEqual(extractWordStrings(input));
+  };
+
   test("japanese", () => {
     // https://www.smogon.com/smog/issue12/japanese
     assertStrings("ようこそ！ポケモン世界へ", [
@@ -21,5 +28,8 @@ describe("extractWords", () => {
       "へ",
       "ようこそ",
     ]);
+
+    // make sure we get the same results between multiple runs
+    assertStable("AへへAへへ");
   });
 });

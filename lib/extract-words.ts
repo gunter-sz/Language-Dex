@@ -39,7 +39,7 @@ export default function extractWords(text: string) {
 
   let lastSegment: SegmentationResult | undefined;
 
-  return unistringSegments.flatMap((segment, i) => {
+  return unistringSegments.flatMap((segment) => {
     if (!SCRIPT_WHITELIST_MAP[segment.type]) {
       return [];
     }
@@ -69,13 +69,16 @@ export default function extractWords(text: string) {
       };
 
       // remaining hiragana
-      segment.text = segment.text.slice(1);
-      segment.index += 1;
-      segment.rawIndex += 1;
-      segment.length -= 1;
+      const newSegment = {
+        text: segment.text.slice(1),
+        index: segment.index + 1,
+        rawIndex: segment.rawIndex + 1,
+        length: segment.length - 1,
+        type: segment.type,
+      };
 
       lastSegment = segment;
-      return [particleSegment, segment];
+      return [particleSegment, newSegment];
     }
 
     lastSegment = segment;
