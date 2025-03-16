@@ -108,6 +108,7 @@ function EditableRow({ theme, text, onRename, onDelete }: EditableRowProps) {
           <Pressable
             style={styles.renameInput}
             android_ripple={theme.ripples.transparentButton}
+            pointerEvents="box-only"
             onPress={() => setRenaming(true)}
           >
             <Span>{text}</Span>
@@ -298,6 +299,7 @@ export default function EditableListPopup<T>({
                 <Pressable
                   style={styles.rowStyle}
                   android_ripple={theme.ripples.transparentButton}
+                  pointerEvents="box-only"
                   onPress={() => {
                     onSelect?.();
                     setOpen(false);
@@ -327,6 +329,7 @@ export default function EditableListPopup<T>({
               <Pressable
                 style={styles.rowStyle}
                 android_ripple={theme.ripples.transparentButton}
+                pointerEvents="box-only"
                 onPress={() => {
                   onSelect?.(item);
                   setOpen(false);

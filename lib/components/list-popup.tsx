@@ -66,6 +66,7 @@ export default function ListPopup<T>({
               <Pressable
                 style={rowStyles}
                 android_ripple={theme.ripples.transparentButton}
+                pointerEvents="box-only"
                 onPress={() => {
                   onSelect?.();
                   setOpen(false);
@@ -81,6 +82,7 @@ export default function ListPopup<T>({
             <Pressable
               style={rowStyles}
               android_ripple={theme.ripples.transparentButton}
+              pointerEvents="box-only"
               onPress={() => {
                 onSelect?.(item);
                 setOpen(false);

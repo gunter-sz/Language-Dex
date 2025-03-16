@@ -125,6 +125,7 @@ export default function RecordAudioButton({
       <Pressable
         style={styles.recordButtonPressable}
         android_ripple={theme.ripples.primaryButton}
+        pointerEvents="box-only"
         delayLongPress={100}
         disabled={ignoreInput}
         onLongPress={() => {

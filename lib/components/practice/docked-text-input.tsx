@@ -53,6 +53,7 @@ export function DockedTextInputSubmitButton({
       disabled={disabled}
       onPress={onPress}
       android_ripple={theme.ripples.primaryButton}
+      pointerEvents="box-only"
     >
       <ConfirmReadyIcon color={theme.colors.primary.contrast} size={30} />
     </Pressable>
@@ -79,6 +80,7 @@ export function DockedTextInputHintButton({
       disabled={disabled}
       onPress={onPress}
       android_ripple={theme.ripples.primaryButton}
+      pointerEvents="box-only"
     >
       <HintIcon color="white" size={30} />
 

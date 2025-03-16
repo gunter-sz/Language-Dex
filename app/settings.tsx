@@ -168,6 +168,7 @@ export default function () {
         <Pressable
           style={styles.row}
           android_ripple={theme.ripples.transparentButton}
+          pointerEvents="box-only"
           onPress={() => {
             DocumentPicker.getDocumentAsync({ copyToCacheDirectory: false })
               .then((result) => {
@@ -263,6 +264,7 @@ export default function () {
       <Pressable
         style={styles.row}
         android_ripple={theme.ripples.transparentButton}
+        pointerEvents="box-only"
         onPress={requestAdRemoval}
         disabled={userData.removeAds}
       >
@@ -285,6 +287,7 @@ export default function () {
           <Pressable
             style={styles.row}
             android_ripple={theme.ripples.transparentButton}
+            pointerEvents="box-only"
             onPress={showPrivacyOptionsForm}
           >
             <Span style={styles.label}>{t("Show_Privacy_Options")}</Span>
@@ -301,6 +304,7 @@ export default function () {
         <Pressable
           style={styles.row}
           android_ripple={theme.ripples.transparentButton}
+          pointerEvents="box-only"
           onPress={() => router.navigate("/attribution")}
         >
           <Span style={styles.label}>{t("Third_Party_Licenses")}</Span>
@@ -311,6 +315,7 @@ export default function () {
         <Pressable
           style={styles.row}
           android_ripple={theme.ripples.transparentButton}
+          pointerEvents="box-only"
           onPress={() => router.navigate("/logs")}
         >
           <Span style={styles.label}>{t("View_Logs")}</Span>
@@ -323,6 +328,7 @@ export default function () {
             <Pressable
               style={styles.row}
               android_ripple={theme.ripples.transparentButton}
+              pointerEvents="box-only"
               onPress={() => {
                 const totalWords = 5000;
 

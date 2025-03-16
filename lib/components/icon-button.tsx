@@ -21,6 +21,7 @@ export default function IconButton({ icon: Icon, onPress, disabled }: Props) {
       <Pressable
         style={styles.pressable}
         android_ripple={theme.ripples.transparentButton}
+        pointerEvents="box-only"
         onPress={onPress}
         disabled={disabled}
       >
@@ -41,6 +42,7 @@ export function SubMenuIconButton({ icon: Icon, onPress, disabled }: Props) {
       <Pressable
         style={styles.pressable}
         android_ripple={theme.ripples.transparentButton}
+        pointerEvents="box-only"
         onPress={onPress}
         disabled={disabled}
       >

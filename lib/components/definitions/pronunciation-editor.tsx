@@ -53,6 +53,7 @@ function Option({
     <Pressable
       style={styles.optionRow}
       android_ripple={theme.ripples.transparentButton}
+      pointerEvents="box-only"
       onPress={onPress}
     >
       <RadioButton selected={selected} />
@@ -218,6 +219,7 @@ function PronunciationEditorDialog({
           <Pressable
             style={styles.confirmButton}
             android_ripple={theme.ripples.transparentButton}
+            pointerEvents="box-only"
             onPress={handleClose}
           >
             <Span>{t("Confirm")}</Span>

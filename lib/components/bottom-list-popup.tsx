@@ -108,6 +108,7 @@ export default function BottomListPopup<T>({
         }}
         style={styles.row}
         android_ripple={theme.ripples.popup}
+        pointerEvents="box-only"
       >
         <Span>{label}</Span>
       </Pressable>
