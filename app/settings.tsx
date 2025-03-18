@@ -38,7 +38,15 @@ import {
   isPrivacyOptionsFormRequired,
   showPrivacyOptionsForm,
 } from "@/lib/components/ads";
-import { useSignal, useSignalValue } from "@/lib/hooks/use-signal";
+import { Signal, useSignalLens, useSignalValue } from "@/lib/hooks/use-signal";
+
+type LongTaskMeta = {
+  open: boolean;
+  name: string;
+  completedSignal: Signal<boolean>;
+  messageSignal: Signal<string>;
+  progressSignal: Signal<undefined | number>;
+};
 
 function getColorSchemeText(
   t: TFunction<"translation", undefined>,
@@ -71,193 +79,219 @@ function throttle<T extends any[]>(
   };
 }
 
-export default function () {
+const pageList = pages.map((page) => page.label);
+
+function CustomizationSection() {
   const theme = useTheme();
   const [t] = useTranslation();
   const userDataSignal = useUserDataSignal();
   const userData = useSignalValue(userDataSignal);
-  const [longTaskName, setLongTaskName] = useState("");
-  const [longTaskOpen, setLongTaskOpen] = useState(false);
-  const [longTaskMessage, setLongTaskMessage] = useState("");
-  const longTaskProgressSignal = useSignal<number | undefined>(undefined);
-  const [longTaskCompleted, setLongTaskCompleted] = useState(false);
-
-  const pageList = pages.map((page) => page.label);
 
   return (
-    <RouteRoot>
-      <SubMenuTopNav>
-        <SubMenuBackButton />
-        <SubMenuTitle>{t("Settings")}</SubMenuTitle>
-      </SubMenuTopNav>
-
-      <ScrollView>
-        <ListPopup
-          style={styles.row}
-          list={["light", "dark"]}
-          getItemText={(value) => getColorSchemeText(t, value)}
-          defaultItemText={t("System")}
-          keyExtractor={(value) => value}
-          onSelect={(value?: UserData["colorScheme"]) => {
-            if (value != userData.colorScheme) {
-              const updatedData = { ...userData };
-              updatedData.colorScheme = value;
-              userDataSignal.set(updatedData);
-            }
-          }}
-        >
-          <Span style={styles.label}>{t("Theme")}</Span>
-          <Span style={[styles.value, theme.styles.disabledText]}>
-            {getColorSchemeText(t, userData.colorScheme)}
-          </Span>
-        </ListPopup>
-
-        <View style={theme.styles.separator} />
-
-        <ListPopup
-          style={styles.row}
-          list={pageList}
-          getItemText={(value) => t(value)}
-          keyExtractor={(value) => value}
-          onSelect={(value?: string) => {
-            if (value != userData.home) {
-              const updatedData = { ...userData };
-              updatedData.home = value;
-              userDataSignal.set(updatedData);
-            }
-          }}
-        >
-          <Span style={styles.label}>{t("Default_View")}</Span>
-          <Span style={[styles.value, theme.styles.disabledText]}>
-            {userData.home != undefined && pageList.includes(userData.home)
-              ? t(userData.home)
-              : t("Dictionary")}
-          </Span>
-        </ListPopup>
-
-        <View style={theme.styles.separator} />
-
-        <Span style={[styles.sectionHeader, theme.styles.poppingText]}>
-          {t("Dictionaries")}
+    <>
+      <ListPopup
+        style={styles.row}
+        list={["light", "dark"]}
+        getItemText={(value) => getColorSchemeText(t, value)}
+        defaultItemText={t("System")}
+        keyExtractor={(value) => value}
+        onSelect={(value?: UserData["colorScheme"]) => {
+          if (value != userData.colorScheme) {
+            const updatedData = { ...userData };
+            updatedData.colorScheme = value;
+            userDataSignal.set(updatedData);
+          }
+        }}
+      >
+        <Span style={styles.label}>{t("Theme")}</Span>
+        <Span style={[styles.value, theme.styles.disabledText]}>
+          {getColorSchemeText(t, userData.colorScheme)}
         </Span>
+      </ListPopup>
 
-        <ListPopup
-          style={styles.row}
-          list={wordOrderOptions}
-          getItemText={(value) => t(value)}
-          keyExtractor={(value) => value}
-          onSelect={(value) => {
-            if (value != userData.dictionaryOrder) {
-              const updatedData = { ...userData };
-              updatedData.dictionaryOrder = value;
-              userDataSignal.set(updatedData);
-            }
-          }}
-        >
-          <Span style={styles.label}>{t("Default_Order")}</Span>
-          <Span style={[styles.value, theme.styles.disabledText]}>
-            {userData.dictionaryOrder != undefined &&
-            wordOrderOptions.includes(userData.dictionaryOrder)
-              ? t(userData.dictionaryOrder)
-              : t(wordOrderOptions[0])}
-          </Span>
-        </ListPopup>
+      <View style={theme.styles.separator} />
 
-        <View style={theme.styles.separator} />
+      <ListPopup
+        style={styles.row}
+        list={pageList}
+        getItemText={(value) => t(value)}
+        keyExtractor={(value) => value}
+        onSelect={(value?: string) => {
+          if (value != userData.home) {
+            const updatedData = { ...userData };
+            updatedData.home = value;
+            userDataSignal.set(updatedData);
+          }
+        }}
+      >
+        <Span style={styles.label}>{t("Default_View")}</Span>
+        <Span style={[styles.value, theme.styles.disabledText]}>
+          {userData.home != undefined && pageList.includes(userData.home)
+            ? t(userData.home)
+            : t("Dictionary")}
+        </Span>
+      </ListPopup>
 
-        <Pressable
-          style={styles.row}
-          android_ripple={theme.ripples.transparentButton}
-          pointerEvents="box-only"
-          onPress={() => {
-            DocumentPicker.getDocumentAsync({ copyToCacheDirectory: false })
-              .then((result) => {
-                if (result.canceled) {
-                  return;
-                }
+      <View style={theme.styles.separator} />
+    </>
+  );
+}
 
-                const asset = result.assets[0];
+function DictionariesSection({
+  longTaskSignal,
+}: {
+  longTaskSignal: Signal<LongTaskMeta>;
+}) {
+  const theme = useTheme();
+  const [t] = useTranslation();
+  const userDataSignal = useUserDataSignal();
+  const userData = useSignalValue(userDataSignal);
 
-                setLongTaskOpen(true);
-                setLongTaskName(t("Dictionary_Import"));
-                setLongTaskCompleted(false);
-                setLongTaskMessage(t("importing_metadata_stage"));
-                longTaskProgressSignal.set(undefined);
+  return (
+    <>
+      <Span style={[styles.sectionHeader, theme.styles.poppingText]}>
+        {t("Dictionaries")}
+      </Span>
 
-                const progressCallback = throttle(
-                  progressThrottleMs,
-                  (stage, i, total) => {
-                    setLongTaskMessage(t("importing_" + stage + "_stage"));
-                    longTaskProgressSignal.set(i / total);
-                  }
-                );
+      <ListPopup
+        style={styles.row}
+        list={wordOrderOptions}
+        getItemText={(value) => t(value)}
+        keyExtractor={(value) => value}
+        onSelect={(value) => {
+          if (value != userData.dictionaryOrder) {
+            const updatedData = { ...userData };
+            updatedData.dictionaryOrder = value;
+            userDataSignal.set(updatedData);
+          }
+        }}
+      >
+        <Span style={styles.label}>{t("Default_Order")}</Span>
+        <Span style={[styles.value, theme.styles.disabledText]}>
+          {userData.dictionaryOrder != undefined &&
+          wordOrderOptions.includes(userData.dictionaryOrder)
+            ? t(userData.dictionaryOrder)
+            : t(wordOrderOptions[0])}
+        </Span>
+      </ListPopup>
 
-                importData(
-                  userData,
-                  (userData) => {
-                    userDataSignal.set(userData);
-                  },
-                  asset.uri,
-                  progressCallback
-                )
-                  .then(() => setLongTaskMessage(t("Success_exclamation")))
-                  .catch((err) => {
-                    setLongTaskMessage(t("An_error_occurred"));
-                    logError(err);
-                  })
-                  .finally(() => {
-                    setLongTaskCompleted(true);
-                    bumpDictionaryVersion();
-                  });
-              })
-              .catch(logError);
-          }}
-        >
-          <Span style={styles.label}>{t("Import_Dictionaries")}</Span>
-        </Pressable>
+      <View style={theme.styles.separator} />
 
-        <View style={theme.styles.separator} />
-
-        <ListPopup
-          style={styles.row}
-          list={userData.dictionaries.map((d) => d)}
-          getItemText={(value) => value.name}
-          keyExtractor={(value) => String(value.id)}
-          defaultItemText={t("All")}
-          onSelect={(value?: DictionaryData) => {
-            setLongTaskOpen(true);
-            setLongTaskName(t("Dictionary_Export"));
-            setLongTaskCompleted(false);
-            setLongTaskMessage(t("exporting_metadata_stage"));
-            longTaskProgressSignal.set(undefined);
-
-            const progressCallback = throttle(
-              progressThrottleMs,
-              (stage, i, total) => {
-                setLongTaskMessage(t("exporting_" + stage + "_stage"));
-                longTaskProgressSignal.set(i / total);
+      <Pressable
+        style={styles.row}
+        android_ripple={theme.ripples.transparentButton}
+        pointerEvents="box-only"
+        onPress={() => {
+          DocumentPicker.getDocumentAsync({ copyToCacheDirectory: false })
+            .then((result) => {
+              if (result.canceled) {
+                return;
               }
-            );
 
-            exportData(userData, value?.id, progressCallback)
-              .then(() => {
-                setLongTaskMessage(t("Success_exclamation"));
-              })
-              .catch((err) => {
-                setLongTaskMessage(t("An_error_occurred"));
-                logError(err);
-              })
-              .finally(() => {
-                setLongTaskCompleted(true);
+              const asset = result.assets[0];
+
+              longTaskSignal.set({
+                ...longTaskSignal.get(),
+                open: true,
+                name: t("Dictionary_Import"),
               });
-          }}
-        >
-          <Span style={styles.label}>{t("Export_Dictionaries")}</Span>
-        </ListPopup>
+              const { completedSignal, messageSignal, progressSignal } =
+                longTaskSignal.get();
+              completedSignal.set(false);
+              messageSignal.set(t("importing_metadata_stage"));
+              progressSignal.set(undefined);
 
-        <View style={theme.styles.separator} />
+              const progressCallback = throttle(
+                progressThrottleMs,
+                (stage, i, total) => {
+                  if (i == 0) {
+                    messageSignal.set(t("importing_" + stage + "_stage"));
+                  }
+                  progressSignal.set(i / total);
+                }
+              );
 
-        {/* <Span style={[styles.sectionHeader, theme.styles.poppingText]}>
+              importData(
+                userData,
+                (userData) => {
+                  userDataSignal.set(userData);
+                },
+                asset.uri,
+                progressCallback
+              )
+                .then(() => messageSignal.set(t("Success_exclamation")))
+                .catch((err) => {
+                  messageSignal.set(t("An_error_occurred"));
+                  logError(err);
+                })
+                .finally(() => {
+                  completedSignal.set(true);
+                  bumpDictionaryVersion();
+                });
+            })
+            .catch(logError);
+        }}
+      >
+        <Span style={styles.label}>{t("Import_Dictionaries")}</Span>
+      </Pressable>
+
+      <View style={theme.styles.separator} />
+
+      <ListPopup
+        style={styles.row}
+        list={userData.dictionaries.map((d) => d)}
+        getItemText={(value) => value.name}
+        keyExtractor={(value) => String(value.id)}
+        defaultItemText={t("All")}
+        onSelect={(value?: DictionaryData) => {
+          longTaskSignal.set({
+            ...longTaskSignal.get(),
+            open: true,
+            name: t("Dictionary_Export"),
+          });
+
+          const { completedSignal, messageSignal, progressSignal } =
+            longTaskSignal.get();
+          completedSignal.set(false);
+          messageSignal.set(t("exporting_metadata_stage"));
+          progressSignal.set(undefined);
+
+          const progressCallback = throttle(
+            progressThrottleMs,
+            (stage, i, total) => {
+              if (i == 0) {
+                messageSignal.set(t("exporting_" + stage + "_stage"));
+              }
+              progressSignal.set(i / total);
+            }
+          );
+
+          exportData(userData, value?.id, progressCallback)
+            .then(() => messageSignal.set(t("Success_exclamation")))
+            .catch((err) => {
+              messageSignal.set(t("An_error_occurred"));
+              logError(err);
+            })
+            .finally(() => completedSignal.set(true));
+        }}
+      >
+        <Span style={styles.label}>{t("Export_Dictionaries")}</Span>
+      </ListPopup>
+
+      <View style={theme.styles.separator} />
+    </>
+  );
+}
+
+function AdsSection() {
+  const theme = useTheme();
+  const [t] = useTranslation();
+  const userDataSignal = useUserDataSignal();
+  const removedAds = useSignalLens(userDataSignal, (d) => d.removeAds);
+
+  return (
+    <>
+      <Span style={[styles.sectionHeader, theme.styles.poppingText]}>
         {t("Ads")}
       </Span>
 
@@ -266,18 +300,13 @@ export default function () {
         android_ripple={theme.ripples.transparentButton}
         pointerEvents="box-only"
         onPress={requestAdRemoval}
-        disabled={userData.removeAds}
+        disabled={removedAds}
       >
-        <Span
-          style={[
-            styles.label,
-            userData.removeAds && theme.styles.disabledText,
-          ]}
-        >
-          {userData.removeAds ? t("Removed_Ads") : t("Remove_Ads")}
+        <Span style={[styles.label, removedAds && theme.styles.disabledText]}>
+          {removedAds ? t("Removed_Ads") : t("Remove_Ads")}
         </Span>
 
-        {userData.removeAds && <Span style={styles.value}>✅</Span>}
+        {removedAds && <Span style={styles.value}>✅</Span>}
       </Pressable>
 
       {isPrivacyOptionsFormRequired() && (
@@ -292,145 +321,205 @@ export default function () {
           >
             <Span style={styles.label}>{t("Show_Privacy_Options")}</Span>
           </Pressable>
+
+          <View style={theme.styles.separator} />
         </>
+      )}
+    </>
+  );
+}
 
-        <View style={theme.styles.separator} />
-      )} */}
+function DevelopmentSection({
+  longTaskSignal,
+}: {
+  longTaskSignal: Signal<LongTaskMeta>;
+}) {
+  const theme = useTheme();
+  const [t] = useTranslation();
+  const userDataSignal = useUserDataSignal();
 
-        <Span style={[styles.sectionHeader, theme.styles.poppingText]}>
-          {t("Development")}
-        </Span>
+  return (
+    <>
+      <Span style={[styles.sectionHeader, theme.styles.poppingText]}>
+        {t("Development")}
+      </Span>
 
-        <Pressable
-          style={styles.row}
-          android_ripple={theme.ripples.transparentButton}
-          pointerEvents="box-only"
-          onPress={() => router.navigate("/attribution")}
-        >
-          <Span style={styles.label}>{t("Third_Party_Licenses")}</Span>
-        </Pressable>
+      <Pressable
+        style={styles.row}
+        android_ripple={theme.ripples.transparentButton}
+        pointerEvents="box-only"
+        onPress={() => router.navigate("/attribution")}
+      >
+        <Span style={styles.label}>{t("Third_Party_Licenses")}</Span>
+      </Pressable>
 
-        <View style={theme.styles.separator} />
+      <View style={theme.styles.separator} />
 
-        <Pressable
-          style={styles.row}
-          android_ripple={theme.ripples.transparentButton}
-          pointerEvents="box-only"
-          onPress={() => router.navigate("/logs")}
-        >
-          <Span style={styles.label}>{t("View_Logs")}</Span>
-        </Pressable>
+      <Pressable
+        style={styles.row}
+        android_ripple={theme.ripples.transparentButton}
+        pointerEvents="box-only"
+        onPress={() => router.navigate("/logs")}
+      >
+        <Span style={styles.label}>{t("View_Logs")}</Span>
+      </Pressable>
 
-        {__DEV__ && (
-          <>
-            <View style={theme.styles.separator} />
+      {__DEV__ && (
+        <>
+          <View style={theme.styles.separator} />
 
-            <Pressable
-              style={styles.row}
-              android_ripple={theme.ripples.transparentButton}
-              pointerEvents="box-only"
-              onPress={() => {
-                const totalWords = 5000;
+          <Pressable
+            style={styles.row}
+            android_ripple={theme.ripples.transparentButton}
+            pointerEvents="box-only"
+            onPress={() => {
+              const totalWords = 5000;
 
-                const updatedData = { ...userData };
-                updatedData.updatingStats = true;
-                updatedData.dictionaries = [...updatedData.dictionaries];
+              const updatedData = { ...userDataSignal.get() };
+              updatedData.updatingStats = true;
+              updatedData.dictionaries = [...updatedData.dictionaries];
 
-                const dictionaryId = updatedData.nextDictionaryId++;
+              const dictionaryId = updatedData.nextDictionaryId++;
 
-                updatedData.dictionaries.push({
-                  name: "Generated",
-                  id: dictionaryId,
-                  partsOfSpeech: [],
-                  nextPartOfSpeechId: 0,
-                  stats: {
-                    definitions: totalWords,
-                  },
-                });
+              updatedData.dictionaries.push({
+                name: "Generated",
+                id: dictionaryId,
+                partsOfSpeech: [],
+                nextPartOfSpeechId: 0,
+                stats: {
+                  definitions: totalWords,
+                },
+              });
 
-                userDataSignal.set(updatedData);
+              userDataSignal.set(updatedData);
 
-                setLongTaskOpen(true);
-                setLongTaskName("Generating Dictionary");
-                setLongTaskMessage("Creating words...");
-                longTaskProgressSignal.set(0);
-                setLongTaskCompleted(false);
+              longTaskSignal.set({
+                ...longTaskSignal.get(),
+                open: true,
+                name: "Generating Dictionary",
+              });
 
-                const updateProgress = throttle(
-                  progressThrottleMs,
-                  (i: number) => {
-                    longTaskProgressSignal.set(i / totalWords);
+              const { completedSignal, messageSignal, progressSignal } =
+                longTaskSignal.get();
+              completedSignal.set(false);
+              messageSignal.set("Creating words...");
+              progressSignal.set(0);
+
+              const updateProgress = throttle(
+                progressThrottleMs,
+                (i: number) => {
+                  progressSignal.set(i / totalWords);
+                }
+              );
+
+              const longTask = async () => {
+                for (let i = 0; i < totalWords; i++) {
+                  const length = Math.floor(Math.random() * 20) + 2;
+                  const chars = [];
+
+                  for (let j = 0; j < length; j++) {
+                    chars.push(
+                      String.fromCharCode(Math.floor(Math.random() * 26) + 65)
+                    );
                   }
-                );
 
-                const longTask = async () => {
-                  for (let i = 0; i < totalWords; i++) {
-                    const length = Math.floor(Math.random() * 20) + 2;
-                    const chars = [];
+                  const word = chars.join("");
 
-                    for (let j = 0; j < length; j++) {
-                      chars.push(
-                        String.fromCharCode(Math.floor(Math.random() * 26) + 65)
-                      );
-                    }
-
-                    const word = chars.join("");
-
-                    await upsertDefinition(dictionaryId, {
-                      spelling: word,
-                      confidence: 0,
-                      definition: word,
-                      example: "",
-                      notes: "",
-                    });
-
-                    updateProgress(i);
-                  }
-
-                  setLongTaskMessage("Success");
-                  setLongTaskCompleted(true);
-
-                  userDataSignal.set({
-                    ...userDataSignal.get(),
-                    updatingStats: false,
+                  await upsertDefinition(dictionaryId, {
+                    spelling: word,
+                    confidence: 0,
+                    definition: word,
+                    example: "",
+                    notes: "",
                   });
-                };
 
-                longTask().catch(logError);
-              }}
-            >
-              <Span style={styles.label}>Generate Large Dictionary</Span>
-            </Pressable>
-          </>
-        )}
+                  updateProgress(i);
+                }
 
-        <View style={theme.styles.separator} />
+                completedSignal.set(true);
+                messageSignal.set("Success");
+
+                userDataSignal.set({
+                  ...userDataSignal.get(),
+                  updatingStats: false,
+                });
+              };
+
+              longTask().catch(logError);
+            }}
+          >
+            <Span style={styles.label}>Generate Large Dictionary</Span>
+          </Pressable>
+        </>
+      )}
+
+      <View style={theme.styles.separator} />
+    </>
+  );
+}
+
+function LongTaskDialog({ signal }: { signal: Signal<LongTaskMeta> }) {
+  const [t] = useTranslation();
+  const taskData = useSignalValue(signal);
+  const completed = useSignalValue(taskData.completedSignal);
+  const message = useSignalValue(taskData.messageSignal);
+
+  return (
+    <Dialog
+      open={taskData.open}
+      onClose={() => {
+        if (completed) {
+          signal.set({ ...taskData, open: false });
+        }
+      }}
+    >
+      <DialogTitle>{taskData.name}</DialogTitle>
+
+      {message != undefined && <DialogDescription>{message}</DialogDescription>}
+
+      {completed ? (
+        <ConfirmationDialogActions>
+          <ConfirmationDialogAction
+            onPress={() => signal.set({ ...taskData, open: false })}
+          >
+            {t("Close")}
+          </ConfirmationDialogAction>
+        </ConfirmationDialogActions>
+      ) : (
+        <DialogProgressBar progressSignal={taskData.progressSignal} />
+      )}
+    </Dialog>
+  );
+}
+
+export default function () {
+  const [t] = useTranslation();
+  const [longTaskSignal] = useState(
+    () =>
+      new Signal({
+        open: false,
+        name: "",
+        completedSignal: new Signal(false),
+        messageSignal: new Signal(""),
+        progressSignal: new Signal<undefined | number>(0),
+      })
+  );
+
+  return (
+    <RouteRoot>
+      <SubMenuTopNav>
+        <SubMenuBackButton />
+        <SubMenuTitle>{t("Settings")}</SubMenuTitle>
+      </SubMenuTopNav>
+
+      <ScrollView>
+        <CustomizationSection />
+        <DictionariesSection longTaskSignal={longTaskSignal} />
+        <AdsSection />
+        <DevelopmentSection longTaskSignal={longTaskSignal} />
       </ScrollView>
 
-      <Dialog
-        open={longTaskOpen}
-        onClose={() => {
-          if (longTaskCompleted) {
-            setLongTaskOpen(false);
-          }
-        }}
-      >
-        <DialogTitle>{longTaskName}</DialogTitle>
-
-        {longTaskMessage != undefined && (
-          <DialogDescription>{longTaskMessage}</DialogDescription>
-        )}
-
-        {longTaskCompleted ? (
-          <ConfirmationDialogActions>
-            <ConfirmationDialogAction onPress={() => setLongTaskOpen(false)}>
-              {t("Close")}
-            </ConfirmationDialogAction>
-          </ConfirmationDialogActions>
-        ) : (
-          <DialogProgressBar progressSignal={longTaskProgressSignal} />
-        )}
-      </Dialog>
+      <LongTaskDialog signal={longTaskSignal} />
     </RouteRoot>
   );
 }
