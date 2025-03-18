@@ -12,7 +12,8 @@ import {
 } from "react-native-iap";
 import { logError } from "./log";
 import { UserData } from "./data";
-import { Signal } from "./hooks/use-signal";
+import { Signal, useSignalValue } from "./hooks/use-signal";
+import { useEffect, useState } from "react";
 
 const REMOVE_ADS_PRODUCT_ID = "remove_ads";
 const ignoredErrors = [ErrorCode.E_USER_CANCELLED, ErrorCode.E_NETWORK_ERROR];
@@ -45,10 +46,28 @@ export function initInAppPurchases(userDataSignal: Signal<UserData>) {
       }
     });
 
-    await getProducts({ skus: [REMOVE_ADS_PRODUCT_ID] });
+    updateProducts();
   })();
 
   promise.catch(logError);
+}
+
+const canRequestAdRemovalSignal = new Signal(false);
+
+function updateProducts() {
+  getProducts({ skus: [REMOVE_ADS_PRODUCT_ID] })
+    .then((products) => canRequestAdRemovalSignal.set(products.length > 0))
+    .catch(logError);
+}
+
+export function useCanRequestAdRemoval() {
+  useEffect(() => {
+    if (!canRequestAdRemovalSignal.get()) {
+      updateProducts();
+    }
+  }, []);
+
+  return useSignalValue(canRequestAdRemovalSignal);
 }
 
 export async function requestAdRemoval() {

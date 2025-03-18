@@ -33,12 +33,16 @@ import {
 import * as DocumentPicker from "expo-document-picker";
 import { bumpDictionaryVersion } from "@/lib/hooks/use-word-definitions";
 import RouteRoot from "@/lib/components/route-root";
-import { requestAdRemoval } from "@/lib/in-app-purchases";
+import {
+  requestAdRemoval,
+  useCanRequestAdRemoval,
+} from "@/lib/in-app-purchases";
 import {
   isPrivacyOptionsFormRequired,
   showPrivacyOptionsForm,
 } from "@/lib/components/ads";
 import { Signal, useSignalLens, useSignalValue } from "@/lib/hooks/use-signal";
+import { NoConnectionIcon } from "@/lib/components/icons";
 
 type LongTaskMeta = {
   open: boolean;
@@ -283,11 +287,17 @@ function DictionariesSection({
   );
 }
 
-function AdsSection() {
+function AdsSection({
+  longTaskSignal,
+}: {
+  longTaskSignal: Signal<LongTaskMeta>;
+}) {
   const theme = useTheme();
   const [t] = useTranslation();
   const userDataSignal = useUserDataSignal();
   const removedAds = useSignalLens(userDataSignal, (d) => d.removeAds);
+
+  const canRequestAdRemoval = useCanRequestAdRemoval();
 
   return (
     <>
@@ -299,7 +309,21 @@ function AdsSection() {
         style={styles.row}
         android_ripple={theme.ripples.transparentButton}
         pointerEvents="box-only"
-        onPress={requestAdRemoval}
+        onPress={() => {
+          if (!canRequestAdRemoval) {
+            const taskData = longTaskSignal.get();
+            longTaskSignal.set({
+              ...taskData,
+              open: true,
+              name: t("Requires_Internet"),
+            });
+            taskData.completedSignal.set(true);
+            taskData.messageSignal.set(t("failed_to_fetch_product"));
+            return;
+          }
+
+          requestAdRemoval().catch(logError);
+        }}
         disabled={removedAds}
       >
         <Span style={[styles.label, removedAds && theme.styles.disabledText]}>
@@ -325,6 +349,8 @@ function AdsSection() {
           <View style={theme.styles.separator} />
         </>
       )}
+
+      <View style={theme.styles.separator} />
     </>
   );
 }
@@ -515,7 +541,7 @@ export default function () {
       <ScrollView>
         <CustomizationSection />
         <DictionariesSection longTaskSignal={longTaskSignal} />
-        <AdsSection />
+        <AdsSection longTaskSignal={longTaskSignal} />
         <DevelopmentSection longTaskSignal={longTaskSignal} />
       </ScrollView>
 
@@ -535,6 +561,10 @@ const styles = StyleSheet.create({
   },
   value: {
     fontSize: 20,
+    marginLeft: "auto",
+  },
+  valueIcon: {
+    alignSelf: "center",
     marginLeft: "auto",
   },
   sectionHeader: {

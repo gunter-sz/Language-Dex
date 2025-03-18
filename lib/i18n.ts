@@ -189,6 +189,9 @@ i18n
           Remove_Ads: "Remove Ads",
           Removed_Ads: "Removed Ads",
           Show_Privacy_Options: "Show Privacy Options",
+          Requires_Internet: "Requires Internet",
+          failed_to_fetch_product:
+            "Failed to fetch product. Check your internet connection and try again later.",
           All: "All",
 
           Ads: "Ads",

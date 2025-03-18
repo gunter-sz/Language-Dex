@@ -203,6 +203,10 @@ export function RetryIcon(props: IconProps) {
   return <MaterialDesignIcons name="restore" {...props} />;
 }
 
+export function NoConnectionIcon(props: IconProps) {
+  return <MaterialDesignIcons name="wifi-off" {...props} />;
+}
+
 function createTextIcon(text: string) {
   return (props: IconProps) => (
     <Text
