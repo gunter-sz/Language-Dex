@@ -7,7 +7,7 @@ import { Span } from "@/lib/components/text";
 import { useTheme } from "@/lib/contexts/theme";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import ListPopup from "@/lib/components/list-popup";
 import { useUserDataSignal } from "@/lib/contexts/user-data";
 import {
@@ -333,6 +333,8 @@ function AdsSection({
         {removedAds && <Span style={styles.value}>✅</Span>}
       </Pressable>
 
+      <View style={theme.styles.separator} />
+
       {isPrivacyOptionsFormRequired() && (
         <>
           <View style={theme.styles.separator} />
@@ -349,6 +351,20 @@ function AdsSection({
           <View style={theme.styles.separator} />
         </>
       )}
+
+      <Pressable
+        style={styles.row}
+        android_ripple={theme.ripples.transparentButton}
+        pointerEvents="box-only"
+        onPress={() => {
+          Linking.openURL(
+            "https://arthurcose.dev/legal/language-dex/privacy-policy.html"
+          ).catch(logError);
+        }}
+        disabled={removedAds}
+      >
+        <Span style={styles.label}>{t("Privacy_Policy")}</Span>
+      </Pressable>
 
       <View style={theme.styles.separator} />
     </>

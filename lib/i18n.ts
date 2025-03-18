@@ -186,6 +186,7 @@ i18n
           exporting_metadata_stage: "Initializing...",
           exporting_words_stage: "Exporting Words...",
           exporting_definitions_stage: "Exporting Definitions...",
+          Privacy_Policy: "Privacy Policy",
           Remove_Ads: "Remove Ads",
           Removed_Ads: "Removed Ads",
           Show_Privacy_Options: "Show Privacy Options",
