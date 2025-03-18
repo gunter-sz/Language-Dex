@@ -42,7 +42,6 @@ import {
   showPrivacyOptionsForm,
 } from "@/lib/components/ads";
 import { Signal, useSignalLens, useSignalValue } from "@/lib/hooks/use-signal";
-import { NoConnectionIcon } from "@/lib/components/icons";
 
 type LongTaskMeta = {
   open: boolean;
