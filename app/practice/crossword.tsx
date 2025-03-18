@@ -315,10 +315,17 @@ export default function () {
                         height: cellWidth,
                       },
                     ]}
-                    disabled={cell.words.length > 1}
                     onTouchEnd={(e) => e.stopPropagation()}
                     onPress={() => {
-                      const { wordIndex } = cell.words[0];
+                      let { wordIndex } = cell.words[0];
+
+                      if (
+                        wordIndex == wordGuessIndex &&
+                        cell.words.length > 1
+                      ) {
+                        // view the other option
+                        wordIndex = cell.words[1].wordIndex;
+                      }
 
                       if (gameState.over) {
                         requestHint(wordIndex);

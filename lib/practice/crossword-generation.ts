@@ -253,7 +253,15 @@ function generateTrialBoard(words: string[]) {
             });
           }
 
-          cell.words.push({ wordIndex: board.words.length, graphemeIndex: i });
+          const word = { wordIndex: board.words.length, graphemeIndex: i };
+
+          if (placement.horizontal) {
+            // add horizontal words to the start
+            // so selecting ambiguous cells starts with the horizontal option
+            cell.words.unshift(word);
+          } else {
+            cell.words.push(word);
+          }
         }
       );
 
