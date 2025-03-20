@@ -14,13 +14,18 @@ import { useTranslation } from "react-i18next";
 
 type RouteRootProps = {
   style?: StyleProp<ViewProps>;
+  pointerEvents?: ViewProps["pointerEvents"];
 } & React.PropsWithChildren;
 
-export default function RouteRoot({ style, children }: RouteRootProps) {
+export default function RouteRoot({
+  style,
+  children,
+  pointerEvents,
+}: RouteRootProps) {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[style, { flex: 1 }]}>
+    <View style={[style, styles.routeRoot]} pointerEvents={pointerEvents}>
       <View style={{ height: insets.top }} />
 
       <Try catch={ErrorBoundary}>{children}</Try>
@@ -58,5 +63,6 @@ function ErrorBoundary({ error }: ErrorBoundaryProps) {
 }
 
 const styles = StyleSheet.create({
+  routeRoot: { flex: 1 },
   errorTitle: { marginBottom: 8 },
 });

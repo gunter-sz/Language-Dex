@@ -20,6 +20,21 @@ i18n
     resources: {
       en: {
         translation: {
+          // tutorial
+          tutorial_start: "Welcome to Language Dex!",
+          read_tutorial:
+            "This is the Read tab.\n\nYou can paste or enter sentences here to discover new words or quickly reference existing definitions.",
+          dictionary_tutorial:
+            "The Dictionary tab will allow you to search through your documented words or directly add new words.",
+          practice_tutorial:
+            "This is the Practice tab.\n\nAfter you've documented enough words you can play practice games to retain them.\n\nNote: You can mark your confidence level within a word's definition to control how often it will appear in practice games.\n\nAt max confidence (🤓) the word will stop appearing in practice.",
+          statistics_tutorial:
+            "This is the Statistics tab.\n\nThe values here are mostly tracked for fun, but you can interpret them in any way you choose.",
+          tutorial_end:
+            "You can switch or rename dictionaries using the dropdown on the top left.\n\nThat should be everything you need to know to use the app.\n\nIf you enjoy it, please leave a review on the Play Store!",
+          Next: "Next",
+
+          // general
           default_dictionary_name: "My Dictionary",
 
           label: "{{label}}:",

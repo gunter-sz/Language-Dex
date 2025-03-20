@@ -18,6 +18,9 @@ import Statistics from "@/lib/components/pseudo-pages/statistics";
 import { useUserDataSignal } from "@/lib/contexts/user-data";
 import RouteRoot from "@/lib/components/route-root";
 import Carousel from "@/lib/components/carousel";
+import Tutorial from "@/lib/components/tutorial";
+import { UserData } from "@/lib/data";
+import { useSignalLens } from "@/lib/hooks/use-signal";
 
 export const pages = [
   { label: "Read", iconComponent: ScanIcon, component: Read },
@@ -28,6 +31,10 @@ export const pages = [
 
 export default function () {
   const userDataSignal = useUserDataSignal();
+  const completedTutoral = useSignalLens(
+    userDataSignal,
+    (data: UserData) => data.completedTutorial
+  );
   const [currentPage, setCurrentPage] = useState(() => {
     const index = pages.findIndex((p) => p.label == userDataSignal.get().home);
 
@@ -44,7 +51,7 @@ export default function () {
   const pageElements = useMemo(() => pages.map((p) => <p.component />), []);
 
   return (
-    <RouteRoot>
+    <RouteRoot pointerEvents={completedTutoral ? undefined : "none"}>
       <TopNav>
         <TopNavDictionaryStack />
       </TopNav>
@@ -63,6 +70,8 @@ export default function () {
           />
         ))}
       </BottomNav>
+
+      {!completedTutoral && <Tutorial setCurrentPage={setCurrentPage} />}
     </RouteRoot>
   );
 }
