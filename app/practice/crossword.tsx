@@ -370,7 +370,7 @@ export default function () {
             </ScrollView>
           </ScrollView>
 
-          {wordGuessIndex != null && (
+          {wordGuessIndex != null && !gameState.over && (
             <DockedTextInputContainer>
               <DockedTextInputHintButton
                 hintsRemaining={
@@ -417,6 +417,8 @@ export default function () {
                     word.conceded = true;
                     updatedGameState.conceded += 1;
 
+                    setWordGuess(word.word);
+
                     for (let i = 0; i < word.cells.length; i++) {
                       const cell =
                         updatedGameState.board.cellMap[word.cells[i]];
@@ -450,6 +452,7 @@ export default function () {
               const newState = initGameState();
               startGame(newState, allWords);
               setGameState(newState);
+              setWordGuessIndex(null);
             }}
           >
             <ResultsRow>
