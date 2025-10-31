@@ -1,8 +1,20 @@
 # Language Dex
 
-## Install
+A personal dictionary and language study app.
+You can find it on [Google Play](https://play.google.com/store/apps/details?id=dev.arthurcose.languagedex)
 
-- [Play Store](https://play.google.com/store/apps/details?id=dev.arthurcose.languagedex)
+## Screenshots
+
+<p align="center">
+  <image width="200" src="promo/screenshots/1.png"/>
+  <image width="200" src="promo/screenshots/2.png"/>
+  <image width="200" src="promo/screenshots/4.png"/>
+</p>
+<p align="center">
+  <image width="200" src="promo/screenshots/3.png"/>
+  <image width="200" src="promo/screenshots/5.png"/>
+  <image width="200" src="promo/screenshots/6.png"/>
+</p>
 
 ## Develop
 
@@ -16,19 +28,19 @@ cd modules/recording-module
 yarn
 cd ../..
 
-npm run liceneses
+yarn run licenses
 ```
 
 2. Connect your phone with debugging enabled and start the app
 
 ```bash
-npm run android
+yarn run android
 ```
 
 ## Build
 
 ```bash
-npm run build-android
+yarn run build-android
 ```
 
 ## Structure
