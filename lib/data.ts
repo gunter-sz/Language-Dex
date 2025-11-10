@@ -1,5 +1,5 @@
 import uuid from "react-native-uuid";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import * as SQLite from "expo-sqlite";
 import { log, logError } from "./log";
 import Unistring from "@akahuku/unistring";
