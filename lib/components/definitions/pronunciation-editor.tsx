@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Pressable, StyleSheet, View, ScrollView } from "react-native";
 import { useTranslation } from "react-i18next";
 import Dialog, { DialogTitle } from "../dialog";
-import { AudioModule, AudioPlayer } from "expo-audio";
+import { AudioPlayer, createAudioPlayer } from "expo-audio";
 import { useTheme } from "@/lib/contexts/theme";
 import { logError } from "@/lib/log";
 import { Theme } from "@/lib/themes";
@@ -133,10 +133,7 @@ function PronunciationEditorDialog({
       return;
     }
 
-    const player = new AudioModule.AudioPlayer(
-      { uri: stripProtocol(uri) },
-      500
-    );
+    const player = createAudioPlayer({ uri: stripProtocol(uri) });
 
     player.play();
     player.addListener("playbackStatusUpdate", (status) => {

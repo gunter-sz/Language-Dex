@@ -1,13 +1,25 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
-import { AudioModule, RecordingPresets } from "expo-audio";
-import RecordingModule, {
-  AudioRecorder,
+import {
+  AudioModule,
   RecordingOptions,
-} from "recording-module";
+  RecordingPresets,
+  useAudioRecorder,
+} from "expo-audio";
 import { RecordIcon, StopRecordingIcon } from "@/lib/components/icons";
 import { useTheme } from "../contexts/theme";
 import { logError } from "@/lib/log";
+import { useSignal, useSignalValue } from "../hooks/use-signal";
+
+const preset = RecordingPresets.HIGH_QUALITY;
+const recordingOptions: RecordingOptions = {
+  ...preset,
+  android: {
+    ...preset.android,
+    audioSource: "voice_communication",
+  },
+  numberOfChannels: 1,
+};
 
 export default function RecordAudioButton({
   ignoreInput,
@@ -19,15 +31,9 @@ export default function RecordAudioButton({
   onEnd?: (uri?: string) => void;
 }) {
   const theme = useTheme();
-  const recordingRef = useRef<AudioRecorder | null>(null);
-  const [recording, setRecording] = useState(false);
-
-  useEffect(() => {
-    return () => {
-      recordingRef.current?.release();
-      recordingRef.current = null;
-    };
-  }, []);
+  const recorder = useAudioRecorder(recordingOptions);
+  const recordingSignal = useSignal(false);
+  const recording = useSignalValue(recordingSignal);
 
   const [permissionRequested, setPermissionRequested] = useState(false);
   const [permissionGranted, setPermissionGranted] = useState(false);
@@ -40,7 +46,8 @@ export default function RecordAudioButton({
     });
 
   const startRecording = () => {
-    if (endRecording()) {
+    if (recordingSignal.get()) {
+      endRecording();
       return;
     }
 
@@ -50,42 +57,27 @@ export default function RecordAudioButton({
         return;
       }
 
-      const preset = RecordingPresets.HIGH_QUALITY;
-      const options = {
-        ...preset,
-        android: {
-          // this doesn't seem to do anything?
-          ...preset.android,
-          audioSource: "voice_communication",
-        },
-        // duplicated here since audio module seems to read this as a flat structure
-        ...preset.android,
-        audioSource: "voice_communication",
-        numberOfChannels: 1,
-      };
-
-      const recorder = new RecordingModule.AudioRecorder(
-        options as Partial<RecordingOptions>
-      );
+      recordingSignal.set(true);
 
       recorder
         .prepareToRecordAsync()
         .then(() => {
+          if (!recordingSignal.get()) {
+            // cancelled
+            return;
+          }
+
           recorder.record();
 
           // recorder.recordForDuration() is undefined?
           // custom limiter:
           setTimeout(() => {
-            if (recordingRef.current && recorder.isRecording) {
+            if (recordingSignal.get()) {
               endRecording();
             }
           }, 5000);
         })
         .catch(logError);
-
-      recordingRef.current = recorder;
-
-      setRecording(true);
     };
 
     record().catch(logError);
@@ -93,23 +85,22 @@ export default function RecordAudioButton({
   };
 
   const endRecording = () => {
-    if (recordingRef.current) {
-      // stop recording and append to list
-      const { uri } = recordingRef.current;
-
-      if (recordingRef.current.isRecording) {
-        recordingRef.current.stop().catch(logError);
-      }
-
-      recordingRef.current = null;
-      setRecording(false);
-
-      onEnd?.(uri != null ? "file://" + uri : undefined);
-
-      return true;
+    if (!recordingSignal.get()) {
+      return false;
     }
 
-    return false;
+    // stop recording and append to list
+    const uri = recorder.uri;
+
+    if (recorder.isRecording) {
+      recorder.stop().catch(logError);
+    }
+
+    recordingSignal.set(false);
+
+    onEnd?.(uri != null ? "file://" + uri : undefined);
+
+    return true;
   };
 
   return (
@@ -129,7 +120,7 @@ export default function RecordAudioButton({
         delayLongPress={100}
         disabled={ignoreInput}
         onLongPress={() => {
-          if (!ignoreInput && !recordingRef.current) {
+          if (!ignoreInput && !recording) {
             startRecording();
           }
         }}
