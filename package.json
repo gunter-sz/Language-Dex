@@ -15,7 +15,7 @@
   "dependencies": {
     "@akahuku/unistring": "^0.6.2",
     "@expo/vector-icons": "^15.0.3",
-    "@gorhom/bottom-sheet": "^5.0.6",
+    "@gorhom/bottom-sheet": "^5.1.8",
     "@rn-primitives/dropdown-menu": "^1.1.0",
     "@rn-primitives/portal": "^1.1.0",
     "@rn-primitives/types": "^1.1.0",
@@ -49,7 +49,7 @@
     "react-native-screens": "~4.16.0",
     "react-native-svg": "15.12.1",
     "react-native-uuid": "^2.0.3",
-    "react-native-worklets": "^0.6.1",
+    "react-native-worklets": "0.5.1",
     "recording-module": "./modules/recording-module"
   },
   "optionalDependencies": {
