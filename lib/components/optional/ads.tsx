@@ -17,8 +17,6 @@ import { UserData } from "../../data";
 import { useUserDataSignal } from "../../contexts/user-data";
 import { useSignalLens } from "../../hooks/use-signal";
 
-const devEnvironment = false;
-
 let isMobileAdsStartCalled = false;
 let adsConsentInfo: AdsConsentInfo | undefined;
 
@@ -120,7 +118,7 @@ export const PracticeAd = React.memo(
           }}
           onSizeChange={onSizeChange}
           unitId={
-            devEnvironment || !isMobileAdsStartCalled
+            __DEV__ || !isMobileAdsStartCalled
               ? TestIds.BANNER
               : "ca-app-pub-1435328633777702/8919664433"
           }
