@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import Animated, {
   runOnJS,
+  useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
@@ -22,10 +23,11 @@ export default function Carousel({
   const [prevPage, setPrevPage] = useState<number>(pageIndex);
 
   const switcherTranslateX = useSharedValue<PercentString>("0%");
-  const switcherSlideStyle = useMemo(
-    () => ({ transform: [{ translateX: switcherTranslateX }] }),
-    [switcherTranslateX]
-  );
+  // useAnimatedStyle fixes: "WARN  [Reanimated] Reading from `value` during component render."
+  // appears when we directly use switcherTranslateX in a plain object, even without reading `.value`
+  const switcherSlideStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: switcherTranslateX.value }],
+  }));
 
   useEffect(() => {
     setCurrentPage(pageIndex);
