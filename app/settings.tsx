@@ -422,6 +422,21 @@ function DevelopmentSection({
         style={styles.row}
         android_ripple={theme.ripples.transparentButton}
         pointerEvents="box-only"
+        onPress={() => {
+          Linking.openURL("https://github.com/arthurcose/language-dex").catch(
+            logError
+          );
+        }}
+      >
+        <Span style={styles.label}>{t("GitHub")}</Span>
+      </Pressable>
+
+      <View style={theme.styles.separator} />
+
+      <Pressable
+        style={styles.row}
+        android_ripple={theme.ripples.transparentButton}
+        pointerEvents="box-only"
         onPress={() => router.navigate("/attribution")}
       >
         <Span style={styles.label}>{t("Third_Party_Licenses")}</Span>

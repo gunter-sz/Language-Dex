@@ -217,6 +217,9 @@ i18n
           Help: "Help",
           Development: "Development",
 
+          // development links
+          GitHub: "GitHub",
+
           // logs
           View_Logs: "View Logs",
           Logs: "Logs",
