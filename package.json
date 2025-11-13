@@ -10,8 +10,8 @@
     "go": "expo start --go",
     "test": "jest --watchAll",
     "lint": "expo lint",
-    "prebuild-android": "rimraf android/build; expo prebuild -p android",
-    "licenses": "license-ripper --config license-ripper-config.json --output -licenses.json --compress; npx tsx scripts/license-post-rip.ts"
+    "prebuild-android": "rimraf android/build; expo prebuild -p android && tsx scripts/patch-gradle.ts",
+    "licenses": "license-ripper --config license-ripper-config.json --output -licenses.json --compress; tsx scripts/license-post-rip.ts"
   },
   "dependencies": {
     "@akahuku/unistring": "^0.6.2",
