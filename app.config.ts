@@ -33,5 +33,11 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
     }
   }
 
+  // allow dev builds to be installed with release builds
+  if (process.env.APP_VARIANT == "development") {
+    config.ios!.bundleIdentifier += ".dev";
+    config.android!.package += ".dev";
+  }
+
   return config;
 };
