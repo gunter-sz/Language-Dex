@@ -4,7 +4,7 @@
   "scripts": {
     "start": "expo start",
     "android": "APP_VARIANT=development npm run prebuild-android && expo run:android",
-    "build-android": "npm run licenses && npm run prebuild-android && cd android && dotenv -c -- ./gradlew app:bundleRelease && echo bundle saved to android/app/build/outputs/bundle/release",
+    "build-android": "npm run licenses && npm run prebuild-android && cd android && ./gradlew --stop && dotenv -e ../.env.build.local -- ./gradlew app:bundleRelease && echo bundle saved to android/app/build/outputs/bundle/release",
     "ios": "expo run:ios",
     "web": "expo start --web",
     "go": "expo start --go",
