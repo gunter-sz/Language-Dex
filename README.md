@@ -6,14 +6,14 @@ You can find it on [Google Play](https://play.google.com/store/apps/details?id=d
 ## Screenshots
 
 <p align="center">
-  <image width="200" src="promo/screenshots/1.png"/>
-  <image width="200" src="promo/screenshots/2.png"/>
-  <image width="200" src="promo/screenshots/4.png"/>
+  <image width="200" src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png"/>
+  <image width="200" src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png"/>
+  <image width="200" src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png"/>
 </p>
 <p align="center">
-  <image width="200" src="promo/screenshots/3.png"/>
-  <image width="200" src="promo/screenshots/5.png"/>
-  <image width="200" src="promo/screenshots/6.png"/>
+  <image width="200" src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png"/>
+  <image width="200" src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png"/>
+  <image width="200" src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png"/>
 </p>
 
 ## Develop

@@ -1,0 +1,12 @@
+Keep track of your growing vocabulary through custom dictionaries.
+
+Every word is defined by you! Each definition can be adapted over time as your understanding improves.
+
+Features:
+<ul>
+<li>Specify part of speech, definitions, examples, and pronunciation for every word.</li>
+<li>Paste excerpts into the reader to see existing definitions and easily add new words.</li>
+<li>Practice with puzzles that test your knowledge, spelling, and ability to recall words.</li>
+<li>Specify your confidence level to affect how often a word appears in practice games.</li>
+<li>View language stats and share with friends.</li>
+</ul>
