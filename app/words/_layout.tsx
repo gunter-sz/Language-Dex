@@ -9,10 +9,6 @@ export default function () {
     <RouteRoot style={theme.styles.wordsRoot}>
       <Stack
         screenOptions={{
-          navigationBarColor:
-            typeof theme.colors.definitionBackground == "string"
-              ? theme.colors.definitionBackground
-              : undefined,
           headerShown: false,
           contentStyle: theme.styles.wordsRoot,
           animation: "fade",

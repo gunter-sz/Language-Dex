@@ -1,5 +1,11 @@
 import React, { useEffect } from "react";
-import { StyleProp, StyleSheet, View, ViewProps } from "react-native";
+import {
+  StyleProp,
+  StyleSheet,
+  View,
+  ViewProps,
+  ViewStyle,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import KeyboardSpacer from "./keyboard-spacer";
 import { ErrorBoundaryProps, Try } from "expo-router/build/views/Try";
@@ -11,9 +17,10 @@ import SubMenuTopNav, {
 import { CopyLogsButton, LogsView, ShareLogsButton } from "./logs-components";
 import { logError } from "@/lib/log";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "../contexts/theme";
 
 type RouteRootProps = {
-  style?: StyleProp<ViewProps>;
+  style?: StyleProp<ViewStyle>;
   pointerEvents?: ViewProps["pointerEvents"];
   allowNavigationInset?: boolean;
 } & React.PropsWithChildren;
@@ -25,9 +32,10 @@ export default function RouteRoot({
   allowNavigationInset,
 }: RouteRootProps) {
   const insets = useSafeAreaInsets();
+  const theme = useTheme();
 
   return (
-    <View style={[style, styles.routeRoot]} pointerEvents={pointerEvents}>
+    <View style={[theme.styles.root, style]} pointerEvents={pointerEvents}>
       <View style={{ height: insets.top }} />
 
       <Try catch={ErrorBoundary}>{children}</Try>
@@ -66,6 +74,5 @@ function ErrorBoundary({ error }: ErrorBoundaryProps) {
 }
 
 const styles = StyleSheet.create({
-  routeRoot: { flex: 1 },
   errorTitle: { marginBottom: 8 },
 });

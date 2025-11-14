@@ -24,13 +24,21 @@
     "androidStatusBar": {
       "translucent": true
     },
+    "androidNavigationBar": {
+      "enforceContrast": false
+    },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "expo-asset",
+      "expo-audio",
+      "expo-font",
+      "expo-localization",
       "expo-router",
+      "expo-sqlite",
       [
         "expo-build-properties",
         {
@@ -52,12 +60,7 @@
             "backgroundColor": "#000000"
           }
         }
-      ],
-      "expo-localization",
-      "expo-sqlite",
-      "expo-audio",
-      "expo-font",
-      "expo-asset"
+      ]
     ],
     "experiments": {
       "typedRoutes": true

@@ -11,6 +11,7 @@ import {
   LogsView,
   ShareLogsButton,
 } from "@/lib/components/logs-components";
+import { NavigationBarUnderlay } from "@/lib/components/system-bar-spacers";
 
 export default function () {
   const [t] = useTranslation();
@@ -29,6 +30,7 @@ export default function () {
       </SubMenuTopNav>
 
       <LogsView />
+      <NavigationBarUnderlay />
     </RouteRoot>
   );
 }

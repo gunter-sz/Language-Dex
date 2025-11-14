@@ -15,9 +15,6 @@ import { initInAppPurchases } from "@/lib/in-app-purchases";
 import { initAds } from "@/lib/components/ads";
 import { Signal, useSignal, useSignalLens } from "@/lib/hooks/use-signal";
 
-import { isEdgeToEdge } from "react-native-is-edge-to-edge";
-const EDGE_TO_EDGE = isEdgeToEdge();
-
 import "@/lib/i18n";
 import { useTranslation } from "react-i18next";
 

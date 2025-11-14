@@ -43,7 +43,10 @@ import {
   showPrivacyOptionsForm,
 } from "@/lib/components/ads";
 import { Signal, useSignalLens, useSignalValue } from "@/lib/hooks/use-signal";
-import { NavigationBarSpacer } from "@/lib/components/system-bar-spacers";
+import {
+  NavigationBarSpacer,
+  NavigationBarUnderlay,
+} from "@/lib/components/system-bar-spacers";
 
 type LongTaskMeta = {
   open: boolean;
@@ -609,6 +612,8 @@ export default function () {
         <DevelopmentSection longTaskSignal={longTaskSignal} />
         <NavigationBarSpacer />
       </ScrollView>
+
+      <NavigationBarUnderlay />
 
       <LongTaskDialog signal={longTaskSignal} />
     </RouteRoot>

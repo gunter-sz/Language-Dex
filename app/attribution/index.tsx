@@ -15,7 +15,10 @@ import { useTheme } from "@/lib/contexts/theme";
 
 import data from "../../-licenses.json";
 import { Span } from "@/lib/components/text";
-import { NavigationBarSpacer } from "@/lib/components/system-bar-spacers";
+import {
+  NavigationBarSpacer,
+  NavigationBarUnderlay,
+} from "@/lib/components/system-bar-spacers";
 
 function keyExtractor(_: NamespacePackages, i: number) {
   return i.toString();
@@ -57,6 +60,8 @@ export default function () {
         renderItem={renderItem}
         keyExtractor={keyExtractor}
       />
+
+      <NavigationBarUnderlay />
     </RouteRoot>
   );
 }

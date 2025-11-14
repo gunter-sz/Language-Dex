@@ -3,6 +3,11 @@ import { useTheme } from "@/lib/contexts/theme";
 import TopNav from "@/lib/components/top-nav";
 import TopNavDictionaryStack from "@/lib/components/top-nav-dictionary-stack";
 import { BottomNav, BottomNavItem } from "@/lib/components/bottom-nav";
+import { useUserDataSignal } from "@/lib/contexts/user-data";
+import { UserData } from "@/lib/data";
+import { useSignalLens } from "@/lib/hooks/use-signal";
+import { NavigationBarSpacer } from "@/lib/components/system-bar-spacers";
+
 import {
   DictionaryIcon,
   StatisticsIcon,
@@ -15,12 +20,9 @@ import Dictionary from "@/lib/components/pseudo-pages/dictionary";
 import Read from "@/lib/components/pseudo-pages/read";
 import Practice from "@/lib/components/pseudo-pages/practice";
 import Statistics from "@/lib/components/pseudo-pages/statistics";
-import { useUserDataSignal } from "@/lib/contexts/user-data";
 import RouteRoot from "@/lib/components/route-root";
 import Carousel from "@/lib/components/carousel";
 import Tutorial from "@/lib/components/tutorial";
-import { UserData } from "@/lib/data";
-import { useSignalLens } from "@/lib/hooks/use-signal";
 
 export const pages = [
   { label: "Read", iconComponent: ScanIcon, component: Read },
@@ -51,7 +53,10 @@ export default function () {
   const pageElements = useMemo(() => pages.map((p) => <p.component />), []);
 
   return (
-    <RouteRoot pointerEvents={completedTutoral ? undefined : "none"}>
+    <RouteRoot
+      pointerEvents={completedTutoral ? undefined : "none"}
+      allowNavigationInset
+    >
       <TopNav>
         <TopNavDictionaryStack />
       </TopNav>
@@ -70,6 +75,10 @@ export default function () {
           />
         ))}
       </BottomNav>
+
+      <NavigationBarSpacer
+        style={{ backgroundColor: theme.colors.bottomNav }}
+      />
 
       {!completedTutoral && <Tutorial setCurrentPage={setCurrentPage} />}
     </RouteRoot>

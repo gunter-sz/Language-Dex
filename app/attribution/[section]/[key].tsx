@@ -18,7 +18,10 @@ import { SubMenuIconButton } from "@/lib/components/icon-button";
 import { LinkIcon } from "@/lib/components/icons";
 import { logError } from "@/lib/log";
 import RouteRoot from "@/lib/components/route-root";
-import { NavigationBarSpacer } from "@/lib/components/system-bar-spacers";
+import {
+  NavigationBarUnderlay,
+  NavigationBarSpacer,
+} from "@/lib/components/system-bar-spacers";
 
 import data from "@/-licenses.json";
 
@@ -106,6 +109,8 @@ export default function () {
           </ScrollView>
         </>
       )}
+
+      <NavigationBarUnderlay />
     </RouteRoot>
   );
 }
