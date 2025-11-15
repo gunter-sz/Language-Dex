@@ -1,20 +1,51 @@
 # Language Dex
 
 A personal dictionary and language study app.
-You can find it on [Google Play](https://play.google.com/store/apps/details?id=dev.arthurcose.languagedex)
+
+<p align="center">
+  <a href="https://play.google.com/store/apps/details?id=dev.arthurcose.languagedex">
+    <img src="promo/GetItOnGooglePlay_Badge_Web_color_English.svg" alt="Get it on Google Play" height="80">
+  </a>
+</p>
 
 ## Screenshots
 
 <p align="center">
-  <image width="200" src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png"/>
-  <image width="200" src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png"/>
-  <image width="200" src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png"/>
+  <img width="200" src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png"/>
+  <img width="200" src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png"/>
+  <img width="200" src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png"/>
 </p>
 <p align="center">
-  <image width="200" src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png"/>
-  <image width="200" src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png"/>
-  <image width="200" src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png"/>
+  <img width="200" src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png"/>
+  <img width="200" src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png"/>
+  <img width="200" src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png"/>
 </p>
+
+## Philosophy
+
+Language Dex is not designed to be your sole learning tool, no app should be. It is aimed to be a supplementary practice and personal progress tracking app for any language you are learning. It can also be used as a general study app, as you can load custom vocabulary necessary for any subject.
+
+Below are the reasonings for each of the practice games:
+
+### Definition Match + Unscramble
+
+These are light practice, aimed at getting you familiar with words you've recently added.
+
+### Guess the Word
+
+A fun Wordle inspired practice game that tests your free recall and ability spell words. Only words you've saved to your dictionary can be used to play, so it serves as motivation to add new words to your dictionary as well.
+
+### Crossword + Short Answer
+
+Crossword is a lighter practice version of Short Answer with some initial character and word length hints.
+
+Short Answer tests your recall more directly, checking to see whether you can remember a word and its spelling using only the definition.
+
+### Use in a Sentence + Pronunciation
+
+Use in a Sentence is a difficult personal test to see your creative usage of a word, while Pronunciation is simple direct pronunciation practice for individual words.
+
+Completing these practice games for a word also allows you fill out the Example and Pronunciation sections of the word's data. Each have a way to directly compare with the existing data for you to choose the best version to keep.
 
 ## Develop
 
@@ -24,10 +55,6 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 ```bash
 yarn
-cd modules/recording-module
-yarn
-cd ../..
-
 yarn run licenses
 ```
 
@@ -35,12 +62,6 @@ yarn run licenses
 
 ```bash
 yarn run android
-```
-
-## Build
-
-```bash
-yarn run build-android
 ```
 
 ## Structure
