@@ -5,12 +5,13 @@
     "start": "expo start",
     "android": "APP_VARIANT=development npm run prebuild-android && expo run:android",
     "build-android": "npm run licenses && npm run prebuild-android && cd android && ./gradlew --stop && dotenv -e ../.env.build.local -- ./gradlew app:bundleRelease && echo bundle saved to android/app/build/outputs/bundle/release",
+    "build-android-apk": "npm run licenses && npm run prebuild-android && cd android && ./gradlew --stop && dotenv -e ../.env.build.local -- ./gradlew app:assembleRelease && echo bundle saved to android/app/build/outputs/apk/release",
     "ios": "expo run:ios",
     "web": "expo start --web",
     "go": "expo start --go",
     "test": "jest --watchAll",
     "lint": "expo lint",
-    "prebuild-android": "rimraf android/build; expo prebuild -p android && tsx scripts/patch-gradle.ts",
+    "prebuild-android": "rimraf android; expo prebuild -p android && tsx scripts/patch-gradle.ts",
     "licenses": "license-ripper --config license-ripper-config.json --output -licenses.json --compress; tsx scripts/license-post-rip.ts"
   },
   "dependencies": {

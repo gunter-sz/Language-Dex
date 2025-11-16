@@ -15,12 +15,44 @@ const optionalPlugins: ExpoConfig["plugins"] = [
   "react-native-iap",
 ];
 
+const dependenciesRequiringInternet = [
+  "react-native-google-mobile-ads",
+  "react-native-iap",
+];
+
 module.exports = ({ config }: { config: ExpoConfig }) => {
+  const isDevBuild = process.env.APP_VARIANT == "development";
+
+  if (isDevBuild) {
+    // allow dev builds to be installed with release builds
+    config.ios!.bundleIdentifier += ".dev";
+    config.android!.package += ".dev";
+  } else {
+    // remove permissions that aren't necessary in release
+    if (!config.android!.blockedPermissions) {
+      config.android!.blockedPermissions = [];
+    }
+    config.android!.blockedPermissions.push(
+      "android.permission.SYSTEM_ALERT_WINDOW"
+    );
+
+    const requiresInternet = dependenciesRequiringInternet.some((name) =>
+      fs.existsSync(path.join("node_modules", name))
+    );
+
+    if (!requiresInternet) {
+      config.android!.blockedPermissions.push(
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE"
+      );
+    }
+  }
+
+  // apply config for optional plugins if they're installed
   if (!config.plugins) {
     config.plugins = [];
   }
 
-  // apply config for optional plugins if they're installed
   for (const plugin of optionalPlugins) {
     const name = typeof plugin == "string" ? plugin : plugin[0];
 
@@ -31,12 +63,6 @@ module.exports = ({ config }: { config: ExpoConfig }) => {
     if (fs.existsSync(path.join("node_modules", name))) {
       config.plugins.push(plugin);
     }
-  }
-
-  // allow dev builds to be installed with release builds
-  if (process.env.APP_VARIANT == "development") {
-    config.ios!.bundleIdentifier += ".dev";
-    config.android!.package += ".dev";
   }
 
   return config;
