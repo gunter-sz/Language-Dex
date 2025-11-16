@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
-import { logError } from "../log";
+import { log, logError } from "../log";
 import { useTheme } from "../contexts/theme";
 import { UserData } from "../data";
 import { useUserDataSignal } from "../contexts/user-data";
@@ -19,7 +19,7 @@ try {
   // eslint-disable-next-line
   adsModule = require("react-native-google-mobile-ads");
 } catch {
-  logError("Ads excluded from this build.");
+  log("Ads excluded from this build.");
 }
 
 type AdsConsentInfo = Awaited<

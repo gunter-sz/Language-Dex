@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 
-import { logError } from "./log";
+import { log, logError } from "./log";
 import { UserData } from "./data";
 import { Signal, useSignalValue } from "./hooks/use-signal";
 
@@ -19,7 +19,7 @@ try {
   // eslint-disable-next-line
   iapModule = require("react-native-iap");
 } catch {
-  logError("IAP excluded from this build.");
+  log("IAP excluded from this build.");
 }
 
 export function isIapAvailable() {
