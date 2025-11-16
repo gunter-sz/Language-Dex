@@ -365,7 +365,6 @@ function AdsSection({
             "https://arthurcose.dev/legal/language-dex/privacy-policy.html"
           ).catch(logError);
         }}
-        disabled={removedAds}
       >
         <Span style={styles.label}>{t("Privacy_Policy")}</Span>
       </Pressable>
