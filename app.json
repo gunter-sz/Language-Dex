@@ -1,6 +1,6 @@
 {
   "expo": {
-    "version": "0.29.1",
+    "version": "0.29.2",
     "name": "Language Dex",
     "slug": "language-dex",
     "orientation": "portrait",
@@ -13,7 +13,7 @@
     },
     "android": {
       "package": "dev.arthurcose.languagedex",
-      "versionCode": 53,
+      "versionCode": 54,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#aa33ff"
