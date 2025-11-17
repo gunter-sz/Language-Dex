@@ -1,0 +1,4 @@
+- Added icons to results dialogs
+- Added an icon to signify score
+- Adjusted game info colors
+- Fixed specific practice games failing to load on builds without Ads
