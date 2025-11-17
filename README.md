@@ -23,23 +23,27 @@ A personal dictionary and language study app.
 
 ## Philosophy
 
-Language Dex is not designed to be your sole learning tool, no app should be. It is aimed to be a supplementary practice and personal progress tracking app for any language you are learning. It can also be used as a general study app, as you can load custom vocabulary necessary for any subject.
+Language Dex is not designed to be your sole learning tool, no app should be.
+It is aimed to be a supplementary practice and personal progress tracking app for any language you are learning.
+It can also be used as a general study app, as you can load custom vocabulary necessary for any subject.
 
-Below are the reasonings for each of the practice games:
+The intention behind having users add words themselves is to push users to research and interact more with the words being studied and to lean the user to write definitions in their own words.
+
+Below are reasonings for the pratice games included in Language Dex:
 
 ### Definition Match + Unscramble
 
-These are light practice, aimed at getting you familiar with words you've recently added.
+These are light practice games, aimed at getting you familiar with words you've recently added.
 
 ### Guess the Word
 
-A fun Wordle inspired practice game that tests your free recall and ability spell words. Only words you've saved to your dictionary can be used to play, so it serves as motivation to add new words to your dictionary as well.
+A fun Wordle inspired practice game that tests your vocabulary and spelling. Only words you've saved to your dictionary can be used to play, providing reason to add new words to your dictionary.
 
 ### Crossword + Short Answer
 
 Crossword is a lighter practice version of Short Answer with some initial character and word length hints.
 
-Short Answer tests your recall more directly, checking to see whether you can remember a word and its spelling using only the definition.
+Short Answer tests you on words more directly, checking to see whether you can remember a word and its spelling using only the definition.
 
 ### Use in a Sentence + Pronunciation
 
