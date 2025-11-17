@@ -6,7 +6,7 @@ import SubMenuTopNav, {
   SubMenuBackButton,
 } from "@/lib/components/sub-menu-top-nav";
 import RecordAudioButton from "@/lib/components/record-audio-button";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import { logError } from "@/lib/log";
 import useWordDefinitions from "@/lib/hooks/use-word-definitions";
 import useGettableState from "@/lib/hooks/use-gettable-state";

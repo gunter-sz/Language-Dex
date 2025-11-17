@@ -98,7 +98,7 @@ export default function RecordAudioButton({
 
     recordingSignal.set(false);
 
-    onEnd?.(uri != null ? "file://" + uri : undefined);
+    onEnd?.(uri != null ? uri : undefined);
 
     return true;
   };

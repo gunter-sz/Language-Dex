@@ -10,7 +10,7 @@ import { MicrophoneIcon, PlayAudioIcon } from "../icons";
 import { Span } from "../text";
 import IconButton from "../icon-button";
 import RadioButton from "../radio-button";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import RecordAudioButton from "../record-audio-button";
 import { stripProtocol } from "@/lib/path";
 
