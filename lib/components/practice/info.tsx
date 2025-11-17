@@ -8,6 +8,7 @@ import {
   HintIcon,
   IncorrectIcon,
   SaveIcon,
+  ScoreIcon,
   ThumbUpIcon,
   TimerIcon,
 } from "../icons";
@@ -45,9 +46,11 @@ export function Score({ score }: { score: number }) {
   const theme = useTheme();
 
   return (
-    <Span style={[styles.score, styles.scoreFont, theme.styles.poppingText]}>
-      {score}
-    </Span>
+    <View style={styles.scoreBlock}>
+      <Span style={[styles.scoreFont, theme.styles.poppingText]}>{score}</Span>
+
+      <ScoreIcon size={28} color={theme.colors.primary.default} />
+    </View>
   );
 }
 
@@ -59,14 +62,13 @@ export function HintScore({ score }: { score: number }) {
       <Span style={[styles.scoreFont, theme.styles.hintScoreText]}>
         {score}
       </Span>
-      <HintIcon size={28} color={theme.colors.text} />
+      <HintIcon size={28} color={theme.colors.hintScore} />
     </View>
   );
 }
 
 export function ConcededScore({ score }: { score: number }) {
   const theme = useTheme();
-  const colors = usePracticeColors();
 
   return (
     <View style={styles.incorrectBlock}>
@@ -132,7 +134,7 @@ export function Saved({ value }: { value: number }) {
   return (
     <View style={styles.savedBlock}>
       <SaveIcon color={theme.colors.disabledText} size={28} />
-      <Span style={[styles.score, styles.scoreFont]}>{value}</Span>
+      <Span style={styles.scoreFont}>{value}</Span>
     </View>
   );
 }
@@ -142,7 +144,7 @@ export function ThumbsUps({ value }: { value: number }) {
 
   return (
     <View style={styles.thumbsUpBlock}>
-      <Span style={[styles.score, styles.scoreFont]}>{value}</Span>
+      <Span style={styles.scoreFont}>{value}</Span>
       <ThumbUpIcon color={theme.colors.disabledText} size={28} />
     </View>
   );
@@ -173,9 +175,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 22,
   },
-  score: {
+  scoreBlock: {
+    flexDirection: "row",
     marginLeft: "auto",
     marginRight: 4,
+    gap: 2,
   },
   hintBlock: {
     marginLeft: "auto",
@@ -189,7 +193,7 @@ const styles = StyleSheet.create({
   thumbsUpBlock: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 2,
+    gap: 6,
   },
   savedBlock: {
     flexDirection: "row",

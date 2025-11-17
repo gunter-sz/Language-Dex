@@ -317,7 +317,7 @@ export const themeConstructors: {
       subMenuIconButtonDisabled: "#999",
       borders: "lightgrey",
       definitionBorder: "#eeeef2",
-      hintScore: "#ffb200",
+      hintScore: "rgba(255, 162, 0, 1)",
       ripples: {
         popup: "rgba(0,0,0,0.25)",
         primaryButton: "rgba(255,255,255,0.3)",
