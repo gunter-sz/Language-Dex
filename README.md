@@ -8,6 +8,9 @@ A personal dictionary and language study app.
   </a>
 </p>
 
+
+https://f-droid.org/packages/dev.arthurcose.languagedex/
+
 ## Screenshots
 
 <p align="center">
