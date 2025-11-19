@@ -3,8 +3,11 @@
 A personal dictionary and language study app.
 
 <p align="center">
+  <a href="https://f-droid.org/packages/dev.arthurcose.languagedex/">
+    <img src="https://f-droid.org/badge/get-it-on.svg" alt="Get it on F-Droid" height="80" />
+  </a>
   <a href="https://play.google.com/store/apps/details?id=dev.arthurcose.languagedex">
-    <img src="promo/GetItOnGooglePlay_Badge_Web_color_English.svg" alt="Get it on Google Play" height="80">
+    <img src="promo/GetItOnGooglePlay_Badge_Web_color_English.svg" alt="Get it on Google Play" height="80" />
   </a>
 </p>
 
