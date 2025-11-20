@@ -1,0 +1,1 @@
+- Fixed Rush practice mode capping total time at 10s
