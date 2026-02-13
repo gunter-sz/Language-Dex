@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import {
   AudioModule,
@@ -102,6 +102,13 @@ export default function RecordAudioButton({
 
     return true;
   };
+
+  useEffect(() => {
+    return () => {
+      // prevent reading recording in endRecording after the component is dropped
+      recordingSignal.set(false);
+    };
+  }, []);
 
   return (
     <View
